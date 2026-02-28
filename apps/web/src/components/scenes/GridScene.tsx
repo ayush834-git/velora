@@ -1,0 +1,79 @@
+"use client";
+
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { Movie } from "@/types/movie";
+import MovieCard from "@/components/ui/MovieCard";
+import AnimatedText from "@/components/ui/AnimatedText";
+
+interface GridSceneProps {
+  movies: Movie[];
+}
+
+export default function GridScene({ movies }: GridSceneProps) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(sectionRef, { once: true, margin: "-10%" });
+
+  return (
+    <section
+      ref={sectionRef}
+      className="scene relative py-20 md:py-28"
+      id="grid"
+    >
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-cream to-cream-warm/60" />
+
+      {/* Section heading */}
+      <div className="relative z-10 px-6 md:px-12 mb-12 max-w-7xl mx-auto">
+        <motion.span
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ duration: 1 }}
+          className="font-display text-xs tracking-[0.4em] uppercase text-golden-warm/60 mb-3 block"
+        >
+          More Films
+        </motion.span>
+        <AnimatedText
+          text="Continue Exploring"
+          className="font-display font-extralight text-ink"
+          style={{ fontSize: "var(--text-subheadline)" }}
+          splitBy="words"
+          as="h2"
+        />
+      </div>
+
+      {/* Horizontal scroll */}
+      <div className="relative z-10">
+        {/* Fade edges */}
+        <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-cream to-transparent z-20 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-cream to-transparent z-20 pointer-events-none" />
+
+        <div className="scroll-container flex gap-5 md:gap-7 px-10 md:px-16 overflow-x-auto py-4 snap-x snap-mandatory">
+          {movies.map((movie, i) => {
+            const isLarger = i % 3 === 1;
+            return (
+              <motion.div
+                key={movie.id}
+                initial={{ opacity: 0, y: 40 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{
+                  duration: 0.8,
+                  delay: i * 0.08,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                className="snap-center flex-shrink-0"
+              >
+                <MovieCard
+                  movie={movie}
+                  width={isLarger ? 260 : 220}
+                  height={isLarger ? 390 : 330}
+                  showInfo={true}
+                />
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}

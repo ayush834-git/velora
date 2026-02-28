@@ -1,0 +1,17 @@
+{
+  "name": "velora",
+  "private": true,
+  "workspaces": [
+    "apps/web",
+    "apps/api",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace apps/web",
+    "build": "npm run build --workspace apps/web",
+    "start": "npm run start --workspace apps/web",
+    "lint": "npm run lint --workspace apps/web",
+    "dev:api": "npm run dev --workspace apps/api",
+    "start:api": "npm run start --workspace apps/api"
+  }
+}
