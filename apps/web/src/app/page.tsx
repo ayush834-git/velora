@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/ui/Navbar";
 import ParallaxBackground from "@/components/ui/ParallaxBackground";
 import CursorFollower from "@/components/ui/CursorFollower";
-import ChaosScene from "@/components/scenes/ChaosScene";
+import HeroScene from "@/components/scenes/HeroScene";
 import MarqueeScene from "@/components/scenes/MarqueeScene";
 import MoodClockScene from "@/components/scenes/MoodClockScene";
 import ConstellationScene from "@/components/scenes/ConstellationScene";
@@ -143,7 +143,7 @@ export default function Home() {
 
       <LayoutGroup id="velora-shared-layout">
         <div className="relative z-10">
-          <ChaosScene movies={baseMovies} />
+          <HeroScene movies={baseMovies} />
           <MarqueeScene />
           <MoodClockScene />
           <ConstellationScene />
