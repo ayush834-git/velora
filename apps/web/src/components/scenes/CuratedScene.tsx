@@ -120,24 +120,23 @@ export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps
                 cursor-pointer group text-left border border-white/40"
               style={{
                 "--mood-glow": `${mood.accentColor}30`,
-                background: "rgba(255,252,248,0.6)",
-                backdropFilter: "blur(16px)",
               } as React.CSSProperties}
               data-cursor-hover
             >
               {/* Backdrop image */}
               {backdropUrl && (
-                <div className="absolute inset-0">
+                <div className="absolute inset-0 bg-ink/5">
                   <Image
                     src={backdropUrl}
                     alt=""
                     fill
                     sizes="(max-width: 768px) 50vw, 33vw"
-                    className="object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110
-                      transition-all duration-700 ease-out"
+                    className="object-cover opacity-100 group-hover:scale-110
+                      transition-transform duration-700 ease-out"
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-white/30 to-transparent" />
+                  {/* Subtle dark gradient for text legibility, avoiding the washed-out white layer */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-70" />
                 </div>
               )}
 
@@ -151,14 +150,16 @@ export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps
               />
 
               {/* Label */}
-              <div className="relative z-10 h-full flex flex-col justify-end p-5 md:p-6">
+              <div className="relative z-10 h-full flex flex-col justify-end p-5 md:p-6 drop-shadow-md">
                 <h3
-                  className="font-display font-semibold text-xl md:text-2xl mb-1"
-                  style={{ color: mood.accentColor }}
+                  className="font-display font-semibold text-xl md:text-2xl mb-1 text-white"
+                  style={{ color: mood.accentColor, textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
                 >
                   {mood.label}
                 </h3>
-                <p className="text-xs md:text-sm text-ink-soft/70">{mood.subtitle}</p>
+                <p className="text-xs md:text-sm text-white/90 font-medium" style={{ textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}>
+                  {mood.subtitle}
+                </p>
               </div>
             </motion.button>
           );
