@@ -79,7 +79,17 @@ type TmdbMovie = {
 
 type TmdbDiscoverResponse = {
   results?: TmdbMovie[];
+  total_pages?: number;
+  total_results?: number;
 };
+
+const SORT_OPTIONS = [
+  "vote_average.desc",
+  "popularity.desc",
+  "revenue.desc",
+  "primary_release_date.desc",
+  "vote_count.desc",
+];
 
 type TmdbAuth = {
   headers: Record<string, string>;
@@ -236,7 +246,14 @@ async function getSpinResult(rawFilters: SpinFilterInput) {
 
   const filters = resolveFilters(rawFilters);
   const eraRange = filters.era ? ERA_TO_RANGE[filters.era] : undefined;
-  const voteCountFloor = filters.era === "Classic (pre-1980)" ? 100 : 500;
+
+  // Lower vote floor for filtered queries to access deeper TMDB library
+  let voteCountFloor = 200;
+  if (filters.hasActiveFilters) voteCountFloor = 50;
+  if (filters.era === "Classic (pre-1980)") voteCountFloor = 25;
+
+  // Randomize sort order for variety
+  const sortBy = SORT_OPTIONS[Math.floor(Math.random() * SORT_OPTIONS.length)];
 
   if (process.env.NODE_ENV !== "production") {
     console.log("[api/spin] filters", {
@@ -253,13 +270,13 @@ async function getSpinResult(rawFilters: SpinFilterInput) {
     }
   }
 
-  const randomPage = Math.floor(Math.random() * 10) + 1;
-
   const genreParam =
     filters.genreIds.length > 0
       ? `&with_genres=${encodeURIComponent(filters.genreIds.join(","))}`
       : "";
-  const languageParam = `&with_original_language=${encodeURIComponent(filters.languageCode)}`;
+  const languageParam = filters.languageExplicitlySet
+    ? `&with_original_language=${encodeURIComponent(filters.languageCode)}`
+    : "";
   const ratingParam =
     typeof filters.ratingThreshold === "number"
       ? `&vote_average.gte=${encodeURIComponent(String(filters.ratingThreshold))}`
@@ -279,21 +296,48 @@ async function getSpinResult(rawFilters: SpinFilterInput) {
 
   const filterParams = `${genreParam}${languageParam}${ratingParam}${releaseStartParam}${releaseEndParam}`;
 
-  try {
-    const response = await fetch(
-      `${TMDB_BASE_URL}/discover/movie?language=en-US&sort_by=vote_average.desc&vote_count.gte=${voteCountFloor}&page=${randomPage}${filterParams}${auth.authQuery}`,
-      {
-        headers: auth.headers,
-        cache: "no-store",
-      }
-    );
+  async function fetchFromTmdb(floor: number, sort: string): Promise<TmdbDiscoverResponse | null> {
+    // First request page 1 to learn total_pages
+    const probeUrl = `${TMDB_BASE_URL}/discover/movie?language=en-US&sort_by=${sort}&vote_count.gte=${floor}&page=1${filterParams}${auth!.authQuery}`;
+    const probe = await fetch(probeUrl, { headers: auth!.headers, cache: "no-store" });
+    if (!probe.ok) return null;
 
-    if (!response.ok) {
-      return NextResponse.json({ error: "Failed to fetch from TMDB." }, { status: 500 });
+    const probeData = (await probe.json()) as TmdbDiscoverResponse;
+    const totalPages = Math.min(probeData.total_pages ?? 1, 500); // TMDB caps at 500
+
+    if (totalPages <= 1) return probeData;
+
+    // Pick a truly random page across the entire result set
+    const randomPage = Math.floor(Math.random() * totalPages) + 1;
+    if (randomPage === 1) return probeData;
+
+    const url = `${TMDB_BASE_URL}/discover/movie?language=en-US&sort_by=${sort}&vote_count.gte=${floor}&page=${randomPage}${filterParams}${auth!.authQuery}`;
+    const res = await fetch(url, { headers: auth!.headers, cache: "no-store" });
+    if (!res.ok) return probeData; // fallback to probe data
+    return (await res.json()) as TmdbDiscoverResponse;
+  }
+
+  try {
+    // Primary attempt with randomized sort
+    let data = await fetchFromTmdb(voteCountFloor, sortBy);
+    let results = data && Array.isArray(data.results) ? data.results : [];
+
+    // Fallback: if no results, try with lower floor
+    if (results.length === 0 && voteCountFloor > 10) {
+      data = await fetchFromTmdb(10, "popularity.desc");
+      results = data && Array.isArray(data.results) ? data.results : [];
     }
 
-    const data = (await response.json()) as TmdbDiscoverResponse;
-    const results = Array.isArray(data.results) ? data.results : [];
+    // Second fallback: no filters at all
+    if (results.length === 0) {
+      const fallbackUrl = `${TMDB_BASE_URL}/discover/movie?language=en-US&sort_by=popularity.desc&vote_count.gte=100&page=${Math.floor(Math.random() * 20) + 1}${auth.authQuery}`;
+      const fallbackRes = await fetch(fallbackUrl, { headers: auth.headers, cache: "no-store" });
+      if (fallbackRes.ok) {
+        const fallbackData = (await fallbackRes.json()) as TmdbDiscoverResponse;
+        results = Array.isArray(fallbackData.results) ? fallbackData.results : [];
+      }
+    }
+
     const selectedMovie = pickWeightedRandom(results);
 
     if (!selectedMovie) {

@@ -129,6 +129,11 @@ export default function Home() {
     }, 300);
   }, []);
 
+  const handleSpinAgain = useCallback(() => {
+    const el = document.getElementById("spin");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
   return (
     <main className="app-shell relative">
       <ParallaxBackground movies={baseMovies} />
@@ -145,7 +150,7 @@ export default function Home() {
           <CuratedScene movies={baseMovies} onMoodSelect={handleMoodSelect} />
           <DirectorPicksScene movies={baseMovies} />
           <SpinRitual movies={baseMovies} onResult={handleSpinResult} />
-          <ResultScene movie={chosenMovie} isTransitioning={isBannerTransitioning} />
+          <ResultScene movie={chosenMovie} isTransitioning={isBannerTransitioning} onSpinAgain={handleSpinAgain} />
           <GridScene
             movies={exploringMovies}
             isLoading={isLoadingMovies}

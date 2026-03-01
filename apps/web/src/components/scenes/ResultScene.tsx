@@ -13,6 +13,7 @@ import { useFilters } from "@/context/FilterContext";
 interface ResultSceneProps {
   movie: Movie | null;
   isTransitioning?: boolean;
+  onSpinAgain?: () => void;
 }
 
 type WatchProvider = {
@@ -21,12 +22,13 @@ type WatchProvider = {
   logo_path: string | null;
 };
 
-export default function ResultScene({ movie, isTransitioning = false }: ResultSceneProps) {
+export default function ResultScene({ movie, isTransitioning = false, onSpinAgain }: ResultSceneProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-10%" });
   const [dominantColor, setDominantColor] = useState("rgba(232, 168, 56, 0.15)");
   const [aiReason, setAiReason] = useState("");
   const [watchProviders, setWatchProviders] = useState<WatchProvider[]>([]);
+  const [copied, setCopied] = useState(false);
   const { filters } = useFilters();
   const directBackdropPath = movie ? getBackdropPath(movie) : null;
   const backdropSourcePath = movie ? directBackdropPath ?? getPosterPath(movie) : null;
@@ -280,9 +282,45 @@ export default function ResultScene({ movie, isTransitioning = false }: ResultSc
               </div>
             )}
 
-            <div className="flex items-center justify-center md:justify-start gap-3 pt-2">
-              <GlowButton variant="primary">Spin Again</GlowButton>
-              <GlowButton variant="secondary">Share -&gt;</GlowButton>
+            <div className="flex items-center flex-wrap justify-center md:justify-start gap-3 pt-2">
+              <GlowButton
+                variant="primary"
+                onClick={() => {
+                  if (onSpinAgain) {
+                    onSpinAgain();
+                  } else {
+                    const el = document.getElementById("spin");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+              >
+                Spin Again
+              </GlowButton>
+              <GlowButton
+                variant="secondary"
+                onClick={() => {
+                  const url = window.location.origin + "/#result";
+                  navigator.clipboard.writeText(url).then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  });
+                }}
+              >
+                {copied ? "Copied!" : "Share →"}
+              </GlowButton>
+              {movie && (
+                <a
+                  href={`https://www.themoviedb.org/movie/${movie.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 h-10 px-5 rounded-full
+                    bg-transparent border border-cream/20 text-cream/70 text-xs
+                    tracking-[0.03em] uppercase font-display
+                    hover:bg-cream/10 hover:text-cream transition-all duration-300 cursor-pointer"
+                >
+                  View on TMDB ↗
+                </a>
+              )}
             </div>
           </motion.div>
         </div>
