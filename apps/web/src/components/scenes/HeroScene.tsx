@@ -25,7 +25,12 @@ export default function HeroScene({ movies }: HeroSceneProps) {
   const prefersReduced = useReducedMotion();
   const ghostPosters = movies.slice(0, 6);
   const title = "Tonight, fate chooses your film.";
-  const titleChars = useMemo(() => title.split(""), [title]);
+  const titleWords = useMemo(() => {
+    return title.split(" ").map((word) => ({
+      word,
+      chars: word.split(""),
+    }));
+  }, [title]);
 
   const scrollToSpin = () => {
     const el = document.getElementById("spin");
@@ -105,45 +110,58 @@ export default function HeroScene({ movies }: HeroSceneProps) {
 
         <h1
           className="font-display font-extralight leading-[0.95] tracking-tight text-ink"
-          style={{
-            fontSize: "var(--text-hero)",
-            wordBreak: "keep-all",
-            overflowWrap: "normal",
-            hyphens: "none",
-          }}
+          style={{ fontSize: "var(--text-hero)" }}
           aria-label={title}
         >
-          {titleChars.map((char, i) => (
-            <motion.span
-              key={`${char}-${i}`}
-              className="inline-block"
-              initial={prefersReduced ? false : { opacity: 0, y: 24, filter: "blur(8px)" }}
-              animate={prefersReduced ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}
-              transition={{
-                duration: 0.28,
-                delay: 0.12 + i * 0.018,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              style={{ willChange: "transform, opacity, filter" }}
-            >
-              {char === " " ? "\u00A0" : char}
-            </motion.span>
-          ))}
+          {titleWords.map((wordObj, wi) => {
+            const charOffset = titleWords
+              .slice(0, wi)
+              .reduce((sum, w) => sum + w.chars.length + 1, 0);
+            return (
+              <span key={wi} style={{ display: "inline-block", whiteSpace: "nowrap" }}>
+                {wordObj.chars.map((char, ci) => (
+                  <motion.span
+                    key={`${char}-${ci}`}
+                    className="inline-block"
+                    initial={
+                      prefersReduced
+                        ? false
+                        : { opacity: 0, y: 24, filter: "blur(8px)" }
+                    }
+                    animate={
+                      prefersReduced
+                        ? undefined
+                        : { opacity: 1, y: 0, filter: "blur(0px)" }
+                    }
+                    transition={{
+                      duration: 0.28,
+                      delay: 0.12 + (charOffset + ci) * 0.018,
+                      ease: [0.16, 1, 0.3, 1],
+                    }}
+                    style={{ willChange: "transform, opacity, filter" }}
+                  >
+                    {char}
+                  </motion.span>
+                ))}
+                {wi < titleWords.length - 1 && "\u00A0"}
+              </span>
+            );
+          })}
         </h1>
 
         <motion.p
-          className="mt-6 md:mt-10 text-ink-soft font-body max-w-xl mx-auto leading-relaxed"
-          style={{ fontSize: "var(--text-body)" }}
+          className="mt-8 md:mt-10 text-ink-soft/80 font-body max-w-lg mx-auto leading-[1.7] tracking-wide"
+          style={{ fontSize: "clamp(0.95rem, 1.3vw, 1.15rem)" }}
           initial={prefersReduced ? false : { opacity: 0, y: 10 }}
           animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.36, ease: [0.22, 1, 0.36, 1] }}
         >
-          An AI-powered cinematic ritual that discovers the perfect film for this exact moment in
-          your life.
+          An AI&#8209;powered cinematic ritual that discovers the perfect film
+          for this exact moment in your life.
         </motion.p>
 
         <motion.div
-          className="mt-10 md:mt-14 flex flex-col sm:flex-row items-center justify-center gap-4"
+          className="mt-8 md:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
           initial={prefersReduced ? false : { opacity: 0, y: 12 }}
           animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.32, delay: 0.48, ease: [0.22, 1, 0.36, 1] }}
@@ -152,7 +170,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
             Enter VELORA
           </GlowButton>
           <GlowButton onClick={scrollToSpin} variant="secondary" size="lg">
-            Spin Now -&gt;
+            Spin Now →
           </GlowButton>
         </motion.div>
 

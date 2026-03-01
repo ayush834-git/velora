@@ -5,7 +5,7 @@ import { gsap } from "@/lib/gsapConfig";
 
 const STATS = [
   { value: "10M+", label: "Films catalogued" },
-  { value: "42", label: "Mood categories" },
+  { value: "6", label: "Mood dimensions" },
   { value: "1", label: "Perfect pick tonight" },
   { value: "∞", label: "Possible journeys" },
 ];
