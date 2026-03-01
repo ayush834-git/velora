@@ -1,6 +1,8 @@
 export interface BackendMovie {
   id: number;
   title: string;
+  overview: string;
+  original_language: string;
   poster: string | null;
   backdrop: string | null;
   rating: number;

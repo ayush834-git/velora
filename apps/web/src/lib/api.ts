@@ -23,10 +23,7 @@ function buildSpinQuery(filters: SpinFilters = {}) {
   if (filters.mood) params.set("mood", filters.mood);
   if (filters.era) params.set("era", filters.era);
   if (filters.language) params.set("language", filters.language);
-  if (filters.rating && filters.rating !== "Any") {
-    const match = filters.rating.match(/(\d+(?:\.\d+)?)/);
-    params.set("rating", match?.[1] || filters.rating);
-  }
+  if (filters.rating) params.set("rating", filters.rating);
 
   const query = params.toString();
   return query ? `?${query}` : "";

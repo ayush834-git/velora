@@ -49,10 +49,12 @@ const RATING_TO_THRESHOLD: Record<string, number> = {
 type TmdbMovie = {
   id: number;
   title?: string;
+  overview?: string;
   poster_path?: string | null;
   backdrop_path?: string | null;
   vote_average?: number;
   release_date?: string;
+  original_language?: string;
 };
 
 type TmdbDiscoverResponse = {
@@ -102,6 +104,8 @@ function toBackendMovie(movie: TmdbMovie) {
   return {
     id: movie.id,
     title: movie.title ?? "Untitled",
+    overview: movie.overview ?? "",
+    original_language: movie.original_language ?? "en",
     poster: movie.poster_path ? `${TMDB_IMAGE_BASE}/w500${movie.poster_path}` : null,
     backdrop: movie.backdrop_path
       ? `${TMDB_IMAGE_BASE}/original${movie.backdrop_path}`

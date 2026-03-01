@@ -78,7 +78,7 @@ export default function ChaosScene({ movies }: ChaosSceneProps) {
   }, [posters.length, prefersReduced]);
 
   return (
-    <section ref={sectionRef} className="scene relative h-[200vh] bg-transparent" id="chaos">
+    <section ref={sectionRef} className="scene relative h-[160vh] bg-transparent" id="chaos">
       <div className="sticky top-0 h-screen flex items-center justify-center">
         <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream-warm/60 to-cream" />
 

@@ -26,6 +26,26 @@ interface SpinRitualProps {
 
 type SpinPhase = "idle" | "spinning" | "revealing" | "done";
 
+const GENRE_TO_ID: Record<string, number> = {
+  Action: 28,
+  Drama: 18,
+  Comedy: 35,
+  "Sci-Fi": 878,
+  Horror: 27,
+  Romance: 10749,
+  Thriller: 53,
+  Animation: 16,
+};
+
+const MOOD_TO_GENRE_IDS: Record<string, number[]> = {
+  "Mind-Bending": [878, 9648, 53],
+  Comfort: [35, 10751, 16],
+  Dark: [27, 53, 80],
+  Uplifting: [35, 10751, 10402],
+  Epic: [28, 12, 14],
+  Romantic: [10749, 18],
+};
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
@@ -56,6 +76,23 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
     [filters.genre, filters.mood, filters.era, filters.language, filters.rating]
   );
 
+  const flashPool = useMemo(() => {
+    if (movies.length === 0) return movies;
+    let pool = movies;
+
+    if (filters.mood && MOOD_TO_GENRE_IDS[filters.mood]) {
+      const moodIds = MOOD_TO_GENRE_IDS[filters.mood];
+      pool = pool.filter((movie) => movie.genre_ids?.some((id) => moodIds.includes(id)));
+    }
+
+    if (filters.genre && GENRE_TO_ID[filters.genre]) {
+      const genreId = GENRE_TO_ID[filters.genre];
+      pool = pool.filter((movie) => movie.genre_ids?.includes(genreId));
+    }
+
+    return pool.length > 0 ? pool : movies;
+  }, [filters.genre, filters.mood, movies]);
+
   useEffect(() => {
     let active = true;
     let settleTimer: ReturnType<typeof setTimeout> | undefined;
@@ -84,7 +121,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
 
     return () => {
       active = false;
-      if (beginTimer) clearTimeout(beginTimer);
+      clearTimeout(beginTimer);
       if (settleTimer) clearTimeout(settleTimer);
     };
   }, [spinFilters]);
@@ -106,7 +143,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
   }, [prefersReduced]);
 
   const spin = useCallback(() => {
-    if (phase !== "idle" || movies.length === 0) return;
+    if (phase !== "idle" || flashPool.length === 0) return;
     setPhase("spinning");
     setSpinRippleKey((key) => key + 1);
     setPosterTilt({ x: 0, y: 0 });
@@ -119,12 +156,12 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
       })
       .catch((error) => {
         console.error("Spin API request failed", error);
-        apiResultRef.current = movies[Math.floor(Math.random() * movies.length)] || null;
+        apiResultRef.current = flashPool[Math.floor(Math.random() * flashPool.length)] || null;
       });
 
     let count = 0;
     const flash = () => {
-      setFlashIndex(Math.floor(Math.random() * movies.length));
+      setFlashIndex(Math.floor(Math.random() * flashPool.length));
       count += 1;
       if (count < 24) {
         setTimeout(flash, 55 + count * 2);
@@ -132,7 +169,8 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
       }
 
       const reveal = () => {
-        const selected = apiResultRef.current || movies[Math.floor(Math.random() * movies.length)] || null;
+        const selected =
+          apiResultRef.current || flashPool[Math.floor(Math.random() * flashPool.length)] || null;
         if (!selected) {
           setPhase("idle");
           return;
@@ -155,7 +193,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
     };
 
     flash();
-  }, [movies, onResult, phase, spinFilters]);
+  }, [flashPool, onResult, phase, spinFilters]);
 
   const reset = useCallback(() => {
     setPhase("idle");
@@ -185,8 +223,8 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
     setShadowFocus({ x: 50, y: 24 });
   };
 
-  const canSpin = phase === "idle" && movies.length > 0;
-  const flashMovie = movies[flashIndex] || movies[0] || null;
+  const canSpin = phase === "idle" && flashPool.length > 0;
+  const flashMovie = flashPool[flashIndex] || flashPool[0] || null;
   const flashPosterPath = flashMovie ? getPosterPath(flashMovie) : null;
   const chosenPosterPath = chosenMovie ? getPosterPath(chosenMovie) : null;
   const previewPosterPath = previewMovie ? getPosterPath(previewMovie) : null;
@@ -318,7 +356,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                             />
                           </AnimatePresence>
                         )}
-                        <span className="relative z-10">{movies.length > 0 ? "SPIN" : "..."}</span>
+                        <span className="relative z-10">{flashPool.length > 0 ? "SPIN" : "..."}</span>
                       </motion.button>
                     )}
                   </AnimatePresence>
@@ -443,7 +481,8 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                 transition={{ duration: 0.3, delay: 0.08 }}
                 className="text-ink-soft text-sm mt-2"
               >
-                {chosenMovie.release_date?.slice(0, 4)} · {chosenMovie.original_language?.toUpperCase()}
+                {chosenMovie.release_date?.slice(0, 4)} ·{" "}
+                {chosenMovie.original_language?.toUpperCase()}
               </motion.p>
 
               <motion.button

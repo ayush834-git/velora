@@ -147,7 +147,7 @@ export default function FilterPanel() {
             >
               <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/45 to-transparent" />
               <div className="pointer-events-none absolute -left-24 top-12 h-32 w-56 rotate-[14deg] bg-gradient-to-r from-white/55 to-transparent blur-2xl" />
-              <div className="h-full overflow-y-auto overscroll-contain px-6 py-6">
+              <div className="h-full overflow-y-auto overscroll-contain px-6 py-6 pb-28">
                 <div className="flex items-center justify-between mb-6">
                   <h3
                     className="text-xl text-ink"
@@ -247,6 +247,26 @@ export default function FilterPanel() {
                       </div>
                     </motion.section>
                   ))}
+                </div>
+              </div>
+              <div className="absolute inset-x-0 bottom-0 p-4 border-t border-white/55 bg-white/70 backdrop-blur-xl rounded-b-[28px]">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={clearFilters}
+                    className="btn-premium bg-white/80 border border-black/5 text-ink text-xs uppercase cursor-pointer hover:bg-white"
+                    data-cursor-hover
+                  >
+                    Reset
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsOpen(false)}
+                    className="btn-premium btn-primary border border-golden/45 text-white text-xs uppercase ml-auto cursor-pointer"
+                    data-cursor-hover
+                  >
+                    Apply Filters
+                  </button>
                 </div>
               </div>
             </motion.aside>

@@ -45,7 +45,7 @@ export function normalizeBackendMovie(movie: BackendMovie): Movie {
   return {
     id: movie.id,
     title: movie.title || "Untitled",
-    overview: "",
+    overview: movie.overview ?? "",
     poster_path: toTmdbPath(poster),
     backdrop_path: toTmdbPath(backdrop),
     release_date: releaseDate,
@@ -53,7 +53,7 @@ export function normalizeBackendMovie(movie: BackendMovie): Movie {
     vote_count: 0,
     genre_ids: [],
     popularity: rating * 10,
-    original_language: "en",
+    original_language: movie.original_language ?? "en",
     poster,
     backdrop,
     rating,

@@ -17,6 +17,7 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
 
     function raf(time: number) {
       lenis.raf(time);
+      document.documentElement.style.setProperty("--scroll", String(lenis.scroll));
       requestAnimationFrame(raf);
     }
 

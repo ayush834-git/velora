@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 export interface FiltersState {
   genre: string | null;
@@ -31,16 +31,16 @@ const FilterContext = createContext<FilterContextValue | undefined>(undefined);
 export function FilterProvider({ children }: { children: React.ReactNode }) {
   const [filters, setFiltersState] = useState<FiltersState>(DEFAULT_FILTERS);
 
-  const setFilter = (category: FilterCategory, value: string | null) => {
+  const setFilter = useCallback((category: FilterCategory, value: string | null) => {
     setFiltersState((prev) => ({
       ...prev,
       [category]: prev[category] === value ? null : value,
     }));
-  };
+  }, []);
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     setFiltersState(DEFAULT_FILTERS);
-  };
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -48,7 +48,7 @@ export function FilterProvider({ children }: { children: React.ReactNode }) {
       setFilter,
       clearFilters,
     }),
-    [filters]
+    [clearFilters, filters, setFilter]
   );
 
   return <FilterContext.Provider value={value}>{children}</FilterContext.Provider>;

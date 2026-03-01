@@ -8,22 +8,34 @@ import { getImageUrl } from "@/lib/tmdb";
 import { IMAGE_SIZES } from "@/lib/constants";
 import GlowButton from "@/components/ui/GlowButton";
 import { getBackdropPath, getPosterPath } from "@/lib/movie-utils";
+import { useFilters } from "@/context/FilterContext";
 
 interface ResultSceneProps {
   movie: Movie | null;
   isTransitioning?: boolean;
 }
 
+type WatchProvider = {
+  provider_id: number;
+  provider_name: string;
+  logo_path: string | null;
+};
+
 export default function ResultScene({ movie, isTransitioning = false }: ResultSceneProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-10%" });
   const [dominantColor, setDominantColor] = useState("rgba(232, 168, 56, 0.15)");
+  const [aiReason, setAiReason] = useState("");
+  const [watchProviders, setWatchProviders] = useState<WatchProvider[]>([]);
+  const { filters } = useFilters();
   const directBackdropPath = movie ? getBackdropPath(movie) : null;
   const backdropSourcePath = movie ? directBackdropPath ?? getPosterPath(movie) : null;
   const isPosterBackdropFallback = Boolean(backdropSourcePath && !directBackdropPath);
+  const directBackdropUrl =
+    movie?.backdrop && movie.backdrop.startsWith("http") ? movie.backdrop : null;
   const backdropSrc = backdropSourcePath
     ? getImageUrl(backdropSourcePath, IMAGE_SIZES.backdrop.large)
-    : null;
+    : directBackdropUrl;
   const backdropBlur = backdropSourcePath ? getImageUrl(backdropSourcePath, "w92") : undefined;
   const posterPath = movie ? getPosterPath(movie) : null;
   const posterSrc = posterPath ? getImageUrl(posterPath, IMAGE_SIZES.poster.large) : null;
@@ -49,6 +61,63 @@ export default function ResultScene({ movie, isTransitioning = false }: ResultSc
       }
     };
   }, [movie]);
+
+  useEffect(() => {
+    if (!movie?.id) return;
+
+    let active = true;
+    const year = movie.release_date?.slice(0, 4) ?? "";
+
+    const loadMeta = async () => {
+      try {
+        const [reasonResponse, providersResponse] = await Promise.all([
+          fetch("/api/film-reason", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              title: movie.title,
+              year,
+              filters,
+            }),
+            cache: "no-store",
+          }),
+          fetch(`/api/watch-providers?id=${movie.id}&region=US`, {
+            method: "GET",
+            cache: "no-store",
+          }),
+        ]);
+
+        if (!active) return;
+
+        const reasonJson = reasonResponse.ok
+          ? ((await reasonResponse.json()) as { reason?: string })
+          : { reason: "" };
+        const providersJson = providersResponse.ok
+          ? ((await providersResponse.json()) as { providers?: WatchProvider[] })
+          : { providers: [] };
+
+        setAiReason(reasonJson.reason?.trim() ?? "");
+        setWatchProviders(Array.isArray(providersJson.providers) ? providersJson.providers : []);
+      } catch {
+        if (!active) return;
+        setAiReason("");
+        setWatchProviders([]);
+      }
+    };
+
+    loadMeta();
+
+    return () => {
+      active = false;
+    };
+  }, [
+    filters,
+    movie?.id,
+    movie?.release_date,
+    movie?.title,
+  ]);
 
   return (
     <section
@@ -173,6 +242,43 @@ export default function ResultScene({ movie, isTransitioning = false }: ResultSc
             >
               {movie?.overview ?? "Preparing your next cinematic pick..."}
             </p>
+
+            {aiReason && (
+              <p className="text-cream/70 italic text-sm max-w-[560px] mx-auto mt-1 leading-relaxed">
+                {aiReason}
+              </p>
+            )}
+
+            {watchProviders.length > 0 && (
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+                <span className="text-cream/60 text-xs uppercase tracking-[0.08em]">
+                  Available on
+                </span>
+                {watchProviders.map((provider) =>
+                  provider.logo_path ? (
+                    <div
+                      key={provider.provider_id}
+                      className="h-7 w-7 rounded-md overflow-hidden bg-white/20 ring-1 ring-white/40"
+                    >
+                      <Image
+                        src={getImageUrl(provider.logo_path, "w92")}
+                        alt={provider.provider_name}
+                        width={28}
+                        height={28}
+                        className="h-7 w-7 object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <span
+                      key={provider.provider_id}
+                      className="text-cream/75 text-xs"
+                    >
+                      {provider.provider_name}
+                    </span>
+                  )
+                )}
+              </div>
+            )}
 
             <div className="flex items-center justify-center gap-3 pt-2">
               <GlowButton variant="primary">Spin Again</GlowButton>

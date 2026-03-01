@@ -61,6 +61,7 @@ type ResolvedSpinFilters = {
   mood: string | null;
   era: string | null;
   languageCode: string;
+  languageExplicitlySet: boolean;
   ratingThreshold: number | null;
   hasActiveFilters: boolean;
 };
@@ -68,10 +69,12 @@ type ResolvedSpinFilters = {
 type TmdbMovie = {
   id: number;
   title?: string;
+  overview?: string;
   poster_path?: string | null;
   backdrop_path?: string | null;
   vote_average?: number;
   release_date?: string;
+  original_language?: string;
 };
 
 type TmdbDiscoverResponse = {
@@ -121,10 +124,10 @@ function toBackendMovie(movie: TmdbMovie) {
   return {
     id: movie.id,
     title: movie.title ?? "Untitled",
+    overview: movie.overview ?? "",
+    original_language: movie.original_language ?? "en",
     poster: movie.poster_path ? `${TMDB_IMAGE_BASE}/w500${movie.poster_path}` : null,
-    backdrop: movie.backdrop_path
-      ? `${TMDB_IMAGE_BASE}/original${movie.backdrop_path}`
-      : null,
+    backdrop: movie.backdrop_path ? `${TMDB_IMAGE_BASE}/original${movie.backdrop_path}` : null,
     rating: typeof movie.vote_average === "number" ? movie.vote_average : 0,
     release_date: movie.release_date ?? "",
   };
@@ -185,15 +188,16 @@ function resolveFilters(raw: SpinFilterInput): ResolvedSpinFilters {
   const baseGenreIds = parseGenreIds(raw.genre ?? null);
   const moodGenreIds = raw.mood && MOOD_TO_GENRE_IDS[raw.mood] ? MOOD_TO_GENRE_IDS[raw.mood] : [];
   const genreIds = Array.from(new Set([...baseGenreIds, ...moodGenreIds]));
+  const languageExplicitlySet = Boolean(raw.language && raw.language.trim().length > 0);
   const languageCode = parseLanguageCode(raw.language ?? null);
   const ratingThreshold = parseRatingThreshold(raw.rating ?? null);
 
   const hasActiveFilters = Boolean(
-    (raw.genre && raw.genre.trim().length > 0) ||
-      (raw.mood && raw.mood.trim().length > 0) ||
-      (raw.era && raw.era.trim().length > 0) ||
-      (raw.language && raw.language.trim().length > 0) ||
-      (raw.rating && raw.rating.trim().length > 0 && raw.rating !== "Any")
+    raw.genre ||
+      raw.mood ||
+      raw.era ||
+      languageExplicitlySet ||
+      (raw.rating && raw.rating !== "Any")
   );
 
   return {
@@ -201,6 +205,7 @@ function resolveFilters(raw: SpinFilterInput): ResolvedSpinFilters {
     mood: raw.mood ?? null,
     era: raw.era ?? null,
     languageCode,
+    languageExplicitlySet,
     ratingThreshold,
     hasActiveFilters,
   };
@@ -210,9 +215,7 @@ function pickWeightedRandom(movies: TmdbMovie[]): TmdbMovie | null {
   if (movies.length === 0) return null;
 
   const weights = movies.map((movie) =>
-    typeof movie.vote_average === "number" && movie.vote_average > 0
-      ? movie.vote_average
-      : 1
+    typeof movie.vote_average === "number" && movie.vote_average > 0 ? movie.vote_average : 1
   );
   const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
   let threshold = Math.random() * totalWeight;
@@ -228,21 +231,26 @@ function pickWeightedRandom(movies: TmdbMovie[]): TmdbMovie | null {
 async function getSpinResult(rawFilters: SpinFilterInput) {
   const auth = getTmdbAuth();
   if (!auth) {
-    return NextResponse.json(
-      { error: "TMDB credentials are not configured." },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "TMDB credentials are not configured." }, { status: 500 });
   }
 
   const filters = resolveFilters(rawFilters);
   const eraRange = filters.era ? ERA_TO_RANGE[filters.era] : undefined;
+  const voteCountFloor = filters.era === "Classic (pre-1980)" ? 100 : 500;
 
   if (process.env.NODE_ENV !== "production") {
     console.log("[api/spin] filters", {
       rawFilters,
       resolved: filters,
       eraRange,
+      voteCountFloor,
     });
+    if (filters.mood && !rawFilters.genre) {
+      console.log("[api/spin] mood-derived genres", {
+        mood: filters.mood,
+        with_genres: filters.genreIds.join(","),
+      });
+    }
   }
 
   const randomPage = Math.floor(Math.random() * 10) + 1;
@@ -269,13 +277,11 @@ async function getSpinResult(rawFilters: SpinFilterInput) {
         )}&primary_release_date.lte=${encodeURIComponent(eraRange.lte)}`
       : "";
 
-  const filterParams = filters.hasActiveFilters
-    ? `${genreParam}${languageParam}${ratingParam}${releaseStartParam}${releaseEndParam}`
-    : `${languageParam}`;
+  const filterParams = `${genreParam}${languageParam}${ratingParam}${releaseStartParam}${releaseEndParam}`;
 
   try {
     const response = await fetch(
-      `${TMDB_BASE_URL}/discover/movie?language=en-US&sort_by=vote_average.desc&vote_count.gte=500&page=${randomPage}${filterParams}${auth.authQuery}`,
+      `${TMDB_BASE_URL}/discover/movie?language=en-US&sort_by=vote_average.desc&vote_count.gte=${voteCountFloor}&page=${randomPage}${filterParams}${auth.authQuery}`,
       {
         headers: auth.headers,
         cache: "no-store",

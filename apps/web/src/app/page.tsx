@@ -127,7 +127,7 @@ export default function Home() {
 
   return (
     <main className="app-shell relative">
-      <ParallaxBackground />
+      <ParallaxBackground movies={baseMovies} />
       <CursorFollower />
       <Navbar />
 
