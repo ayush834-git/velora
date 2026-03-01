@@ -96,8 +96,9 @@ export default function FilterPanel() {
         transition={{ type: "spring", stiffness: 320, damping: 18 }}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
-        className="btn-premium h-10 cursor-pointer
-          btn-primary text-white border border-golden/45 transition-shadow duration-300"
+        className="btn-premium min-h-[40px] px-6 py-2.5 cursor-pointer
+          btn-primary text-white border border-golden/45 transition-shadow duration-300
+          font-display text-[15px] uppercase tracking-[0.03em] font-medium leading-snug"
         data-cursor-hover
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -108,8 +109,8 @@ export default function FilterPanel() {
             d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
           />
         </svg>
-        <span className="text-sm tracking-wide">
-          Filters{activeCount > 0 ? ` (${activeCount})` : ""}
+        <span className="leading-none">
+          FILTERS{activeCount > 0 ? ` (${activeCount})` : ""}
         </span>
       </motion.button>
 
@@ -254,7 +255,7 @@ export default function FilterPanel() {
                   <button
                     type="button"
                     onClick={clearFilters}
-                    className="btn-premium bg-white/80 border border-black/5 text-ink text-xs uppercase cursor-pointer hover:bg-white"
+                    className="btn-premium bg-white/80 border border-black/5 text-ink font-display text-[15px] uppercase tracking-[0.03em] font-medium leading-snug px-6 py-2.5 min-h-[40px] rounded-full cursor-pointer hover:bg-white transition-all"
                     data-cursor-hover
                   >
                     Reset
@@ -262,7 +263,7 @@ export default function FilterPanel() {
                   <button
                     type="button"
                     onClick={() => setIsOpen(false)}
-                    className="btn-premium btn-primary border border-golden/45 text-white text-xs uppercase ml-auto cursor-pointer"
+                    className="btn-premium btn-primary border border-golden/45 text-white font-display text-[15px] uppercase tracking-[0.03em] font-medium leading-snug px-6 py-2.5 min-h-[40px] rounded-full ml-auto cursor-pointer transition-all"
                     data-cursor-hover
                   >
                     Apply Filters

@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import { motion } from "framer-motion";
 import { gsap, ScrollTrigger } from "@/lib/gsapConfig";
 import { Movie } from "@/types/movie";
 import { getImageUrl } from "@/lib/tmdb";
@@ -78,9 +79,34 @@ export default function ChaosScene({ movies }: ChaosSceneProps) {
   }, [posters.length, prefersReduced]);
 
   return (
-    <section ref={sectionRef} className="scene relative h-[160vh] bg-transparent" id="chaos">
-      <div className="sticky top-0 h-screen flex items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cream-warm/60 to-cream" />
+    <section ref={sectionRef} className="scene relative h-[160vh] bg-transparent overflow-hidden" id="chaos">
+      
+      {/* FEATURE LAYER: AI IN MOTION (Injected into existing gap container) */}
+      <div className="absolute inset-0 pointer-events-none z-0 select-none overflow-hidden" style={{ maskImage: "linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)" }}>
+        <div className="absolute inset-0 flex items-center justify-center gap-4 sm:gap-8 opacity-20 blur-[5px] scale-105 -rotate-2">
+          {movies.slice(0, 3).map((movie, i) => (
+            <motion.div
+              key={`drift-${movie.id}`}
+              className="w-48 sm:w-64 aspect-[2/3] relative rounded-xl overflow-hidden shadow-2xl"
+              animate={{ y: [-40, 40] }}
+              transition={{ duration: 12, ease: "easeInOut", repeat: Infinity, repeatType: "reverse", delay: i * 1.5 }}
+            >
+              <img src={getImageUrl(movie.poster_path, IMAGE_SIZES.poster.medium)} alt="" className="w-full h-full object-cover" loading="lazy" />
+            </motion.div>
+          ))}
+        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 1.5 }}
+          className="absolute inset-0 flex items-center justify-center z-10"
+        >
+          <p className="text-base tracking-wide text-neutral-500/80 font-display uppercase font-medium">Fate is aligning your story…</p>
+        </motion.div>
+      </div>
+
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-900/5 to-transparent mix-blend-overlay" />
 
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[1]">
           <h2
