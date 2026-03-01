@@ -8,6 +8,8 @@ import CursorFollower from "@/components/ui/CursorFollower";
 import HeroScene from "@/components/scenes/HeroScene";
 import ChaosScene from "@/components/scenes/ChaosScene";
 import MarqueeScene from "@/components/scenes/MarqueeScene";
+import MoodClockScene from "@/components/scenes/MoodClockScene";
+import ConstellationScene from "@/components/scenes/ConstellationScene";
 import ManifestoScene from "@/components/scenes/ManifestoScene";
 import HowItWorksScene from "@/components/scenes/HowItWorksScene";
 import CuratedScene from "@/components/scenes/CuratedScene";
@@ -145,6 +147,8 @@ export default function Home() {
           <HeroScene movies={baseMovies} />
           <ChaosScene movies={baseMovies} />
           <MarqueeScene />
+          <MoodClockScene />
+          <ConstellationScene />
           <ManifestoScene />
           <HowItWorksScene />
           <CuratedScene movies={baseMovies} onMoodSelect={handleMoodSelect} />

@@ -18,7 +18,7 @@ const STEPS = [
   {
     number: "03",
     color: "#7a9e8e",
-    title: "Watch tonight",
+    title: "Watch today",
     body: "Your film is revealed with its story, its world, and its reason for finding you right now. Press play.",
   },
 ];

@@ -93,7 +93,7 @@ export default function FooterScene() {
                 className="font-display font-extralight text-ink/65 italic leading-relaxed"
                 style={{ fontSize: "clamp(1.1rem, 2vw, 1.4rem)" }}
               >
-                &ldquo;Tonight, fate chooses your film.&rdquo;
+                &ldquo;Today, fate chooses your film.&rdquo;
               </blockquote>
             </div>
             <div className="text-[10px] tracking-widest uppercase text-ink-muted pb-6">

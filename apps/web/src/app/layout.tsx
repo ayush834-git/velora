@@ -25,12 +25,12 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "VELORA — Tonight, Fate Chooses Your Film",
+  title: "VELORA — Today, Fate Chooses Your Film",
   description:
     "An AI-powered cinematic ritual that discovers the perfect film for this exact moment in your life. A digital art installation for movie discovery.",
   keywords: ["movies", "film discovery", "AI", "cinematic", "movie recommendation"],
   openGraph: {
-    title: "VELORA — Tonight, Fate Chooses Your Film",
+    title: "VELORA — Today, Fate Chooses Your Film",
     description:
       "An AI-powered cinematic ritual that discovers the perfect film for this exact moment in your life.",
     type: "website",

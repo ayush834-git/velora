@@ -6,7 +6,7 @@ import { gsap } from "@/lib/gsapConfig";
 const STATS = [
   { value: "10M+", label: "Films catalogued" },
   { value: "6", label: "Mood dimensions" },
-  { value: "1", label: "Perfect pick tonight" },
+  { value: "1", label: "Perfect pick for now" },
   { value: "∞", label: "Possible journeys" },
 ];
 
@@ -94,7 +94,7 @@ export default function ManifestoScene() {
           style={{ fontSize: "var(--text-body)" }}
         >
           Velora reads the moment, not just your mood. The right film is rarely the
-          most popular — it is the one that finds you exactly where you are tonight.
+          most popular — it is the one that finds you exactly where you are today.
         </motion.p>
 
         <motion.div

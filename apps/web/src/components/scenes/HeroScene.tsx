@@ -24,7 +24,7 @@ const GHOST_LAYOUT = [
 export default function HeroScene({ movies }: HeroSceneProps) {
   const prefersReduced = useReducedMotion();
   const ghostPosters = movies.slice(0, 6);
-  const title = "Tonight, fate chooses your film.";
+  const title = "Today, fate chooses your film.";
   const titleWords = useMemo(() => {
     return title.split(" ").map((word) => ({
       word,

@@ -4,12 +4,12 @@ import { motion } from "framer-motion";
 const ROW_ONE = [
   "Drama", "★", "One click. One film.", "Thriller", "◆",
   "No paradox of choice", "Sci-Fi", "★", "Comfort", "◆",
-  "Tonight's pick awaits", "Romance", "★", "Animation", "◆",
+  "Today's pick awaits", "Romance", "★", "Animation", "◆",
 ];
 
 const ROW_TWO = [
   "Mind-Bending", "◆", "Every viewing a rebirth", "Epic", "★",
-  "Dark", "◆", "Fate chooses tonight", "Underrated", "★",
+  "Dark", "◆", "Fate chooses today", "Underrated", "★",
   "Essential Cinema", "◆", "Classic", "★", "Foreign Film", "◆",
 ];
 
