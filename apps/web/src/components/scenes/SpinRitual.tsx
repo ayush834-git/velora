@@ -1,4 +1,4 @@
-/* eslint-disable @next/next/no-img-element */
+﻿/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useRef, useState, useCallback, useLayoutEffect } from "react";
@@ -10,6 +10,8 @@ import { IMAGE_SIZES, ANIMATION } from "@/lib/constants";
 import AnimatedText from "@/components/ui/AnimatedText";
 import ParticleField from "@/components/ui/ParticleField";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { fetchSpinMovie } from "@/lib/api";
+import { getMovieRating, getPosterPath, normalizeBackendMovie } from "@/lib/movie-utils";
 
 interface SpinRitualProps {
   movies: Movie[];
@@ -17,33 +19,6 @@ interface SpinRitualProps {
 }
 
 type SpinPhase = "idle" | "spinning" | "revealing" | "done";
-
-/*
-  Spin Ritual — Pinned GSAP Timeline
-  ────────────────────────────────────
-  Phase:IDLE
-    T0.0s     Section pins to viewport (ScrollTrigger pin: true)
-    T0.0s     Concentric rings pulse at 3s cycle
-    T0.0s     SPIN button visible, golden gradient, shadow-glow
-
-  Phase:SPINNING (user clicks SPIN)
-    T0.0s     Button scales down, rings accelerate rotation
-    T0–T2.4s  Poster flash cycle: 28 rapid swaps (80ms → decel)
-              ParticleField switches to spiral mode
-
-  Phase:REVEALING
-    T2.4s     Flash freezes on chosen poster
-    T2.7s     Chosen poster scales 0.85→1, blur(20px)→0 (0.9s, expo.out)
-    T2.9s     "Fate has spoken" label fades in
-    T3.2s     Title + rating fades in
-
-  Phase:DONE
-    T4.5s     Auto-scroll to ResultScene after 2.5s delay
-    T4.5s     Section unpins
-
-  API debounce: fetch fires at T0. Result cached in ref.
-  Reveal only after both: animation timer + API response ready.
-*/
 
 export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -53,7 +28,6 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
   const apiResultRef = useRef<Movie | null>(null);
   const prefersReduced = useReducedMotion();
 
-  // Pin section on scroll — section stays fixed while user scrolls through it
   useLayoutEffect(() => {
     if (!sectionRef.current || prefersReduced) return;
 
@@ -61,7 +35,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: "+=100%", // pin for 1 viewport height of scroll distance
+        end: "+=100%",
         pin: true,
         pinSpacing: true,
       });
@@ -70,25 +44,20 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
     return () => ctx.revert();
   }, [prefersReduced]);
 
-  // ── Spin handler ──
   const spin = useCallback(() => {
-    if (phase !== "idle") return;
+    if (phase !== "idle" || movies.length === 0) return;
     setPhase("spinning");
 
-    // Fire API immediately — result cached in ref for later
-    // Falls back to random demo movie if API unavailable
     apiResultRef.current = null;
-    fetch("/api/spin", { method: "POST", body: JSON.stringify({}) })
-      .then((r) => r.json())
-      .then((data: Movie) => {
-        apiResultRef.current = data;
+    fetchSpinMovie()
+      .then((data) => {
+        apiResultRef.current = normalizeBackendMovie(data);
       })
-      .catch(() => {
-        apiResultRef.current =
-          movies[Math.floor(Math.random() * movies.length)];
+      .catch((error) => {
+        console.error("Spin API request failed", error);
+        apiResultRef.current = movies[Math.floor(Math.random() * movies.length)] || null;
       });
 
-    // Flash posters rapidly: 28 swaps, 80ms base with 1.1ms deceleration
     let count = 0;
     const flash = () => {
       setFlashIndex(Math.floor(Math.random() * movies.length));
@@ -96,26 +65,29 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
       if (count < 28) {
         setTimeout(flash, 80 + count * 1.1);
       } else {
-        // Wait for API result, then reveal
         const tryReveal = () => {
           const chosen =
             apiResultRef.current ||
-            movies[Math.floor(Math.random() * movies.length)];
+            movies[Math.floor(Math.random() * movies.length)] ||
+            null;
+
+          if (!chosen) {
+            setPhase("idle");
+            return;
+          }
+
           setChosenMovie(chosen);
           setPhase("revealing");
 
-          // Reveal → Done after animation completes
           setTimeout(() => {
             setPhase("done");
             onResult?.(chosen);
           }, 2200);
         };
 
-        // If API already resolved, reveal immediately
         if (apiResultRef.current) {
           tryReveal();
         } else {
-          // Wait a bit more for API, then fallback
           setTimeout(tryReveal, 300);
         }
       }
@@ -123,14 +95,17 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
     flash();
   }, [movies, onResult, phase]);
 
-  // ── Reset handler ──
   const reset = useCallback(() => {
     setPhase("idle");
     setChosenMovie(null);
     apiResultRef.current = null;
   }, []);
 
-  const flashMovie = movies[flashIndex] || movies[0];
+  const canSpin = phase === "idle" && movies.length > 0;
+  const flashMovie = movies[flashIndex] || movies[0] || null;
+  const flashPosterPath = flashMovie ? getPosterPath(flashMovie) : null;
+  const chosenPosterPath = chosenMovie ? getPosterPath(chosenMovie) : null;
+  const chosenRating = chosenMovie ? getMovieRating(chosenMovie) : 0;
 
   return (
     <section
@@ -138,18 +113,14 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
       className="scene relative min-h-screen flex items-center justify-center py-24"
       id="spin"
     >
-      {/* Background — warm gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream-warm to-cream" />
 
-      {/* Particle field — golden particles, spiral on spin */}
       <div className="absolute inset-0 z-[1] pointer-events-none opacity-50">
         <ParticleField isSpiral={phase === "spinning"} />
       </div>
 
-      {/* Main content */}
       <div className="relative z-10 w-full max-w-3xl mx-auto text-center px-6">
         <AnimatePresence mode="wait">
-          {/* ── IDLE + SPINNING ── */}
           {(phase === "idle" || phase === "spinning") && (
             <motion.div
               key="spin-ready"
@@ -176,13 +147,11 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                 as="h2"
               />
 
-              {/* Spin rings — concentric pulsing circles */}
               <div className="relative w-56 h-56 md:w-72 md:h-72 mx-auto my-10">
                 <div className="spin-ring w-full h-full" />
                 <div className="spin-ring w-[85%] h-[85%] top-[7.5%] left-[7.5%]" />
                 <div className="spin-ring w-[70%] h-[70%] top-[15%] left-[15%]" />
 
-                {/* Center: flash poster during spin, or SPIN button */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <AnimatePresence mode="wait">
                     {phase === "spinning" ? (
@@ -194,31 +163,35 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                         transition={{ duration: 0.07 }}
                         className="w-28 h-40 md:w-36 md:h-52 rounded-xl overflow-hidden shadow-xl"
                       >
-                        <img
-                          src={getImageUrl(
-                            flashMovie.poster_path,
-                            IMAGE_SIZES.poster.small
-                          )}
-                          alt=""
-                          className="w-full h-full object-cover"
-                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                        />
+                        {flashPosterPath ? (
+                          <img
+                            src={getImageUrl(flashPosterPath, IMAGE_SIZES.poster.small)}
+                            alt=""
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-cream-warm/80" />
+                        )}
                       </motion.div>
                     ) : (
                       <motion.button
                         key="spin-btn"
                         onClick={spin}
-                        whileHover={{ scale: 1.08 }}
-                        whileTap={{ scale: 0.95 }}
+                        whileHover={canSpin ? { scale: 1.08 } : undefined}
+                        whileTap={canSpin ? { scale: 0.95 } : undefined}
+                        disabled={!canSpin}
                         className="w-28 h-28 md:w-36 md:h-36 rounded-full cursor-pointer
                           bg-gradient-to-br from-golden via-golden-light to-sunset
                           text-white font-display text-xl md:text-2xl tracking-[0.2em] uppercase
                           shadow-[0_8px_40px_rgba(232,168,56,0.35)]
                           hover:shadow-[0_12px_50px_rgba(232,168,56,0.5)]
-                          transition-shadow duration-500"
+                          transition-shadow duration-500 disabled:opacity-70 disabled:cursor-not-allowed"
                         data-cursor-hover
                       >
-                        SPIN
+                        {movies.length > 0 ? "SPIN" : "..."}
                       </motion.button>
                     )}
                   </AnimatePresence>
@@ -236,7 +209,6 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
             </motion.div>
           )}
 
-          {/* ── REVEAL + DONE ── */}
           {(phase === "revealing" || phase === "done") && chosenMovie && (
             <motion.div
               key="reveal"
@@ -266,15 +238,18 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                 }}
                 className="w-48 h-72 md:w-56 md:h-84 rounded-2xl overflow-hidden shadow-2xl mb-6"
               >
-                <img
-                  src={getImageUrl(
-                    chosenMovie.poster_path,
-                    IMAGE_SIZES.poster.large
-                  )}
-                  alt={chosenMovie.title}
-                  className="w-full h-full object-cover"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
+                {chosenPosterPath ? (
+                  <img
+                    src={getImageUrl(chosenPosterPath, IMAGE_SIZES.poster.large)}
+                    alt={chosenMovie.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-cream-warm/80" />
+                )}
               </motion.div>
 
               <motion.h3
@@ -293,8 +268,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                 transition={{ delay: 0.6 }}
                 className="text-ink-soft text-sm mt-2"
               >
-                ★ {chosenMovie.vote_average.toFixed(1)} ·{" "}
-                {chosenMovie.release_date?.slice(0, 4)}
+                ★ {chosenRating.toFixed(1)} · {chosenMovie.release_date?.slice(0, 4)}
               </motion.p>
 
               <motion.button

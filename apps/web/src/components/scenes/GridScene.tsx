@@ -8,11 +8,18 @@ import AnimatedText from "@/components/ui/AnimatedText";
 
 interface GridSceneProps {
   movies: Movie[];
+  isLoading?: boolean;
+  hasError?: boolean;
 }
 
-export default function GridScene({ movies }: GridSceneProps) {
+export default function GridScene({
+  movies,
+  isLoading = false,
+  hasError = false,
+}: GridSceneProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-10%" });
+  const skeletonCount = 8;
 
   return (
     <section
@@ -49,29 +56,63 @@ export default function GridScene({ movies }: GridSceneProps) {
         <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-cream to-transparent z-20 pointer-events-none" />
 
         <div className="scroll-container flex gap-5 md:gap-7 px-10 md:px-16 overflow-x-auto py-4 snap-x snap-mandatory">
-          {movies.map((movie, i) => {
-            const isLarger = i % 3 === 1;
-            return (
-              <motion.div
-                key={movie.id}
-                initial={{ opacity: 0, y: 40 }}
-                animate={isInView ? { opacity: 1, y: 0 } : {}}
-                transition={{
-                  duration: 0.8,
-                  delay: i * 0.08,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                className="snap-center flex-shrink-0"
-              >
-                <MovieCard
-                  movie={movie}
-                  width={isLarger ? 260 : 220}
-                  height={isLarger ? 390 : 330}
-                  showInfo={true}
-                />
-              </motion.div>
-            );
-          })}
+          {isLoading &&
+            Array.from({ length: skeletonCount }).map((_, i) => {
+              const isLarger = i % 3 === 1;
+              return (
+                <motion.div
+                  key={`skeleton-${i}`}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{
+                    duration: 0.8,
+                    delay: i * 0.06,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                  className="snap-center flex-shrink-0"
+                >
+                  <div
+                    className="rounded-2xl bg-gradient-to-br from-cream-warm/80 to-cream animate-pulse"
+                    style={{
+                      width: isLarger ? 260 : 220,
+                      height: isLarger ? 390 : 330,
+                      boxShadow: "0 10px 40px rgba(0,0,0,0.05), 0 2px 10px rgba(0,0,0,0.03)",
+                    }}
+                  />
+                </motion.div>
+              );
+            })}
+
+          {!isLoading &&
+            movies.map((movie, i) => {
+              const isLarger = i % 3 === 1;
+              return (
+                <motion.div
+                  key={movie.id}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : {}}
+                  transition={{
+                    duration: 0.8,
+                    delay: i * 0.08,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                  className="snap-center flex-shrink-0"
+                >
+                  <MovieCard
+                    movie={movie}
+                    width={isLarger ? 260 : 220}
+                    height={isLarger ? 390 : 330}
+                    showInfo={true}
+                  />
+                </motion.div>
+              );
+            })}
+
+          {!isLoading && movies.length === 0 && (
+            <div className="w-full text-center py-16 text-ink-soft/70">
+              {hasError ? "Could not load films right now." : "No films available."}
+            </div>
+          )}
         </div>
       </div>
     </section>

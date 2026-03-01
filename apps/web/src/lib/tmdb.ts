@@ -1,14 +1,5 @@
 import { Movie, MovieDetails, TMDBResponse } from "@/types/movie";
-import { TMDB_BASE_URL, TMDB_IMAGE_BASE, IMAGE_SIZES, DEMO_MOVIES } from "./constants";
-
-const API_KEY = process.env.TMDB_API_KEY || process.env.NEXT_PUBLIC_TMDB_API_KEY || "";
-
-function getHeaders() {
-  return {
-    accept: "application/json",
-    Authorization: `Bearer ${API_KEY}`,
-  };
-}
+import { TMDB_IMAGE_BASE, IMAGE_SIZES, DEMO_MOVIES } from "./constants";
 
 export function getImageUrl(
   path: string | null,
@@ -19,77 +10,80 @@ export function getImageUrl(
   return `${TMDB_IMAGE_BASE}/${size}/${cleanPath}`;
 }
 
-export async function getTrending(): Promise<Movie[]> {
-  if (!API_KEY) return DEMO_MOVIES;
+async function parseJsonResponse<T>(response: Response): Promise<T | null> {
+  if (!response.ok) return null;
+
   try {
-    const res = await fetch(`${TMDB_BASE_URL}/trending/movie/week?language=en-US`, {
-      headers: getHeaders(),
-      next: { revalidate: 3600 },
+    return (await response.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
+export async function getTrending(): Promise<Movie[]> {
+  try {
+    const response = await fetch("/api/tmdb?action=trending", {
+      cache: "no-store",
     });
-    if (!res.ok) return DEMO_MOVIES;
-    const data: TMDBResponse = await res.json();
-    return data.results;
+    const data = await parseJsonResponse<TMDBResponse>(response);
+    return data?.results ?? DEMO_MOVIES;
   } catch {
     return DEMO_MOVIES;
   }
 }
 
 export async function getDiscover(genreIds?: number[], page: number = 1): Promise<Movie[]> {
-  if (!API_KEY) return DEMO_MOVIES;
+  const params = new URLSearchParams({
+    action: "discover",
+    page: String(page),
+  });
+
+  if (genreIds && genreIds.length > 0) {
+    params.set("genres", genreIds.join(","));
+  }
+
   try {
-    const genreParam = genreIds ? `&with_genres=${genreIds.join(",")}` : "";
-    const res = await fetch(
-      `${TMDB_BASE_URL}/discover/movie?language=en-US&sort_by=vote_average.desc&vote_count.gte=500&page=${page}${genreParam}`,
-      { headers: getHeaders(), next: { revalidate: 3600 } }
-    );
-    if (!res.ok) return DEMO_MOVIES;
-    const data: TMDBResponse = await res.json();
-    return data.results;
+    const response = await fetch(`/api/tmdb?${params.toString()}`, {
+      cache: "no-store",
+    });
+    const data = await parseJsonResponse<TMDBResponse>(response);
+    return data?.results ?? DEMO_MOVIES;
   } catch {
     return DEMO_MOVIES;
   }
 }
 
 export async function getMovieDetails(id: number): Promise<MovieDetails | null> {
-  if (!API_KEY) {
-    const demo = DEMO_MOVIES.find((m) => m.id === id);
-    if (demo) return { ...demo, runtime: 120, genres: [], budget: 0, revenue: 0, status: "Released", production_companies: [], tagline: demo.tagline || "" } as MovieDetails;
-    return null;
-  }
   try {
-    const res = await fetch(`${TMDB_BASE_URL}/movie/${id}?language=en-US`, {
-      headers: getHeaders(),
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return null;
-    return await res.json();
+    const response = await fetch(
+      `/api/tmdb?action=movie&id=${encodeURIComponent(String(id))}`,
+      {
+      cache: "no-store",
+      }
+    );
+    const data = await parseJsonResponse<MovieDetails>(response);
+    return data;
   } catch {
     return null;
   }
 }
 
 export async function getSimilar(id: number): Promise<Movie[]> {
-  if (!API_KEY) return DEMO_MOVIES.slice(0, 10);
   try {
-    const res = await fetch(`${TMDB_BASE_URL}/movie/${id}/similar?language=en-US&page=1`, {
-      headers: getHeaders(),
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return DEMO_MOVIES.slice(0, 10);
-    const data: TMDBResponse = await res.json();
-    return data.results;
+    const response = await fetch(
+      `/api/tmdb?action=similar&id=${encodeURIComponent(String(id))}`,
+      {
+        cache: "no-store",
+      }
+    );
+    const data = await parseJsonResponse<TMDBResponse>(response);
+    return data?.results ?? DEMO_MOVIES.slice(0, 10);
   } catch {
     return DEMO_MOVIES.slice(0, 10);
   }
 }
 
 export async function getRandomMovie(genreIds?: number[]): Promise<Movie> {
-  if (!API_KEY) {
-    const filtered = genreIds
-      ? DEMO_MOVIES.filter((m) => m.genre_ids.some((g) => genreIds.includes(g)))
-      : DEMO_MOVIES;
-    return filtered[Math.floor(Math.random() * filtered.length)] || DEMO_MOVIES[0];
-  }
   try {
     const randomPage = Math.floor(Math.random() * 10) + 1;
     const movies = await getDiscover(genreIds, randomPage);

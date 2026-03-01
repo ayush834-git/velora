@@ -1,0 +1,100 @@
+﻿
+C:\Users\ayush\velora\src\app\page.tsx
+  29:41  warning  'moodId' is defined but never used    @typescript-eslint/no-unused-vars
+  29:57  warning  'genreIds' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ayush\velora\src\components\scenes\ChaosScene.tsx
+   59:10  warning  'mousePos' is assigned a value but never used                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+  221:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\ayush\velora\src\components\scenes\CuratedScene.tsx
+  90:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\ayush\velora\src\components\scenes\ResultScene.tsx
+  110:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  132:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\ayush\velora\src\components\scenes\SpinRitual.tsx
+  196:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  267:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\ayush\velora\src\components\scenes\SpinScene.tsx
+    3:41  warning  'useEffect' is defined but never used                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  115:25  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  167:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\ayush\velora\src\components\ui\BlurUpImage.tsx
+  92:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+C:\Users\ayush\velora\src\components\ui\CinematicImage.tsx
+  3:28  warning  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ayush\velora\src\components\ui\CursorFollower.tsx
+  3:21  warning  'useRef' is defined but never used               @typescript-eslint/no-unused-vars
+  9:9   warning  'isHovering' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\ayush\velora\src\components\ui\FilterPanel.tsx
+  106:5  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `toggleGenre`, but the source dependencies were [isOpen, focusGroup, focusItem, filters]. Inferred different dependency than source.
+
+C:\Users\ayush\velora\src\components\ui\FilterPanel.tsx:106:5
+  104 |   // ΓöÇΓöÇ Keyboard navigation ΓöÇΓöÇ
+  105 |   const handleKeyDown = useCallback(
+> 106 |     (e: React.KeyboardEvent) => {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 107 |       if (!isOpen) return;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 108 |
+      ΓÇª
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 144 |       }
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 145 |     },
+      | ^^^^^^ Could not preserve existing manual memoization
+  146 |     [isOpen, focusGroup, focusItem, filters]
+  147 |   );
+  148 |  react-hooks/preserve-manual-memoization
+  106:5  error    Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `setFilter`, but the source dependencies were [isOpen, focusGroup, focusItem, filters]. Inferred different dependency than source.
+
+C:\Users\ayush\velora\src\components\ui\FilterPanel.tsx:106:5
+  104 |   // ΓöÇΓöÇ Keyboard navigation ΓöÇΓöÇ
+  105 |   const handleKeyDown = useCallback(
+> 106 |     (e: React.KeyboardEvent) => {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 107 |       if (!isOpen) return;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 108 |
+      ΓÇª
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 144 |       }
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 145 |     },
+      | ^^^^^^ Could not preserve existing manual memoization
+  146 |     [isOpen, focusGroup, focusItem, filters]
+  147 |   );
+  148 |    react-hooks/preserve-manual-memoization
+  146:5  warning  React Hook useCallback has missing dependencies: 'setFilter' and 'toggleGenre'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           react-hooks/exhaustive-deps
+
+C:\Users\ayush\velora\src\hooks\useReducedMotion.ts
+  13:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\ayush\velora\src\hooks\useReducedMotion.ts:13:5
+  11 |   useEffect(() => {
+  12 |     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+> 13 |     setPrefersReduced(mq.matches);
+     |     ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  14 |
+  15 |     const handler = (e: MediaQueryListEvent) => setPrefersReduced(e.matches);
+  16 |     mq.addEventListener("change", handler);  react-hooks/set-state-in-effect
+
+Γ£û 20 problems (3 errors, 17 warnings)
+

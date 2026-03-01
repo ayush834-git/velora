@@ -1,3 +1,12 @@
+export interface BackendMovie {
+  id: number;
+  title: string;
+  poster: string | null;
+  backdrop: string | null;
+  rating: number;
+  release_date: string;
+}
+
 export interface Movie {
   id: number;
   title: string;
@@ -11,6 +20,9 @@ export interface Movie {
   popularity: number;
   original_language: string;
   tagline?: string;
+  poster?: string | null;
+  backdrop?: string | null;
+  rating?: number;
 }
 
 export interface MovieDetails extends Movie {

@@ -1,105 +1,194 @@
 import { NextResponse } from "next/server";
-import { DEMO_MOVIES } from "@/lib/constants";
 
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
-const API_KEY = process.env.TMDB_API_KEY || process.env.NEXT_PUBLIC_TMDB_API_KEY || "";
+const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
 
-/*
-  POST /api/spin
-  Body: { genres?: number[], language?: string, mood?: string }
-  Returns a single weighted-random movie (server-side selection).
-  
-  Production: Add Redis caching with TTL 60s (shorter for variety).
-  Redis key pattern: spin:{hash_of_filters}
-*/
+type SpinFilters = {
+  genres?: number[];
+  language?: string;
+};
+
+type TmdbMovie = {
+  id: number;
+  title?: string;
+  poster_path?: string | null;
+  backdrop_path?: string | null;
+  vote_average?: number;
+  release_date?: string;
+};
+
+type TmdbDiscoverResponse = {
+  results?: TmdbMovie[];
+};
+
+type TmdbAuth = {
+  headers: Record<string, string>;
+  authQuery: string;
+};
+
+function getTmdbAuth(): TmdbAuth | null {
+  const readToken = process.env.TMDB_READ_TOKEN;
+  const apiKey = process.env.TMDB_API_KEY;
+
+  if (readToken) {
+    return {
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${readToken}`,
+      },
+      authQuery: "",
+    };
+  }
+
+  if (!apiKey) return null;
+
+  if (apiKey.includes(".")) {
+    return {
+      headers: {
+        accept: "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      authQuery: "",
+    };
+  }
+
+  return {
+    headers: {
+      accept: "application/json",
+    },
+    authQuery: `&api_key=${encodeURIComponent(apiKey)}`,
+  };
+}
+
+function toBackendMovie(movie: TmdbMovie) {
+  return {
+    id: movie.id,
+    title: movie.title ?? "Untitled",
+    poster: movie.poster_path ? `${TMDB_IMAGE_BASE}/w500${movie.poster_path}` : null,
+    backdrop: movie.backdrop_path
+      ? `${TMDB_IMAGE_BASE}/original${movie.backdrop_path}`
+      : null,
+    rating: typeof movie.vote_average === "number" ? movie.vote_average : 0,
+    release_date: movie.release_date ?? "",
+  };
+}
+
+function pickWeightedRandom(movies: TmdbMovie[]): TmdbMovie | null {
+  if (movies.length === 0) return null;
+
+  const weights = movies.map((movie) =>
+    typeof movie.vote_average === "number" && movie.vote_average > 0
+      ? movie.vote_average
+      : 1
+  );
+  const totalWeight = weights.reduce((sum, weight) => sum + weight, 0);
+  let threshold = Math.random() * totalWeight;
+
+  for (let i = 0; i < movies.length; i += 1) {
+    threshold -= weights[i];
+    if (threshold <= 0) return movies[i];
+  }
+
+  return movies[0];
+}
+
+function parseFiltersFromSearchParams(searchParams: URLSearchParams): SpinFilters {
+  const genresRaw = searchParams.get("genres") || searchParams.get("genre") || "";
+  const genres = genresRaw
+    .split(",")
+    .map((value) => Number.parseInt(value.trim(), 10))
+    .filter((value) => Number.isFinite(value));
+
+  const language = searchParams.get("language") || searchParams.get("lang") || undefined;
+
+  return {
+    genres: genres.length > 0 ? genres : undefined,
+    language,
+  };
+}
+
+function parseFiltersFromBody(body: unknown): SpinFilters {
+  if (!body || typeof body !== "object") return {};
+
+  const source = body as { genres?: unknown; language?: unknown };
+  const genres = Array.isArray(source.genres)
+    ? source.genres
+        .map((value) =>
+          typeof value === "number" ? value : Number.parseInt(String(value), 10)
+        )
+        .filter((value) => Number.isFinite(value))
+    : [];
+  const language = typeof source.language === "string" ? source.language : undefined;
+
+  return {
+    genres: genres.length > 0 ? genres : undefined,
+    language,
+  };
+}
+
+async function getSpinResult(filters: SpinFilters) {
+  const auth = getTmdbAuth();
+  if (!auth) {
+    return NextResponse.json(
+      { error: "TMDB credentials are not configured." },
+      { status: 500 }
+    );
+  }
+
+  const randomPage = Math.floor(Math.random() * 10) + 1;
+  const genresParam =
+    filters.genres && filters.genres.length > 0
+      ? `&with_genres=${encodeURIComponent(filters.genres.join(","))}`
+      : "";
+  const language = filters.language || "en-US";
+  const languageParam = `&with_original_language=${encodeURIComponent(
+    language.split("-")[0] || "en"
+  )}`;
+
+  try {
+    const response = await fetch(
+      `${TMDB_BASE_URL}/discover/movie?language=${encodeURIComponent(
+        language
+      )}&sort_by=vote_average.desc&vote_count.gte=500&page=${randomPage}${genresParam}${languageParam}${auth.authQuery}`,
+      {
+        headers: auth.headers,
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
+      return NextResponse.json({ error: "Failed to fetch from TMDB." }, { status: 500 });
+    }
+
+    const data = (await response.json()) as TmdbDiscoverResponse;
+    const results = Array.isArray(data.results) ? data.results : [];
+    const selectedMovie = pickWeightedRandom(results);
+
+    if (!selectedMovie) {
+      return NextResponse.json({ error: "No movies found." }, { status: 500 });
+    }
+
+    return NextResponse.json(toBackendMovie(selectedMovie));
+  } catch {
+    return NextResponse.json({ error: "Internal server error." }, { status: 500 });
+  }
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const filters = parseFiltersFromSearchParams(searchParams);
+  return getSpinResult(filters);
+}
 
 export async function POST(request: Request) {
-  let body: { genres?: number[]; language?: string; mood?: string } = {};
+  let body: unknown = {};
 
   try {
     body = await request.json();
   } catch {
-    // Empty body is fine — spin with no filters
+    body = {};
   }
 
-  // Fallback: no API key → weighted random from DEMO_MOVIES
-  if (!API_KEY) {
-    let pool = [...DEMO_MOVIES];
-
-    // Filter by genres if provided
-    if (body.genres && body.genres.length > 0) {
-      const genreFiltered = pool.filter((m) =>
-        m.genre_ids.some((g) => body.genres!.includes(g))
-      );
-      if (genreFiltered.length > 0) pool = genreFiltered;
-    }
-
-    // Weighted random: higher-rated movies have slightly more weight
-    const weights = pool.map((m) => m.vote_average);
-    const totalWeight = weights.reduce((a, b) => a + b, 0);
-    let random = Math.random() * totalWeight;
-
-    for (let i = 0; i < pool.length; i++) {
-      random -= weights[i];
-      if (random <= 0) {
-        return NextResponse.json(pool[i]);
-      }
-    }
-
-    return NextResponse.json(pool[0]);
-  }
-
-  try {
-    // Fetch a random page of results, then pick one randomly
-    const randomPage = Math.floor(Math.random() * 10) + 1;
-    const genreParam =
-      body.genres && body.genres.length > 0
-        ? `&with_genres=${body.genres.join(",")}`
-        : "";
-    const langParam = body.language
-      ? `&with_original_language=${body.language}`
-      : "";
-
-    const res = await fetch(
-      `${TMDB_BASE_URL}/discover/movie?language=en-US&sort_by=vote_average.desc&vote_count.gte=500&page=${randomPage}${genreParam}${langParam}`,
-      {
-        headers: {
-          accept: "application/json",
-          Authorization: `Bearer ${API_KEY}`,
-        },
-        next: { revalidate: 60 }, // 1 min cache
-      }
-    );
-
-    if (!res.ok) {
-      // Fallback to demo movies on API error
-      const fallback = DEMO_MOVIES[Math.floor(Math.random() * DEMO_MOVIES.length)];
-      return NextResponse.json(fallback);
-    }
-
-    const data = await res.json();
-    const results = data.results || [];
-
-    if (results.length === 0) {
-      const fallback = DEMO_MOVIES[Math.floor(Math.random() * DEMO_MOVIES.length)];
-      return NextResponse.json(fallback);
-    }
-
-    // Weighted random selection from API results
-    const weights = results.map((m: { vote_average: number }) => m.vote_average);
-    const totalWeight = weights.reduce((a: number, b: number) => a + b, 0);
-    let random = Math.random() * totalWeight;
-
-    for (let i = 0; i < results.length; i++) {
-      random -= weights[i];
-      if (random <= 0) {
-        return NextResponse.json(results[i]);
-      }
-    }
-
-    return NextResponse.json(results[0]);
-  } catch {
-    const fallback = DEMO_MOVIES[Math.floor(Math.random() * DEMO_MOVIES.length)];
-    return NextResponse.json(fallback);
-  }
+  const filters = parseFiltersFromBody(body);
+  return getSpinResult(filters);
 }

@@ -18,11 +18,13 @@ export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps
   const isInView = useInView(sectionRef, { once: true, margin: "-10%" });
 
   const moodBackdrops: Record<string, string | null> = {};
-  MOODS.forEach((mood) => {
+  MOODS.forEach((mood, index) => {
     const found = movies.find((m) =>
       m.genre_ids.some((g) => mood.genreIds.includes(g))
     );
-    moodBackdrops[mood.id] = found?.backdrop_path || null;
+    const fallback = movies.length > 0 ? movies[index % movies.length] : null;
+    moodBackdrops[mood.id] =
+      found?.backdrop_path || fallback?.backdrop_path || null;
   });
 
   return (
