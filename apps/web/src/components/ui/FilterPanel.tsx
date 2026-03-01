@@ -74,6 +74,18 @@ export default function FilterPanel() {
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      document.body.classList.remove("drawer-open");
+      return;
+    }
+
+    document.body.classList.add("drawer-open");
+    return () => {
+      document.body.classList.remove("drawer-open");
+    };
+  }, [isOpen]);
+
   const handleChipClick = (
     category: "genre" | "mood" | "era" | "language" | "rating",
     item: string
@@ -119,7 +131,7 @@ export default function FilterPanel() {
         {isOpen && (
           <>
             <motion.div
-              className="fixed inset-0 z-[65] bg-transparent"
+              className="fixed inset-0 z-[65] bg-transparent backdrop-blur-[2px]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -140,6 +152,8 @@ export default function FilterPanel() {
               role="dialog"
               aria-label="Filter options"
             >
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/45 to-transparent" />
+              <div className="pointer-events-none absolute -left-24 top-12 h-32 w-56 rotate-[14deg] bg-gradient-to-r from-white/55 to-transparent blur-2xl" />
               <div className="h-full overflow-y-auto px-6 py-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3
@@ -193,7 +207,7 @@ export default function FilterPanel() {
                                   item
                                 )
                               }
-                              whileHover={{ scale: 1.05 }}
+                              whileHover={{ scale: 1.05, y: -2 }}
                               whileTap={{ scale: 0.97 }}
                               animate={active ? { scale: [1, 1.08, 1] } : { scale: 1 }}
                               transition={
@@ -205,10 +219,13 @@ export default function FilterPanel() {
                                 border ${
                                   active
                                     ? "text-white border-transparent bg-gradient-to-br from-[#f7c873] to-[#f3a63a] shadow-[0_0_18px_rgba(243,166,58,0.34)]"
-                                    : "text-ink bg-[rgba(255,255,255,0.72)] border-[rgba(20,28,45,0.12)] hover:border-[rgba(243,166,58,0.45)] hover:shadow-[0_0_14px_rgba(243,166,58,0.2)]"
+                                    : "text-ink bg-[rgba(255,255,255,0.72)] border-[rgba(20,28,45,0.12)] hover:border-[rgba(243,166,58,0.45)] hover:shadow-[0_8px_18px_rgba(0,0,0,0.08)]"
                                 }`}
                               data-cursor-hover
                             >
+                              {active && (
+                                <span className="absolute inset-[1px] rounded-full bg-white/12 blur-[7px] pointer-events-none" />
+                              )}
                               {rippleChip === rippleId && (
                                 <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                   <motion.span

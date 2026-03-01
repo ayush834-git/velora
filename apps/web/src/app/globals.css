@@ -83,6 +83,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.app-shell {
+  transition: transform 0.3s ease, filter 0.3s ease;
+  transform-origin: center top;
+}
+
+body.drawer-open .app-shell {
+  transform: scale(0.98);
+  filter: blur(1.5px);
+}
+
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar {
   width: 5px;
@@ -180,6 +190,21 @@ body {
     rgba(240, 210, 160, 0.06) 40%,
     transparent 70%
   );
+}
+
+.gold-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(232, 168, 56, 0.28);
+  box-shadow: 0 0 8px rgba(232, 168, 56, 0.2);
+  animation: floatParticle 10s ease-in-out infinite;
+}
+
+@keyframes floatParticle {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.2; }
+  50% { transform: translate3d(0, -18px, 0); opacity: 0.45; }
 }
 
 /* ===== GLASSMORPHISM ===== */

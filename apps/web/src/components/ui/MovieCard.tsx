@@ -37,8 +37,12 @@ export default function MovieCard({
     const rect = cardRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
+    const rotateY = Math.max(-6, Math.min(6, x * 10));
+    const rotateX = Math.max(-6, Math.min(6, -y * 10));
 
-    cardRef.current.style.transform = `perspective(600px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) scale(1.04)`;
+    cardRef.current.style.transform = `perspective(800px) rotateY(${rotateY}deg) rotateX(${rotateX}deg) scale(1.04)`;
+    cardRef.current.style.boxShadow =
+      "0 24px 56px rgba(0,0,0,0.16), 0 0 28px rgba(232,168,56,0.14)";
 
     if (glowRef.current) {
       glowRef.current.style.opacity = "1";
@@ -49,6 +53,7 @@ export default function MovieCard({
   const handleMouseLeave = () => {
     if (!cardRef.current) return;
     cardRef.current.style.transform = "perspective(600px) rotateY(0deg) rotateX(0deg) scale(1)";
+    cardRef.current.style.boxShadow = "0 8px 28px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.05)";
     if (glowRef.current) {
       glowRef.current.style.opacity = "0";
     }
@@ -57,14 +62,18 @@ export default function MovieCard({
   return (
     <motion.div
       ref={cardRef}
+      layoutId={`movie-card-${movie.id}`}
       onClick={onClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      whileTap={{ scale: 0.99 }}
       className={`floating-card rounded-2xl overflow-hidden cursor-pointer relative group transition-shadow duration-300 ${className}`}
       style={{
         width,
         height,
+        transformStyle: "preserve-3d",
         boxShadow: "0 8px 28px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.05)",
+        transition: "transform 140ms ease, box-shadow 140ms ease",
       }}
       data-cursor-hover
     >

@@ -13,6 +13,7 @@ import GridScene from "@/components/scenes/GridScene";
 import FooterScene from "@/components/scenes/FooterScene";
 import { Movie } from "@/types/movie";
 import { getDiscover } from "@/lib/tmdb";
+import { LayoutGroup } from "framer-motion";
 
 function uniqueById(movies: Movie[]) {
   const seen = new Set<number>();
@@ -94,24 +95,26 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="relative">
+    <main className="app-shell relative">
       <ParallaxBackground />
       <CursorFollower />
       <Navbar />
 
-      <div className="relative z-10">
-        <HeroScene movies={baseMovies} />
-        <ChaosScene movies={baseMovies} />
-        <CuratedScene movies={baseMovies} onMoodSelect={handleMoodSelect} />
-        <SpinRitual movies={baseMovies} onResult={handleSpinResult} />
-        <ResultScene movie={chosenMovie} />
-        <GridScene
-          movies={exploringMovies}
-          isLoading={isLoadingMovies}
-          hasError={Boolean(moviesError)}
-        />
-        <FooterScene />
-      </div>
+      <LayoutGroup id="velora-shared-layout">
+        <div className="relative z-10">
+          <HeroScene movies={baseMovies} />
+          <ChaosScene movies={baseMovies} />
+          <CuratedScene movies={baseMovies} onMoodSelect={handleMoodSelect} />
+          <SpinRitual movies={baseMovies} onResult={handleSpinResult} />
+          <ResultScene movie={chosenMovie} />
+          <GridScene
+            movies={exploringMovies}
+            isLoading={isLoadingMovies}
+            hasError={Boolean(moviesError)}
+          />
+          <FooterScene />
+        </div>
+      </LayoutGroup>
     </main>
   );
 }

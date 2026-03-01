@@ -40,7 +40,7 @@ export default function AnimatedText({
           initial={{ y: 100, opacity: 0, rotateX: -60 }}
           animate={isInView ? { y: 0, opacity: 1, rotateX: 0 } : {}}
           transition={{
-            duration: 1.1,
+            duration: 0.42,
             delay: delay + i * stagger,
             ease: [0.16, 1, 0.3, 1],
           }}

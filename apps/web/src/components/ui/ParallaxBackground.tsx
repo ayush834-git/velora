@@ -1,22 +1,37 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function ParallaxBackground() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scroll, setScroll] = useState(0);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 18 }).map((_, index) => ({
+        id: index,
+        left: `${(index * 17 + 11) % 96}%`,
+        top: `${(index * 23 + 7) % 88}%`,
+        size: 2 + (index % 3),
+        duration: 9 + (index % 6),
+        delay: (index % 5) * -0.8,
+      })),
+    []
+  );
+
   useEffect(() => {
     const handleScroll = () => {
       setScroll(window.scrollY);
     };
+
     const handleMouse = (e: MouseEvent) => {
       setMouse({
         x: (e.clientX / window.innerWidth - 0.5) * 2,
         y: (e.clientY / window.innerHeight - 0.5) * 2,
       });
     };
+
     window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("mousemove", handleMouse, { passive: true });
     return () => {
@@ -27,7 +42,6 @@ export default function ParallaxBackground() {
 
   return (
     <div ref={containerRef} className="parallax-container">
-      {/* Layer 1: Sky — slowest */}
       <div
         className="parallax-layer parallax-sky"
         style={{
@@ -35,7 +49,6 @@ export default function ParallaxBackground() {
         }}
       />
 
-      {/* Layer 2: Clouds */}
       <div
         className="parallax-layer parallax-clouds"
         style={{
@@ -43,7 +56,6 @@ export default function ParallaxBackground() {
         }}
       />
 
-      {/* Layer 3: Light rays */}
       <div
         className="parallax-layer parallax-rays"
         style={{
@@ -51,7 +63,6 @@ export default function ParallaxBackground() {
         }}
       />
 
-      {/* Layer 4: Color wash */}
       <div
         className="parallax-layer parallax-wash"
         style={{
@@ -59,7 +70,23 @@ export default function ParallaxBackground() {
         }}
       />
 
-      {/* Bottom cream fade */}
+      <div className="absolute inset-0 z-[2] pointer-events-none">
+        {particles.map((particle) => (
+          <span
+            key={particle.id}
+            className="gold-particle"
+            style={{
+              left: particle.left,
+              top: particle.top,
+              width: particle.size,
+              height: particle.size,
+              animationDuration: `${particle.duration}s`,
+              animationDelay: `${particle.delay}s`,
+            }}
+          />
+        ))}
+      </div>
+
       <div
         className="absolute bottom-0 left-0 right-0 h-[40vh] z-10"
         style={{

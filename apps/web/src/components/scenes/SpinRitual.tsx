@@ -6,12 +6,17 @@ import { gsap, ScrollTrigger } from "@/lib/gsapConfig";
 import { AnimatePresence, motion } from "framer-motion";
 import { Movie } from "@/types/movie";
 import { getImageUrl } from "@/lib/tmdb";
-import { IMAGE_SIZES, ANIMATION } from "@/lib/constants";
+import { IMAGE_SIZES } from "@/lib/constants";
 import AnimatedText from "@/components/ui/AnimatedText";
 import ParticleField from "@/components/ui/ParticleField";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { fetchSpinMovie } from "@/lib/api";
-import { getMovieRating, getPosterPath, normalizeBackendMovie } from "@/lib/movie-utils";
+import {
+  getBackdropPath,
+  getMovieRating,
+  getPosterPath,
+  normalizeBackendMovie,
+} from "@/lib/movie-utils";
 import { useFilters } from "@/context/FilterContext";
 
 interface SpinRitualProps {
@@ -21,6 +26,10 @@ interface SpinRitualProps {
 
 type SpinPhase = "idle" | "spinning" | "revealing" | "done";
 
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
 export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<SpinPhase>("idle");
@@ -28,6 +37,10 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
   const [chosenMovie, setChosenMovie] = useState<Movie | null>(null);
   const [previewMovie, setPreviewMovie] = useState<Movie | null>(null);
   const [isFilterLoading, setIsFilterLoading] = useState(false);
+  const [isPreviewTransitioning, setIsPreviewTransitioning] = useState(false);
+  const [spinRippleKey, setSpinRippleKey] = useState(0);
+  const [posterTilt, setPosterTilt] = useState({ x: 0, y: 0 });
+  const [shadowFocus, setShadowFocus] = useState({ x: 50, y: 24 });
   const apiResultRef = useRef<Movie | null>(null);
   const prefersReduced = useReducedMotion();
   const { filters } = useFilters();
@@ -45,7 +58,10 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
 
   useEffect(() => {
     let active = true;
+    let settleTimer: ReturnType<typeof setTimeout> | undefined;
+
     setIsFilterLoading(true);
+    setIsPreviewTransitioning(true);
 
     fetchSpinMovie(spinFilters)
       .then((movie) => {
@@ -56,11 +72,16 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
         console.error("Failed to refresh filtered spin movie", error);
       })
       .finally(() => {
-        if (active) setIsFilterLoading(false);
+        settleTimer = setTimeout(() => {
+          if (!active) return;
+          setIsFilterLoading(false);
+          setIsPreviewTransitioning(false);
+        }, 180);
       });
 
     return () => {
       active = false;
+      if (settleTimer) clearTimeout(settleTimer);
     };
   }, [spinFilters]);
 
@@ -83,6 +104,9 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
   const spin = useCallback(() => {
     if (phase !== "idle" || movies.length === 0) return;
     setPhase("spinning");
+    setSpinRippleKey((key) => key + 1);
+    setPosterTilt({ x: 0, y: 0 });
+    setShadowFocus({ x: 50, y: 24 });
 
     apiResultRef.current = null;
     fetchSpinMovie(spinFilters)
@@ -97,37 +121,35 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
     let count = 0;
     const flash = () => {
       setFlashIndex(Math.floor(Math.random() * movies.length));
-      count++;
-      if (count < 28) {
-        setTimeout(flash, 80 + count * 1.1);
-      } else {
-        const tryReveal = () => {
-          const chosen =
-            apiResultRef.current ||
-            movies[Math.floor(Math.random() * movies.length)] ||
-            null;
+      count += 1;
+      if (count < 24) {
+        setTimeout(flash, 55 + count * 2);
+        return;
+      }
 
-          if (!chosen) {
-            setPhase("idle");
-            return;
-          }
-
-          setChosenMovie(chosen);
-          setPhase("revealing");
-
-          setTimeout(() => {
-            setPhase("done");
-            onResult?.(chosen);
-          }, 2200);
-        };
-
-        if (apiResultRef.current) {
-          tryReveal();
-        } else {
-          setTimeout(tryReveal, 300);
+      const reveal = () => {
+        const selected = apiResultRef.current || movies[Math.floor(Math.random() * movies.length)] || null;
+        if (!selected) {
+          setPhase("idle");
+          return;
         }
+
+        setChosenMovie(selected);
+        setPhase("revealing");
+
+        setTimeout(() => {
+          setPhase("done");
+          onResult?.(selected);
+        }, 420);
+      };
+
+      if (apiResultRef.current) {
+        reveal();
+      } else {
+        setTimeout(reveal, 220);
       }
     };
+
     flash();
   }, [movies, onResult, phase, spinFilters]);
 
@@ -135,7 +157,29 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
     setPhase("idle");
     setChosenMovie(null);
     apiResultRef.current = null;
+    setPosterTilt({ x: 0, y: 0 });
+    setShadowFocus({ x: 50, y: 24 });
   }, []);
+
+  const handlePosterMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (prefersReduced) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const nx = (event.clientX - rect.left) / rect.width - 0.5;
+    const ny = (event.clientY - rect.top) / rect.height - 0.5;
+    setPosterTilt({
+      x: clamp(-ny * 12, -6, 6),
+      y: clamp(nx * 12, -6, 6),
+    });
+    setShadowFocus({
+      x: clamp((nx + 0.5) * 100, 8, 92),
+      y: clamp((ny + 0.5) * 100, 8, 92),
+    });
+  };
+
+  const handlePosterLeave = () => {
+    setPosterTilt({ x: 0, y: 0 });
+    setShadowFocus({ x: 50, y: 24 });
+  };
 
   const canSpin = phase === "idle" && movies.length > 0;
   const flashMovie = movies[flashIndex] || movies[0] || null;
@@ -143,6 +187,9 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
   const chosenPosterPath = chosenMovie ? getPosterPath(chosenMovie) : null;
   const previewPosterPath = previewMovie ? getPosterPath(previewMovie) : null;
   const chosenRating = chosenMovie ? getMovieRating(chosenMovie) : 0;
+  const backdropMovie = chosenMovie || previewMovie || flashMovie;
+  const backdropPath = backdropMovie ? getBackdropPath(backdropMovie) || getPosterPath(backdropMovie) : null;
+  const backdropSrc = backdropPath ? getImageUrl(backdropPath, IMAGE_SIZES.backdrop.large) : null;
 
   return (
     <section
@@ -151,6 +198,17 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
       id="spin"
     >
       <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream-warm to-cream" />
+      {backdropSrc && (
+        <div className="absolute inset-0 overflow-hidden">
+          <img
+            src={backdropSrc}
+            alt=""
+            className="w-full h-full object-cover scale-110 blur-[20px] opacity-50"
+          />
+        </div>
+      )}
+      <div className="absolute inset-0 bg-gradient-to-b from-cream/50 via-cream/72 to-cream" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_34%,rgba(24,22,27,0.3)_100%)]" />
 
       <div className="absolute inset-0 z-[1] pointer-events-none opacity-50">
         <ParticleField isSpiral={phase === "spinning"} />
@@ -163,14 +221,14 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
               key="spin-ready"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.5 }}
+              exit={{ opacity: 0, scale: 0.94 }}
+              transition={{ duration: 0.42 }}
             >
               <motion.span
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="font-display text-xs tracking-[0.4em] uppercase text-golden-warm/70 mb-4 block"
+                transition={{ delay: 0.08, duration: 0.35 }}
+                className="font-display text-xs tracking-[0.4em] uppercase text-golden-warm/75 mb-4 block"
               >
                 The Ritual
               </motion.span>
@@ -179,7 +237,8 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                 text="One click. One film."
                 className="font-display font-extralight text-ink mb-6"
                 style={{ fontSize: "var(--text-headline)" }}
-                delay={0.3}
+                delay={0.08}
+                stagger={0.03}
                 splitBy="words"
                 as="h2"
               />
@@ -189,15 +248,21 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                 <div className="spin-ring w-[85%] h-[85%] top-[7.5%] left-[7.5%]" />
                 <div className="spin-ring w-[70%] h-[70%] top-[15%] left-[15%]" />
 
+                {(isFilterLoading || isPreviewTransitioning) && phase !== "spinning" && (
+                  <div className="absolute inset-[23%] rounded-full overflow-hidden">
+                    <div className="absolute inset-0 shimmer opacity-70" />
+                  </div>
+                )}
+
                 <div className="absolute inset-0 flex items-center justify-center">
                   <AnimatePresence mode="wait">
                     {phase === "spinning" ? (
                       <motion.div
                         key={flashIndex}
-                        initial={{ opacity: 0, scale: 0.8, rotateY: -60 }}
+                        initial={{ opacity: 0, scale: 0.86, rotateY: -45 }}
                         animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                        exit={{ opacity: 0, scale: 0.8, rotateY: 60 }}
-                        transition={{ duration: 0.07 }}
+                        exit={{ opacity: 0, scale: 0.86, rotateY: 45 }}
+                        transition={{ duration: 0.08 }}
                         className="w-28 h-40 md:w-36 md:h-52 rounded-xl overflow-hidden shadow-xl"
                       >
                         {flashPosterPath ? (
@@ -217,18 +282,29 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                       <motion.button
                         key="spin-btn"
                         onClick={spin}
-                        whileHover={canSpin ? { scale: 1.08 } : undefined}
+                        whileHover={canSpin ? { scale: 1.04 } : undefined}
                         whileTap={canSpin ? { scale: 0.95 } : undefined}
                         disabled={!canSpin}
-                        className="spin-glow-pulse w-28 h-28 md:w-36 md:h-36 rounded-full cursor-pointer
+                        className="spin-glow-pulse relative overflow-hidden w-28 h-28 md:w-36 md:h-36 rounded-full cursor-pointer
                           bg-gradient-to-br from-golden via-golden-light to-sunset
                           text-white font-display text-xl md:text-2xl tracking-[0.2em] uppercase
                           shadow-[0_8px_40px_rgba(232,168,56,0.35)]
-                          hover:shadow-[0_12px_50px_rgba(232,168,56,0.5)]
-                          transition-shadow duration-500 disabled:opacity-70 disabled:cursor-not-allowed"
+                          hover:shadow-[0_14px_52px_rgba(232,168,56,0.56)]
+                          transition-shadow duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
                         data-cursor-hover
                       >
-                        {movies.length > 0 ? "SPIN" : "..."}
+                        {spinRippleKey > 0 && (
+                          <AnimatePresence>
+                            <motion.span
+                              key={spinRippleKey}
+                              initial={{ scale: 0, opacity: 0.35 }}
+                              animate={{ scale: 2.8, opacity: 0 }}
+                              transition={{ duration: 0.45, ease: "easeOut" }}
+                              className="absolute inset-0 rounded-full border border-white/60"
+                            />
+                          </AnimatePresence>
+                        )}
+                        <span className="relative z-10">{movies.length > 0 ? "SPIN" : "..."}</span>
                       </motion.button>
                     )}
                   </AnimatePresence>
@@ -241,9 +317,9 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                     <motion.div
                       key={previewMovie?.id || "preview"}
                       initial={{ opacity: 0 }}
-                      animate={{ opacity: isFilterLoading ? 0.3 : 1 }}
+                      animate={{ opacity: isPreviewTransitioning ? 0.25 : 1 }}
                       exit={{ opacity: 0 }}
-                      transition={{ duration: 0.35 }}
+                      transition={{ duration: 0.28 }}
                       className="w-12 h-16 rounded-md overflow-hidden shadow-md"
                     >
                       <img
@@ -261,8 +337,8 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
 
               <motion.p
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 0.5 }}
-                transition={{ delay: 1 }}
+                animate={{ opacity: 0.58 }}
+                transition={{ delay: 0.2, duration: 0.3 }}
                 className="text-ink-muted text-sm mt-4 italic"
               >
                 One click. One film. No paradox of choice.
@@ -272,32 +348,34 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
 
           {(phase === "revealing" || phase === "done") && chosenMovie && (
             <motion.div
-              key="reveal"
-              initial={{ opacity: 0, scale: 0.85, filter: "blur(20px)" }}
+              key={`reveal-${chosenMovie.id}`}
+              initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
               animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-              transition={{
-                duration: ANIMATION.duration.spinReveal,
-                ease: [0.16, 1, 0.3, 1],
-              }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
               className="flex flex-col items-center"
             >
               <motion.span
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.6 }}
+                transition={{ duration: 0.35, delay: 0.04 }}
                 className="font-display text-xs tracking-[0.3em] uppercase text-golden-warm mb-4"
               >
                 Fate has spoken
               </motion.span>
 
               <motion.div
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                transition={{
-                  duration: ANIMATION.duration.spinReveal,
-                  ease: [0.16, 1, 0.3, 1],
+                layoutId={`movie-card-${chosenMovie.id}`}
+                onMouseMove={handlePosterMove}
+                onMouseLeave={handlePosterLeave}
+                style={{
+                  transformStyle: "preserve-3d",
+                  boxShadow: `0 28px 64px rgba(0,0,0,0.28), ${(posterTilt.y / 6) * 12}px ${
+                    (posterTilt.x / 6) * 10
+                  }px 26px rgba(243,166,58,0.22)`,
                 }}
-                className="w-48 h-72 md:w-56 md:h-84 rounded-2xl overflow-hidden shadow-2xl mb-6"
+                animate={{ rotateX: posterTilt.x, rotateY: posterTilt.y }}
+                transition={{ type: "spring", stiffness: 180, damping: 18, mass: 0.45 }}
+                className="relative w-48 h-72 md:w-56 md:h-84 rounded-2xl overflow-hidden mb-6"
               >
                 {chosenPosterPath ? (
                   <img
@@ -311,12 +389,28 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                 ) : (
                   <div className="w-full h-full bg-cream-warm/80" />
                 )}
+
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: `radial-gradient(circle at ${shadowFocus.x}% ${shadowFocus.y}%, rgba(255,255,255,0.24) 0%, transparent 62%)`,
+                  }}
+                />
+
+                <motion.div
+                  className="absolute -top-3 -right-3 rounded-full h-12 w-12 flex items-center justify-center text-sm font-semibold text-white bg-gradient-to-br from-[#f7c873] to-[#f3a63a] shadow-[0_8px_20px_rgba(243,166,58,0.3)]"
+                  animate={{ x: posterTilt.y * 1.4, y: -posterTilt.x * 1.4 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 18, mass: 0.5 }}
+                  style={{ transform: "translateZ(24px)" }}
+                >
+                  {chosenRating.toFixed(1)}
+                </motion.div>
               </motion.div>
 
               <motion.h3
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, duration: 0.8 }}
+                transition={{ duration: 0.35, delay: 0.05 }}
                 className="font-display font-light text-ink"
                 style={{ fontSize: "var(--text-subheadline)" }}
               >
@@ -326,16 +420,16 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
+                transition={{ duration: 0.3, delay: 0.08 }}
                 className="text-ink-soft text-sm mt-2"
               >
-                ★ {chosenRating.toFixed(1)} · {chosenMovie.release_date?.slice(0, 4)}
+                {chosenMovie.release_date?.slice(0, 4)} · {chosenMovie.original_language?.toUpperCase()}
               </motion.p>
 
               <motion.button
-                initial={{ opacity: 0, y: 15 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8, duration: 0.6 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
                 onClick={reset}
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.95 }}
