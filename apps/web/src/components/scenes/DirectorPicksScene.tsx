@@ -22,7 +22,7 @@ export default function DirectorPicksScene({ movies }: Props) {
   const topRated = movies.filter(
     (m) => !ESSENTIAL_IDS.includes(m.id) && m.vote_average >= 8.0
   );
-  const picks = [...essentials, ...topRated].slice(0, 8);
+  const picks = [...essentials, ...topRated].slice(0, 20);
 
   return (
     <section ref={ref} className="relative py-16 overflow-hidden bg-cream">

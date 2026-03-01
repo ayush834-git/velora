@@ -26,7 +26,7 @@ export default function FooterScene() {
   return (
     <footer
       ref={sectionRef}
-      className="scene relative pt-32 pb-0 px-[5vw] overflow-hidden
+      className="scene relative pt-40 pb-20 px-[5vw] min-h-[75svh] flex flex-col justify-end overflow-hidden
         bg-black border-t border-white/10"
       id="footer"
     >
@@ -50,8 +50,8 @@ export default function FooterScene() {
         VELORA
       </motion.div>
 
-      <div className="relative z-10 max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 pb-24">
+      <div className="relative z-10 max-w-7xl mx-auto w-full mt-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-24 pb-12">
 
           {/* Brand column */}
           <motion.div

@@ -84,7 +84,7 @@ export default function Home() {
   }, []);
 
   const exploringMovies = useMemo(() => {
-    return shuffleMovies(baseMovies).slice(0, 12);
+    return shuffleMovies(baseMovies).slice(0, 24);
   }, [baseMovies]);
 
   useEffect(() => {
