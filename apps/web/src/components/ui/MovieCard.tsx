@@ -34,7 +34,7 @@ export default function MovieCard({
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
 
-    cardRef.current.style.transform = `perspective(600px) rotateY(${x * 15}deg) rotateX(${-y * 15}deg) scale(1.04)`;
+    cardRef.current.style.transform = `perspective(600px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) scale(1.04)`;
 
     if (glowRef.current) {
       glowRef.current.style.opacity = "1";
@@ -56,11 +56,11 @@ export default function MovieCard({
       onClick={onClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={`floating-card rounded-2xl overflow-hidden cursor-pointer relative group ${className}`}
+      className={`floating-card rounded-2xl overflow-hidden cursor-pointer relative group transition-shadow duration-300 ${className}`}
       style={{
         width,
         height,
-        boxShadow: "0 10px 40px rgba(0,0,0,0.08), 0 2px 10px rgba(0,0,0,0.04)",
+        boxShadow: "0 8px 28px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.05)",
       }}
       data-cursor-hover
     >

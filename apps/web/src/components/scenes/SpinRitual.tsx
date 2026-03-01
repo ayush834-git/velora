@@ -12,7 +12,6 @@ import ParticleField from "@/components/ui/ParticleField";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { fetchSpinMovie } from "@/lib/api";
 import { getMovieRating, getPosterPath, normalizeBackendMovie } from "@/lib/movie-utils";
-import { useFilterContext } from "@/context/FilterContext";
 
 interface SpinRitualProps {
   movies: Movie[];
@@ -22,7 +21,6 @@ interface SpinRitualProps {
 type SpinPhase = "idle" | "spinning" | "revealing" | "done";
 
 export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
-  const { appliedFilters } = useFilterContext();
   const sectionRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<SpinPhase>("idle");
   const [flashIndex, setFlashIndex] = useState(0);
@@ -51,7 +49,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
     setPhase("spinning");
 
     apiResultRef.current = null;
-    fetchSpinMovie(appliedFilters)
+    fetchSpinMovie()
       .then((data) => {
         apiResultRef.current = normalizeBackendMovie(data);
       })
@@ -95,7 +93,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
       }
     };
     flash();
-  }, [movies, onResult, phase, appliedFilters]);
+  }, [movies, onResult, phase]);
 
   const reset = useCallback(() => {
     setPhase("idle");
@@ -278,10 +276,14 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8, duration: 0.6 }}
                 onClick={reset}
+                whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.95 }}
                 className="mt-8 px-6 py-2.5 rounded-full text-sm tracking-wider uppercase
-                  font-display border border-golden/30 text-golden-warm
-                  hover:bg-golden/10 transition-all duration-300 cursor-pointer"
+                  font-display text-white border border-golden/40
+                  bg-gradient-to-br from-[#f7c873] to-[#f3a63a]
+                  shadow-[0_8px_22px_rgba(243,166,58,0.32)]
+                  hover:shadow-[0_12px_30px_rgba(243,166,58,0.45)]
+                  transition-all duration-300 cursor-pointer"
                 data-cursor-hover
               >
                 Spin Again

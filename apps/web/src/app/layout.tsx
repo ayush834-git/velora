@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Outfit, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
-import { FilterProvider } from "@/context/FilterContext";
+import { FilterProvider } from "@/context/filterContext";
 
 const inter = Inter({
   variable: "--font-body",
@@ -15,6 +15,13 @@ const outfit = Outfit({
   subsets: ["latin"],
   display: "swap",
   weight: ["200", "300", "400", "500", "600", "700"],
+});
+
+const playfair = Playfair_Display({
+  variable: "--font-accent",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -39,7 +46,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${outfit.variable} antialiased`}
+        className={`${inter.variable} ${outfit.variable} ${playfair.variable} antialiased`}
         style={{ background: "#faf8f5", color: "#1a1a2e" }}
         suppressHydrationWarning
       >

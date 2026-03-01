@@ -37,8 +37,8 @@ export default function PosterCard({
     const ny = (e.clientY - rect.top) / rect.height - 0.5;
 
     gsap.to(cardRef.current, {
-      rotateY: nx * 18,
-      rotateX: -ny * 18,
+      rotateY: nx * 6,
+      rotateX: -ny * 6,
       scale: 1.04,
       duration: 0.5,
       ease: "power2.out",
@@ -71,7 +71,7 @@ export default function PosterCard({
     <div
       ref={cardRef}
       onClick={onClick}
-      className={`relative rounded-2xl overflow-hidden cursor-pointer group
+      className={`relative rounded-2xl overflow-hidden cursor-pointer group transition-shadow duration-300
         will-change-transform ${className}`}
       style={{
         width,
@@ -80,7 +80,7 @@ export default function PosterCard({
         transformStyle: "preserve-3d",
         transform: `translateZ(${depth}px)`,
         boxShadow: `0 ${shadowSpread}px ${shadowBlur}px rgba(0,0,0,0.08),
-                     0 2px 10px rgba(0,0,0,0.04)`,
+                     0 2px 10px rgba(0,0,0,0.05)`,
       }}
       onPointerMove={handlePointerMove}
       onPointerLeave={handlePointerLeave}

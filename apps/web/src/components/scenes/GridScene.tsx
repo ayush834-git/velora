@@ -72,13 +72,15 @@ export default function GridScene({
                   className="snap-center flex-shrink-0"
                 >
                   <div
-                    className="rounded-2xl bg-gradient-to-br from-cream-warm/80 to-cream animate-pulse"
+                    className="relative rounded-2xl bg-gradient-to-br from-cream-warm/80 to-cream animate-pulse overflow-hidden"
                     style={{
                       width: isLarger ? 260 : 220,
                       height: isLarger ? 390 : 330,
                       boxShadow: "0 10px 40px rgba(0,0,0,0.05), 0 2px 10px rgba(0,0,0,0.03)",
                     }}
-                  />
+                  >
+                    <div className="absolute inset-0 shimmer" />
+                  </div>
                 </motion.div>
               );
             })}

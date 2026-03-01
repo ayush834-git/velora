@@ -69,16 +69,19 @@ export default function Navbar() {
 
             <FilterPanel />
 
-            <button
+            <motion.button
               onClick={() => scrollToSection("spin")}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 320, damping: 18 }}
               className="glow-button px-5 py-2 rounded-full text-sm tracking-wider uppercase font-medium
-                bg-golden/90 text-white border-none
-                hover:bg-golden hover:shadow-[0_4px_24px_rgba(232,168,56,0.4)]
+                bg-gradient-to-br from-[#f7c873] to-[#f3a63a] text-white border border-golden/40
+                hover:shadow-[0_8px_28px_rgba(243,166,58,0.45)]
                 transition-all duration-300 cursor-pointer"
               data-cursor-hover
             >
               Spin Now
-            </button>
+            </motion.button>
           </div>
         </div>
       </motion.nav>

@@ -17,7 +17,9 @@ export default function ResultScene({ movie }: ResultSceneProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-10%" });
   const [dominantColor, setDominantColor] = useState("rgba(232, 168, 56, 0.15)");
-  const backdropSourcePath = movie ? getBackdropPath(movie) ?? getPosterPath(movie) : null;
+  const directBackdropPath = movie ? getBackdropPath(movie) : null;
+  const backdropSourcePath = movie ? directBackdropPath ?? getPosterPath(movie) : null;
+  const isPosterBackdropFallback = Boolean(backdropSourcePath && !directBackdropPath);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -113,11 +115,14 @@ export default function ResultScene({ movie }: ResultSceneProps) {
           <img
             src={getImageUrl(backdropSourcePath, IMAGE_SIZES.backdrop.large)}
             alt=""
-            className="w-full h-full object-cover"
+            className={`w-full h-full object-cover ${isPosterBackdropFallback ? "scale-110 blur-sm" : ""}`}
             loading="lazy"
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-cream via-cream/60 to-cream/30" />
+          {isPosterBackdropFallback && (
+            <div className="absolute inset-0 bg-gradient-to-r from-cream/45 via-cream/25 to-cream/45" />
+          )}
         </motion.div>
       )}
 
