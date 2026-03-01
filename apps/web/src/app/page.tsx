@@ -7,7 +7,11 @@ import ParallaxBackground from "@/components/ui/ParallaxBackground";
 import CursorFollower from "@/components/ui/CursorFollower";
 import HeroScene from "@/components/scenes/HeroScene";
 import ChaosScene from "@/components/scenes/ChaosScene";
+import MarqueeScene from "@/components/scenes/MarqueeScene";
+import ManifestoScene from "@/components/scenes/ManifestoScene";
+import HowItWorksScene from "@/components/scenes/HowItWorksScene";
 import CuratedScene from "@/components/scenes/CuratedScene";
+import DirectorPicksScene from "@/components/scenes/DirectorPicksScene";
 import SpinRitual from "@/components/scenes/SpinRitual";
 import ResultScene from "@/components/scenes/ResultScene";
 import GridScene from "@/components/scenes/GridScene";
@@ -135,7 +139,11 @@ export default function Home() {
         <div className="relative z-10">
           <HeroScene movies={baseMovies} />
           <ChaosScene movies={baseMovies} />
+          <MarqueeScene />
+          <ManifestoScene />
+          <HowItWorksScene />
           <CuratedScene movies={baseMovies} onMoodSelect={handleMoodSelect} />
+          <DirectorPicksScene movies={baseMovies} />
           <SpinRitual movies={baseMovies} onResult={handleSpinResult} />
           <ResultScene movie={chosenMovie} isTransitioning={isBannerTransitioning} />
           <GridScene
@@ -149,3 +157,4 @@ export default function Home() {
     </main>
   );
 }
+

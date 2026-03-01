@@ -444,3 +444,19 @@ body {
   border-color: transparent;
   box-shadow: 0 4px 20px rgba(232, 168, 56, 0.3);
 }
+
+/* ===== RESPONSIVE HERO TEXT ===== */
+@media (max-width: 900px) {
+  :root {
+    --text-hero: clamp(2.6rem, 9.5vw, 5.5rem);
+  }
+}
+@media (max-width: 520px) {
+  :root {
+    --text-hero: clamp(2rem, 9vw, 3.5rem);
+  }
+}
+
+/* ===== SCROLLBAR HIDING ===== */
+.scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+.scrollbar-none::-webkit-scrollbar { display: none; }

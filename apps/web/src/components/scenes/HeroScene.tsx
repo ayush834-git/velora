@@ -105,7 +105,12 @@ export default function HeroScene({ movies }: HeroSceneProps) {
 
         <h1
           className="font-display font-extralight leading-[0.95] tracking-tight text-ink"
-          style={{ fontSize: "var(--text-hero)" }}
+          style={{
+            fontSize: "var(--text-hero)",
+            wordBreak: "keep-all",
+            overflowWrap: "normal",
+            hyphens: "none",
+          }}
           aria-label={title}
         >
           {titleChars.map((char, i) => (

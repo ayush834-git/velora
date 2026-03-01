@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import FilterPanel from "./FilterPanel";
 import { useFilters } from "@/context/FilterContext";
 
@@ -105,36 +105,46 @@ export default function Navbar() {
           </div>
         </div>
         {activeFilters.length > 0 && (
-          <div className="border-t border-golden/20 bg-golden/10 px-6 md:px-12 py-2.5">
-            <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2">
-              <span className="text-[11px] uppercase tracking-[0.18em] text-golden-warm/90">
-                Filtering By
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+            className="overflow-hidden border-t border-golden/20 bg-golden/[0.07]"
+          >
+            <div className="flex items-center gap-3 flex-wrap px-6 md:px-12 py-2 min-h-[2.5rem] max-w-7xl mx-auto">
+              <span className="text-[10px] tracking-[0.3em] uppercase text-ink-muted shrink-0">
+                Filtering by
               </span>
-              {activeFilters.map(([key, value]) => (
-                <span
-                  key={key}
-                  className="inline-flex items-center gap-1 rounded-full bg-golden px-3 py-1 text-xs text-white"
-                >
-                  {value}
-                  <button
-                    type="button"
+              <AnimatePresence mode="popLayout">
+                {activeFilters.map(([key, value]) => (
+                  <motion.button
+                    key={key}
+                    layout
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 380, damping: 22 }}
                     onClick={() => setFilter(key, null)}
-                    className="cursor-pointer text-white/90 hover:text-white"
-                    aria-label={`Clear ${key}`}
+                    className="flex items-center gap-1.5 h-7 px-3 rounded-full
+                      bg-golden text-white text-[11px] tracking-wide
+                      hover:bg-golden-warm transition-colors cursor-pointer shrink-0"
                   >
-                    x
-                  </button>
-                </span>
-              ))}
-              <button
-                type="button"
+                    {value}
+                    <span className="opacity-60 text-xs leading-none ml-0.5">×</span>
+                  </motion.button>
+                ))}
+              </AnimatePresence>
+              <motion.button
+                layout
                 onClick={clearFilters}
-                className="ml-1 text-[11px] uppercase tracking-[0.16em] text-ink-soft hover:text-ink cursor-pointer"
+                className="text-[10px] tracking-widest uppercase text-ink-muted
+                  hover:text-ink transition-colors cursor-pointer ml-auto"
               >
-                Clear All
-              </button>
+                Clear all
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
         )}
       </motion.nav>
     </>

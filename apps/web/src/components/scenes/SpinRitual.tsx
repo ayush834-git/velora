@@ -76,6 +76,11 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
     [filters.genre, filters.mood, filters.era, filters.language, filters.rating]
   );
 
+  const activeFilterLabels = Object.values(spinFilters).filter(
+    (v): v is string => typeof v === "string" && v.length > 0 && v !== "Any"
+  );
+  const hasActiveFilters = activeFilterLabels.length > 0;
+
   const flashPool = useMemo(() => {
     if (movies.length === 0) return movies;
     let pool = movies;
@@ -337,12 +342,13 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                         whileHover={canSpin ? { scale: 1.04 } : undefined}
                         whileTap={canSpin ? { scale: 0.95 } : undefined}
                         disabled={!canSpin}
-                        className="spin-glow-pulse relative overflow-hidden w-28 h-28 md:w-36 md:h-36 rounded-full cursor-pointer
+                        className={`spin-glow-pulse relative overflow-hidden w-28 h-28 md:w-36 md:h-36 rounded-full cursor-pointer
                           btn-primary
                           text-white font-display text-xl md:text-2xl tracking-[0.2em] uppercase
                           shadow-[0_8px_40px_rgba(216,154,63,0.35)]
                           hover:shadow-[0_14px_52px_rgba(232,168,56,0.56)]
-                          transition-shadow duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+                          transition-shadow duration-300 disabled:opacity-70 disabled:cursor-not-allowed
+                          ${hasActiveFilters ? "ring-4 ring-golden/50 ring-offset-4 ring-offset-cream" : ""}`}
                         data-cursor-hover
                       >
                         {spinRippleKey > 0 && (
@@ -398,6 +404,17 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
               >
                 One click. One film. No paradox of choice.
               </motion.p>
+
+              {hasActiveFilters && (
+                <motion.p
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="text-[10px] tracking-[0.32em] uppercase text-golden-warm mt-3"
+                >
+                  {activeFilterLabels.join("  ·  ")}
+                </motion.p>
+              )}
             </motion.div>
           )}
 

@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
+import Image from "next/image";
 import { Movie } from "@/types/movie";
 import { getImageUrl } from "@/lib/tmdb";
 import { IMAGE_SIZES, MOODS } from "@/lib/constants";
@@ -13,19 +13,47 @@ interface CuratedSceneProps {
   onMoodSelect?: (moodId: string, genreIds: number[]) => void;
 }
 
+const MOOD_PREFERRED_IDS: Record<string, number[]> = {
+  "mind-bending": [157336, 11324, 49538, 68718],  // Interstellar, Shutter Island, X-Men: FC, Django
+  "comfort":      [129, 12477, 10681, 372058],     // Spirited Away, Grave of Fireflies, WALL-E, Your Name
+  "dark":         [155, 769, 240, 274],             // Dark Knight, GoodFellas, Godfather II, Chinatown
+  "romantic":     [140607, 4935, 11036, 8587],      // DDLJ, Howl's Castle, The Notebook, The Vow
+  "epic":         [120, 122, 121, 1726],            // LOTR 1/2/3, Iron Man
+  "underrated":   [424, 637, 578, 244786],          // Schindler's, Life is Beautiful, Prisoners, Whiplash
+};
+
 export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-10%" });
 
+  const usedPaths = new Set<string>();
   const moodBackdrops: Record<string, string | null> = {};
-  MOODS.forEach((mood, index) => {
-    const found = movies.find((m) =>
-      m.genre_ids.some((g) => mood.genreIds.includes(g))
-    );
-    const fallback = movies.length > 0 ? movies[index % movies.length] : null;
-    moodBackdrops[mood.id] =
-      found?.backdrop_path || fallback?.backdrop_path || null;
-  });
+  for (const mood of MOODS) {
+    const ids = MOOD_PREFERRED_IDS[mood.id] ?? [];
+    let chosen: string | null = null;
+    // Try preferred IDs first
+    for (const id of ids) {
+      const movie = movies.find((m) => m.id === id);
+      if (movie?.backdrop_path && !usedPaths.has(movie.backdrop_path)) {
+        chosen = movie.backdrop_path;
+        usedPaths.add(movie.backdrop_path);
+        break;
+      }
+    }
+    // Fallback: any movie matching the mood's genres with an unused backdrop
+    if (!chosen) {
+      const fallback = movies.find(
+        (m) => m.backdrop_path &&
+               !usedPaths.has(m.backdrop_path) &&
+               m.genre_ids.some((g) => mood.genreIds.includes(g))
+      );
+      if (fallback?.backdrop_path) {
+        chosen = fallback.backdrop_path;
+        usedPaths.add(fallback.backdrop_path);
+      }
+    }
+    moodBackdrops[mood.id] = chosen;
+  }
 
   return (
     <section
@@ -60,7 +88,7 @@ export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps
       <div className="relative z-10 w-full max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
         {MOODS.map((mood, i) => {
           const backdropUrl = moodBackdrops[mood.id]
-            ? getImageUrl(moodBackdrops[mood.id], IMAGE_SIZES.backdrop.medium)
+            ? getImageUrl(moodBackdrops[mood.id]!, IMAGE_SIZES.backdrop.medium)
             : null;
 
           return (
@@ -90,12 +118,13 @@ export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps
               {/* Backdrop image */}
               {backdropUrl && (
                 <div className="absolute inset-0">
-                  <img
+                  <Image
                     src={backdropUrl}
                     alt=""
-                    className="w-full h-full object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110
+                    fill
+                    sizes="(max-width: 768px) 50vw, 33vw"
+                    className="object-cover opacity-60 group-hover:opacity-80 group-hover:scale-110
                       transition-all duration-700 ease-out"
-                    loading="lazy"
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-white/30 to-transparent" />

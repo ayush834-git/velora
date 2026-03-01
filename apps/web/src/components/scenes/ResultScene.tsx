@@ -206,7 +206,7 @@ export default function ResultScene({ movie, isTransitioning = false }: ResultSc
             initial={{ opacity: 0, y: 12 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.45, delay: 0.06, ease: [0.2, 0.8, 0.2, 1] }}
-            className="space-y-5 md:space-y-6 text-center"
+            className="space-y-5 md:space-y-6 text-center md:text-left"
           >
             <h2
               className="text-cream"
@@ -230,15 +230,15 @@ export default function ResultScene({ movie, isTransitioning = false }: ResultSc
               }}
             >
               <span>{movie?.release_date?.slice(0, 4) ?? "----"}</span>
-              <span className="mx-2">-</span>
-              <span>{(movie?.vote_average ?? 0).toFixed(1)}</span>
-              <span className="mx-2">-</span>
+              <span className="mx-2">·</span>
+              <span>★ {(movie?.vote_average ?? 0).toFixed(1)}</span>
+              <span className="mx-2">·</span>
               <span>{movie?.original_language?.toUpperCase() ?? "--"}</span>
             </div>
 
             <p
-              className="text-cream/90 leading-relaxed max-w-[900px] mx-auto"
-              style={{ fontSize: "var(--text-body)" }}
+              className="text-cream/90 leading-[1.75] max-w-[540px] mx-auto md:mx-0"
+              style={{ fontSize: "max(1rem, var(--text-body))" }}
             >
               {movie?.overview ?? "Preparing your next cinematic pick..."}
             </p>
@@ -280,7 +280,7 @@ export default function ResultScene({ movie, isTransitioning = false }: ResultSc
               </div>
             )}
 
-            <div className="flex items-center justify-center gap-3 pt-2">
+            <div className="flex items-center justify-center md:justify-start gap-3 pt-2">
               <GlowButton variant="primary">Spin Again</GlowButton>
               <GlowButton variant="secondary">Share -&gt;</GlowButton>
             </div>
