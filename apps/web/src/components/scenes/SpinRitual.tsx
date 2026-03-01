@@ -1,8 +1,7 @@
 "use client";
 
-import { useRef, useState, useCallback, useLayoutEffect, useMemo, useEffect } from "react";
+import { useRef, useState, useCallback, useMemo, useEffect } from "react";
 import Image from "next/image";
-import { gsap, ScrollTrigger } from "@/lib/gsapConfig";
 import { AnimatePresence, motion } from "framer-motion";
 import { Movie } from "@/types/movie";
 import { getImageUrl } from "@/lib/tmdb";
@@ -131,21 +130,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
     };
   }, [spinFilters]);
 
-  useLayoutEffect(() => {
-    if (!sectionRef.current || prefersReduced) return;
-
-    const ctx = gsap.context(() => {
-      ScrollTrigger.create({
-        trigger: sectionRef.current,
-        start: "top top",
-        end: "+=100%",
-        pin: true,
-        pinSpacing: true,
-      });
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, [prefersReduced]);
+  // Removed GSAP ScrollTrigger pin — was causing jarring scroll snap
 
   const spin = useCallback(() => {
     if (phase !== "idle" || flashPool.length === 0) return;

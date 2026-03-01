@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import FilterPanel from "./FilterPanel";
 import { useFilters } from "@/context/FilterContext";
 
@@ -79,6 +80,13 @@ export default function Navbar() {
             >
               Discover
             </button>
+            <Link
+              href="/browse"
+              className="hidden md:block text-sm tracking-widest uppercase text-ink-soft hover:text-ink transition-colors"
+              data-cursor-hover
+            >
+              Browse
+            </Link>
             <button
               onClick={() => scrollToSection("spin")}
               className="hidden md:block text-sm tracking-widest uppercase text-ink-soft hover:text-ink transition-colors cursor-pointer"
