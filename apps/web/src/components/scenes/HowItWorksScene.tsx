@@ -27,13 +27,11 @@ export default function HowItWorksScene() {
   return (
     <section
       ref={ref}
-      className="relative py-28 px-[5vw] bg-ink overflow-hidden"
+      className="relative py-28 px-[5vw] overflow-hidden"
+      style={{
+        background: "linear-gradient(to bottom, #1a1a2e 0%, #1a1a2e 65%, #faf8f5 100%)",
+      }}
     >
-      {/* Bottom bleed from HowItWorks to CuratedScene */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-40 md:h-56 pointer-events-none z-0"
-        style={{ background: "linear-gradient(to bottom, #1a1a2e, #faf8f5)" }}
-      />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(232,168,56,0.05),transparent_50%)] pointer-events-none z-0" />
 
       <div className="max-w-6xl mx-auto relative z-10">

@@ -47,19 +47,12 @@ export default function ManifestoScene() {
     <section
       ref={sectionRef}
       className="relative min-h-[50vh] min-h-[500px] flex flex-col justify-center
-        py-24 md:py-32 px-[5vw] bg-cream
+        py-24 md:py-32 px-[5vw]
         overflow-hidden"
+      style={{
+        background: "linear-gradient(to bottom, #080714 0%, #faf8f5 35%, #faf8f5 65%, #1a1a2e 100%)",
+      }}
     >
-      {/* Top bleed from Constellation to Manifesto */}
-      <div 
-        className="absolute top-0 left-0 right-0 h-40 md:h-56 pointer-events-none z-0"
-        style={{ background: "linear-gradient(to bottom, #080714, #faf8f5)" }}
-      />
-      {/* Bottom bleed from Manifesto to HowItWorks */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-40 md:h-56 pointer-events-none z-0"
-        style={{ background: "linear-gradient(to bottom, #faf8f5, #1a1a2e)" }}
-      />
       {/* Decorative giant V */}
       <div
         aria-hidden
