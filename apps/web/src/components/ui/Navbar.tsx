@@ -10,11 +10,21 @@ export default function Navbar() {
   const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 60);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    const hero = document.getElementById("hero");
+    if (!hero) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setScrolled(!entry.isIntersecting);
+      },
+      {
+        threshold: 0.98,
+        rootMargin: "-60px 0px 0px 0px",
+      }
+    );
+
+    observer.observe(hero);
+    return () => observer.disconnect();
   }, []);
 
   const scrollToSection = (id: string) => {
@@ -74,7 +84,7 @@ export default function Navbar() {
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 320, damping: 18 }}
-              className="glow-button px-5 py-2 rounded-full text-sm tracking-wider uppercase font-medium
+              className="glow-button btn-premium text-sm tracking-[0.03em] uppercase font-medium
                 bg-gradient-to-br from-[#f7c873] to-[#f3a63a] text-white border border-golden/40
                 hover:shadow-[0_8px_28px_rgba(243,166,58,0.45)]
                 transition-all duration-300 cursor-pointer"

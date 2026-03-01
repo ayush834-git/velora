@@ -1,7 +1,7 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useRef, useEffect, useState } from "react";
+import Image from "next/image";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { Movie } from "@/types/movie";
 import { getImageUrl } from "@/lib/tmdb";
@@ -20,6 +20,13 @@ export default function ResultScene({ movie }: ResultSceneProps) {
   const directBackdropPath = movie ? getBackdropPath(movie) : null;
   const backdropSourcePath = movie ? directBackdropPath ?? getPosterPath(movie) : null;
   const isPosterBackdropFallback = Boolean(backdropSourcePath && !directBackdropPath);
+  const backdropSrc = backdropSourcePath
+    ? getImageUrl(backdropSourcePath, IMAGE_SIZES.backdrop.large)
+    : null;
+  const backdropBlur = backdropSourcePath ? getImageUrl(backdropSourcePath, "w92") : undefined;
+  const posterPath = movie ? getPosterPath(movie) : null;
+  const posterSrc = posterPath ? getImageUrl(posterPath, IMAGE_SIZES.poster.large) : null;
+  const posterBlur = posterPath ? getImageUrl(posterPath, "w92") : undefined;
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -28,7 +35,6 @@ export default function ResultScene({ movie }: ResultSceneProps) {
 
   const bgY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
 
-  // Extract dominant color from poster and inject as CSS variables
   useEffect(() => {
     if (!movie?.poster_path) return;
     const img = new window.Image();
@@ -45,26 +51,16 @@ export default function ResultScene({ movie }: ResultSceneProps) {
         const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
         setDominantColor(`rgba(${r}, ${g}, ${b}, 0.12)`);
 
-        // Inject dynamic theme CSS variables on :root
         const root = document.documentElement;
         root.style.setProperty("--theme-accent", `rgb(${r}, ${g}, ${b})`);
-        root.style.setProperty(
-          "--theme-accent-weak",
-          `rgba(${r}, ${g}, ${b}, 0.15)`
-        );
+        root.style.setProperty("--theme-accent-weak", `rgba(${r}, ${g}, ${b}, 0.15)`);
         root.style.setProperty(
           "--glass-tint",
-          `rgba(${Math.min(r + 40, 255)}, ${Math.min(g + 40, 255)}, ${Math.min(
-            b + 40,
-            255
-          )}, 0.55)`
+          `rgba(${Math.min(r + 40, 255)}, ${Math.min(g + 40, 255)}, ${Math.min(b + 40, 255)}, 0.55)`
         );
         root.style.setProperty(
           "--rim-color",
-          `rgba(${Math.min(r + 80, 255)}, ${Math.min(g + 80, 255)}, ${Math.min(
-            b + 80,
-            255
-          )}, 0.25)`
+          `rgba(${Math.min(r + 80, 255)}, ${Math.min(g + 80, 255)}, ${Math.min(b + 80, 255)}, 0.25)`
         );
       } catch {
         // CORS fail silently
@@ -74,22 +70,8 @@ export default function ResultScene({ movie }: ResultSceneProps) {
 
   if (!movie) {
     return (
-      <section
-        ref={sectionRef}
-        className="scene relative min-h-[80vh] flex items-center justify-center"
-        id="result"
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-cream to-cream-warm" />
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 1 }}
-          className="relative z-10 text-center px-6"
-        >
-          <p className="font-display text-ink-muted text-lg italic">
-            Spin the wheel above to reveal your film...
-          </p>
-        </motion.div>
+      <section className="relative h-0 overflow-hidden" id="movie-banner" aria-hidden="true">
+        <div id="result" />
       </section>
     );
   }
@@ -98,26 +80,30 @@ export default function ResultScene({ movie }: ResultSceneProps) {
     <section
       ref={sectionRef}
       className="scene relative min-h-screen overflow-hidden"
-      id="result"
+      id="movie-banner"
     >
-      {/* Dynamic color wash background */}
+      <div id="result" className="absolute top-0 left-0 h-px w-px" />
+
       <div
-        className="absolute inset-0 transition-colors duration-1000"
+        className="absolute inset-0 transition-colors duration-1000 z-0"
         style={{ background: `linear-gradient(180deg, ${dominantColor}, var(--background))` }}
       />
 
-      {/* Backdrop image */}
-      {backdropSourcePath && (
+      {backdropSrc && (
         <motion.div
-          className="absolute inset-0 opacity-20"
-          style={{ y: bgY }}
+          className="absolute inset-0 z-0 opacity-20"
+          style={{ y: bgY, transform: "translateZ(0)" }}
         >
-          <img
-            src={getImageUrl(backdropSourcePath, IMAGE_SIZES.backdrop.large)}
+          <Image
+            src={backdropSrc}
             alt=""
-            className={`w-full h-full object-cover ${isPosterBackdropFallback ? "scale-110 blur-sm" : ""}`}
-            loading="lazy"
-            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            fill
+            sizes="100vw"
+            quality={90}
+            priority
+            placeholder={backdropBlur ? "blur" : "empty"}
+            blurDataURL={backdropBlur}
+            className={`object-cover ${isPosterBackdropFallback ? "scale-110 blur-sm" : ""}`}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-cream via-cream/60 to-cream/30" />
           {isPosterBackdropFallback && (
@@ -126,10 +112,8 @@ export default function ResultScene({ movie }: ResultSceneProps) {
         </motion.div>
       )}
 
-      {/* Content */}
-      <div className="relative z-10 min-h-screen flex items-center py-24 px-6">
+      <div className="relative z-[2] min-h-screen flex items-center py-24 px-6">
         <div className="max-w-6xl mx-auto w-full grid grid-cols-1 md:grid-cols-[1fr_1.3fr] gap-10 md:gap-16 items-center">
-          {/* Poster */}
           <motion.div
             initial={{ opacity: 0, x: -60 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
@@ -137,35 +121,38 @@ export default function ResultScene({ movie }: ResultSceneProps) {
             className="flex flex-col items-center md:items-end"
           >
             <div className="relative">
-              <div className="w-64 md:w-80 h-96 md:h-[28rem] rounded-2xl overflow-hidden shadow-2xl">
-                <img
-                  src={getImageUrl(movie.poster_path, IMAGE_SIZES.poster.large)}
-                  alt={movie.title}
-                  className="w-full h-full object-cover"
-                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                />
+              <div className="relative w-64 md:w-80 h-96 md:h-[28rem] rounded-2xl overflow-hidden shadow-2xl">
+                {posterSrc && (
+                  <Image
+                    src={posterSrc}
+                    alt={movie.title}
+                    fill
+                    sizes="(max-width:1200px) 33vw, 320px"
+                    quality={90}
+                    priority
+                    placeholder={posterBlur ? "blur" : "empty"}
+                    blurDataURL={posterBlur}
+                    className="object-cover"
+                  />
+                )}
               </div>
-              {/* Rating badge */}
-              <div className="absolute -top-3 -right-3 w-14 h-14 rounded-full bg-golden text-white
+              <div
+                className="absolute -top-3 -right-3 w-14 h-14 rounded-full bg-golden text-white
                 flex items-center justify-center text-sm font-bold shadow-lg
-                ring-4 ring-cream">
+                ring-4 ring-cream"
+              >
                 {movie.vote_average.toFixed(1)}
               </div>
             </div>
           </motion.div>
 
-          {/* Details */}
           <motion.div
             className="space-y-5"
             initial={{ opacity: 0, x: 60 }}
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           >
-            {movie.tagline && (
-              <p className="font-body italic text-golden-warm text-base">
-                &ldquo;{movie.tagline}&rdquo;
-              </p>
-            )}
+            {movie.tagline && <p className="font-body italic text-golden-warm text-base">&ldquo;{movie.tagline}&rdquo;</p>}
 
             <h2
               className="font-display font-extralight text-ink leading-[1.05]"
@@ -181,12 +168,13 @@ export default function ResultScene({ movie }: ResultSceneProps) {
                 <span className="text-golden">★</span> {movie.vote_average.toFixed(1)}
               </span>
               <span>·</span>
-              <span className="uppercase tracking-wider text-xs">
-                {movie.original_language}
-              </span>
+              <span className="uppercase tracking-wider text-xs">{movie.original_language}</span>
             </div>
 
-            <p className="text-ink-soft/80 leading-relaxed max-w-lg" style={{ fontSize: "var(--text-body)" }}>
+            <p
+              className="text-ink-soft/80 leading-relaxed max-w-[900px] mx-auto md:mx-0 text-center md:text-left"
+              style={{ fontSize: "var(--text-body)" }}
+            >
               {movie.overview}
             </p>
 

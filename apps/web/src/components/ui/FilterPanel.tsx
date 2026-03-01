@@ -74,18 +74,6 @@ export default function FilterPanel() {
     };
   }, [isOpen]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      document.body.classList.remove("drawer-open");
-      return;
-    }
-
-    document.body.classList.add("drawer-open");
-    return () => {
-      document.body.classList.remove("drawer-open");
-    };
-  }, [isOpen]);
-
   const handleChipClick = (
     category: "genre" | "mood" | "era" | "language" | "rating",
     item: string
@@ -108,7 +96,7 @@ export default function FilterPanel() {
         transition={{ type: "spring", stiffness: 320, damping: 18 }}
         aria-expanded={isOpen}
         aria-haspopup="dialog"
-        className="rounded-full h-10 px-5 inline-flex items-center gap-2.5 cursor-pointer
+        className="btn-premium h-10 cursor-pointer
           bg-gradient-to-br from-[#f7c873]/95 to-[#f3a63a]/95 text-white
           border border-golden/40 shadow-[0_8px_24px_rgba(243,166,58,0.28)]
           hover:shadow-[0_12px_30px_rgba(243,166,58,0.4)] transition-shadow duration-300"
@@ -131,7 +119,14 @@ export default function FilterPanel() {
         {isOpen && (
           <>
             <motion.div
-              className="fixed inset-0 z-[65] bg-transparent backdrop-blur-[2px]"
+              className="filter-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+            />
+            <motion.div
+              className="fixed inset-0 z-[65] bg-transparent"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -145,8 +140,8 @@ export default function FilterPanel() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: "100%", opacity: 0 }}
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-              className="fixed z-[70] right-0 top-16 md:top-20 h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)]
-                w-full max-w-[420px] border-l border-white/70
+              className="fixed z-[70] right-4 md:right-10 top-20 h-[80vh]
+                w-[calc(100%-2rem)] md:w-full max-w-[420px] border border-white/70 rounded-[28px]
                 bg-[rgba(255,255,255,0.6)] backdrop-blur-[6px]
                 shadow-[-16px_0_36px_rgba(0,0,0,0.08)]"
               role="dialog"
@@ -154,7 +149,7 @@ export default function FilterPanel() {
             >
               <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/45 to-transparent" />
               <div className="pointer-events-none absolute -left-24 top-12 h-32 w-56 rotate-[14deg] bg-gradient-to-r from-white/55 to-transparent blur-2xl" />
-              <div className="h-full overflow-y-auto px-6 py-6">
+              <div className="h-full overflow-y-auto overscroll-contain px-6 py-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3
                     className="text-xl text-ink"

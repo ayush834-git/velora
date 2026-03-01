@@ -40,7 +40,7 @@ export default function MovieCard({
     const rotateY = Math.max(-6, Math.min(6, x * 10));
     const rotateX = Math.max(-6, Math.min(6, -y * 10));
 
-    cardRef.current.style.transform = `perspective(800px) rotateY(${rotateY}deg) rotateX(${rotateX}deg) scale(1.04)`;
+    cardRef.current.style.transform = `perspective(800px) translateY(-6px) rotateY(${rotateY}deg) rotateX(${rotateX}deg) scale(1.02)`;
     cardRef.current.style.boxShadow =
       "0 24px 56px rgba(0,0,0,0.16), 0 0 28px rgba(232,168,56,0.14)";
 
@@ -73,7 +73,7 @@ export default function MovieCard({
         height,
         transformStyle: "preserve-3d",
         boxShadow: "0 8px 28px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.05)",
-        transition: "transform 140ms ease, box-shadow 140ms ease",
+        transition: "transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s cubic-bezier(.2,.8,.2,1)",
       }}
       data-cursor-hover
     >

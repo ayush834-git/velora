@@ -43,8 +43,8 @@ export default function GlowButton({
   };
 
   const sizes = {
-    md: "px-6 py-3 text-sm",
-    lg: "px-8 py-4 text-base",
+    md: "btn-premium text-sm",
+    lg: "btn-premium px-[1.45rem] py-[0.78rem] text-base",
   };
 
   return (
@@ -54,7 +54,7 @@ export default function GlowButton({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       whileTap={{ scale: 0.95 }}
-      className={`glow-button relative rounded-full font-display tracking-wider uppercase
+      className={`glow-button relative font-display tracking-[0.03em] uppercase
         transition-all duration-500 cursor-pointer
         ${variants[variant]} ${sizes[size]} ${className}`}
       data-cursor-hover

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/ui/Navbar";
 import ParallaxBackground from "@/components/ui/ParallaxBackground";
 import CursorFollower from "@/components/ui/CursorFollower";
@@ -36,6 +37,7 @@ function shuffleMovies(items: Movie[]) {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [chosenMovie, setChosenMovie] = useState<Movie | null>(null);
   const [baseMovies, setBaseMovies] = useState<Movie[]>([]);
   const [isLoadingMovies, setIsLoadingMovies] = useState(true);
@@ -79,13 +81,34 @@ export default function Home() {
     return shuffleMovies(baseMovies).slice(0, 12);
   }, [baseMovies]);
 
-  const handleSpinResult = useCallback((movie: Movie) => {
-    setChosenMovie(movie);
-    setTimeout(() => {
-      const el = document.getElementById("result");
-      if (el) el.scrollIntoView({ behavior: "smooth" });
-    }, 2500);
-  }, []);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== "#result") return;
+
+    const timer = window.setTimeout(() => {
+      document.getElementById("movie-banner")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 50);
+
+    return () => window.clearTimeout(timer);
+  }, [chosenMovie]);
+
+  const handleSpinResult = useCallback(
+    (movie: Movie) => {
+      setChosenMovie(movie);
+      router.push("/#result", { scroll: false });
+
+      window.setTimeout(() => {
+        document.getElementById("movie-banner")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }, 80);
+    },
+    [router]
+  );
 
   const handleMoodSelect = useCallback(() => {
     setTimeout(() => {

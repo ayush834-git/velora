@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function ParallaxBackground() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scroll, setScroll] = useState(0);
+  const [activeDepth, setActiveDepth] = useState(0);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
   const particles = useMemo(
@@ -21,52 +21,77 @@ export default function ParallaxBackground() {
   );
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScroll(window.scrollY);
-    };
-
-    const handleMouse = (e: MouseEvent) => {
+    const handleMouse = (event: MouseEvent) => {
       setMouse({
-        x: (e.clientX / window.innerWidth - 0.5) * 2,
-        y: (e.clientY / window.innerHeight - 0.5) * 2,
+        x: (event.clientX / window.innerWidth - 0.5) * 2,
+        y: (event.clientY / window.innerHeight - 0.5) * 2,
       });
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
     window.addEventListener("mousemove", handleMouse, { passive: true });
     return () => {
-      window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("mousemove", handleMouse);
     };
   }, []);
+
+  useEffect(() => {
+    const sections = Array.from(document.querySelectorAll<HTMLElement>(".scene"));
+    if (!sections.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+        const depth = Number((visible.target as HTMLElement).dataset.depth || 0);
+        setActiveDepth(depth);
+      },
+      {
+        threshold: [0.2, 0.4, 0.6, 0.8],
+        rootMargin: "-10% 0px -10% 0px",
+      }
+    );
+
+    sections.forEach((section, index) => {
+      section.dataset.depth = String(index);
+      observer.observe(section);
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  const depthOffset = activeDepth * 26;
 
   return (
     <div ref={containerRef} className="parallax-container">
       <div
         className="parallax-layer parallax-sky"
         style={{
-          transform: `translate3d(${mouse.x * -5}px, ${scroll * -0.05 + mouse.y * -5}px, 0)`,
+          transform: `translate3d(${mouse.x * -5}px, ${depthOffset * -0.08 + mouse.y * -5}px, 0)`,
         }}
       />
 
       <div
         className="parallax-layer parallax-clouds"
         style={{
-          transform: `translate3d(${mouse.x * -12}px, ${scroll * -0.12 + mouse.y * -10}px, 0)`,
+          transform: `translate3d(${mouse.x * -12}px, ${depthOffset * -0.18 + mouse.y * -10}px, 0)`,
         }}
       />
 
       <div
         className="parallax-layer parallax-rays"
         style={{
-          transform: `translate3d(${mouse.x * -18}px, ${scroll * -0.2 + mouse.y * -15}px, 0)`,
+          transform: `translate3d(${mouse.x * -18}px, ${depthOffset * -0.26 + mouse.y * -15}px, 0)`,
         }}
       />
 
       <div
         className="parallax-layer parallax-wash"
         style={{
-          transform: `translate3d(${mouse.x * -25}px, ${scroll * -0.3 + mouse.y * -20}px, 0)`,
+          transform: `translate3d(${mouse.x * -25}px, ${depthOffset * -0.34 + mouse.y * -20}px, 0)`,
         }}
       />
 

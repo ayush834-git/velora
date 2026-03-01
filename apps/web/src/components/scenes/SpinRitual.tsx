@@ -1,7 +1,7 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useRef, useState, useCallback, useLayoutEffect, useMemo, useEffect } from "react";
+import Image from "next/image";
 import { gsap, ScrollTrigger } from "@/lib/gsapConfig";
 import { AnimatePresence, motion } from "framer-motion";
 import { Movie } from "@/types/movie";
@@ -60,8 +60,11 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
     let active = true;
     let settleTimer: ReturnType<typeof setTimeout> | undefined;
 
-    setIsFilterLoading(true);
-    setIsPreviewTransitioning(true);
+    const beginTimer = setTimeout(() => {
+      if (!active) return;
+      setIsFilterLoading(true);
+      setIsPreviewTransitioning(true);
+    }, 0);
 
     fetchSpinMovie(spinFilters)
       .then((movie) => {
@@ -81,6 +84,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
 
     return () => {
       active = false;
+      if (beginTimer) clearTimeout(beginTimer);
       if (settleTimer) clearTimeout(settleTimer);
     };
   }, [spinFilters]);
@@ -190,6 +194,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
   const backdropMovie = chosenMovie || previewMovie || flashMovie;
   const backdropPath = backdropMovie ? getBackdropPath(backdropMovie) || getPosterPath(backdropMovie) : null;
   const backdropSrc = backdropPath ? getImageUrl(backdropPath, IMAGE_SIZES.backdrop.large) : null;
+  const backdropBlur = backdropPath ? getImageUrl(backdropPath, "w92") : undefined;
 
   return (
     <section
@@ -200,10 +205,16 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
       <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream-warm to-cream" />
       {backdropSrc && (
         <div className="absolute inset-0 overflow-hidden">
-          <img
+          <Image
             src={backdropSrc}
             alt=""
-            className="w-full h-full object-cover scale-110 blur-[20px] opacity-50"
+            fill
+            sizes="100vw"
+            quality={90}
+            priority
+            placeholder={backdropBlur ? "blur" : "empty"}
+            blurDataURL={backdropBlur}
+            className="object-cover scale-110 blur-[20px] opacity-50"
           />
         </div>
       )}
@@ -263,16 +274,19 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                         animate={{ opacity: 1, scale: 1, rotateY: 0 }}
                         exit={{ opacity: 0, scale: 0.86, rotateY: 45 }}
                         transition={{ duration: 0.08 }}
-                        className="w-28 h-40 md:w-36 md:h-52 rounded-xl overflow-hidden shadow-xl"
+                        className="relative w-28 h-40 md:w-36 md:h-52 rounded-xl overflow-hidden shadow-xl"
                       >
                         {flashPosterPath ? (
-                          <img
+                          <Image
                             src={getImageUrl(flashPosterPath, IMAGE_SIZES.poster.small)}
                             alt=""
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.style.display = "none";
-                            }}
+                            fill
+                            sizes="(max-width:1200px) 33vw, 144px"
+                            quality={90}
+                            priority
+                            placeholder="blur"
+                            blurDataURL={getImageUrl(flashPosterPath, "w92")}
+                            className="object-cover"
                           />
                         ) : (
                           <div className="w-full h-full bg-cream-warm/80" />
@@ -320,15 +334,18 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                       animate={{ opacity: isPreviewTransitioning ? 0.25 : 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.28 }}
-                      className="w-12 h-16 rounded-md overflow-hidden shadow-md"
+                      className="relative w-12 h-16 rounded-md overflow-hidden shadow-md"
                     >
-                      <img
+                      <Image
                         src={getImageUrl(previewPosterPath, IMAGE_SIZES.poster.small)}
                         alt=""
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
+                        fill
+                        sizes="(max-width:1200px) 33vw, 48px"
+                        quality={90}
+                        priority
+                        placeholder="blur"
+                        blurDataURL={getImageUrl(previewPosterPath, "w92")}
+                        className="object-cover"
                       />
                     </motion.div>
                   )}
@@ -378,13 +395,16 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                 className="relative w-48 h-72 md:w-56 md:h-84 rounded-2xl overflow-hidden mb-6"
               >
                 {chosenPosterPath ? (
-                  <img
+                  <Image
                     src={getImageUrl(chosenPosterPath, IMAGE_SIZES.poster.large)}
                     alt={chosenMovie.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
+                    fill
+                    sizes="(max-width:1200px) 33vw, 224px"
+                    quality={90}
+                    priority
+                    placeholder="blur"
+                    blurDataURL={getImageUrl(chosenPosterPath, "w92")}
+                    className="object-cover"
                   />
                 ) : (
                   <div className="w-full h-full bg-cream-warm/80" />
@@ -433,7 +453,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                 onClick={reset}
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.95 }}
-                className="mt-8 px-6 py-2.5 rounded-full text-sm tracking-wider uppercase
+                className="mt-8 btn-premium text-sm tracking-[0.03em] uppercase
                   font-display text-white border border-golden/40
                   bg-gradient-to-br from-[#f7c873] to-[#f3a63a]
                   shadow-[0_8px_22px_rgba(243,166,58,0.32)]
