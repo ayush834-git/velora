@@ -153,8 +153,9 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
     const flash = () => {
       setFlashIndex(Math.floor(Math.random() * flashPool.length));
       count += 1;
-      if (count < 24) {
-        setTimeout(flash, 55 + count * 2);
+      if (count < 15) {
+        const delay = Math.max(80, 800 * Math.pow(0.75, count));
+        setTimeout(flash, delay);
         return;
       }
 
@@ -282,8 +283,29 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                 as="h2"
               />
 
-              <div className="relative w-56 h-56 md:w-72 md:h-72 mx-auto my-10">
-                <div className="spin-ring w-full h-full" />
+              <div className="relative w-56 h-56 md:w-72 md:h-72 mx-auto my-10" data-cursor="spin" data-cursor-label="SPIN">
+                {/* 7A: Film Reel Background */}
+                <motion.div
+                  className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10"
+                  animate={{ rotate: phase === "spinning" ? 360 * 3 : 0 }}
+                  transition={phase === "spinning"
+                    ? { duration: 2, ease: "easeInOut" }
+                    : { duration: 120, repeat: Infinity, ease: "linear" }
+                  }
+                >
+                  <svg width="600" height="600" viewBox="0 0 100 100" opacity="0.08" className="text-golden">
+                    <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="0.5"/>
+                    <circle cx="50" cy="50" r="28" fill="none" stroke="currentColor" strokeWidth="0.5"/>
+                    {Array.from({length:8}).map((_,i) => {
+                      const angle = (i/8) * Math.PI * 2;
+                      const x = 50 + Math.cos(angle) * 37;
+                      const y = 50 + Math.sin(angle) * 37;
+                      return <circle key={i} cx={x} cy={y} r="3" fill="none" stroke="currentColor" strokeWidth="0.4"/>;
+                    })}
+                    <circle cx="50" cy="50" r="8" fill="none" stroke="currentColor" strokeWidth="0.5"/>
+                  </svg>
+                </motion.div>
+
                 <div className="spin-ring w-[85%] h-[85%] top-[7.5%] left-[7.5%]" />
                 <div className="spin-ring w-[70%] h-[70%] top-[15%] left-[15%]" />
 
@@ -298,12 +320,13 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                     {phase === "spinning" ? (
                       <motion.div
                         key={flashIndex}
-                        initial={{ opacity: 0, scale: 0.86, rotateY: -45 }}
-                        animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                        exit={{ opacity: 0, scale: 0.86, rotateY: 45 }}
-                        transition={{ duration: 0.08 }}
+                        initial={{ clipPath: "inset(0% 0 100% 0)" }}
+                        animate={{ clipPath: "inset(0% 0 0% 0)" }}
+                        exit={{ opacity: 0, clipPath: "inset(100% 0 0% 0)" }}
+                        transition={{ duration: 0.15, ease: "easeOut" }}
                         className="relative w-28 h-40 md:w-36 md:h-52 rounded-xl overflow-hidden shadow-xl"
                       >
+                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.6)_100%)] mix-blend-multiply z-10 pointer-events-none grain-overlay" />
                         {flashPosterPath ? (
                           <Image
                             src={getImageUrl(flashPosterPath, IMAGE_SIZES.poster.small)}
@@ -332,9 +355,8 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                           text-white font-display text-xl md:text-2xl tracking-[0.2em] uppercase
                           shadow-[0_8px_40px_rgba(216,154,63,0.35)]
                           hover:shadow-[0_14px_52px_rgba(232,168,56,0.56)]
-                          transition-shadow duration-300 disabled:opacity-70 disabled:cursor-not-allowed
+                          transition-transform duration-300 disabled:opacity-70 disabled:cursor-not-allowed
                           ${hasActiveFilters ? "ring-4 ring-golden/50 ring-offset-4 ring-offset-cream" : ""}`}
-                        data-cursor-hover
                       >
                         {spinRippleKey > 0 && (
                           <AnimatePresence>
@@ -449,6 +471,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                 ) : (
                   <div className="w-full h-full bg-cream-warm/80" />
                 )}
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.6)_100%)] mix-blend-multiply z-[5] pointer-events-none grain-overlay" />
 
                 <div
                   className="absolute inset-0 pointer-events-none"

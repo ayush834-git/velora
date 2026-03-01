@@ -55,38 +55,82 @@ export default function Navbar() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.8, ease: [0.19, 1, 0.22, 1] }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
+        className={`fixed left-0 right-0 z-50 transition-all duration-700 flex justify-center ${
           scrolled
-            ? "glass-warm shadow-sm"
-            : "bg-transparent"
+            ? "top-4 px-4"
+            : "top-0 px-0"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 md:px-12 h-16 md:h-20 flex items-center justify-between">
+        <div className={`transition-all duration-700 w-full flex items-center justify-between ${
+          scrolled 
+            ? "max-w-4xl mx-auto h-14 px-6 glass-warm shadow-md rounded-full border border-white/20" 
+            : "max-w-7xl mx-auto h-16 md:h-20 px-6 md:px-12 bg-transparent"
+        }`}>
           {/* Logo */}
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="font-display text-lg md:text-xl tracking-[0.3em] uppercase text-ink hover:text-golden-warm transition-colors cursor-pointer"
+            className="font-display tracking-[0.3em] uppercase text-ink hover:text-golden-warm transition-colors cursor-pointer relative flex items-center h-full w-24 overflow-hidden"
             data-cursor-hover
           >
-            VELORA
+            <AnimatePresence mode="popLayout" initial={false}>
+              {scrolled ? (
+                <motion.span
+                  key="v"
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -20, opacity: 0 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="text-2xl md:text-3xl font-bold absolute left-0"
+                >
+                  V.
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="velora"
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -20, opacity: 0 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="text-lg md:text-xl absolute left-0"
+                >
+                  VELORA
+                </motion.span>
+              )}
+            </AnimatePresence>
           </button>
 
           {/* Navigation */}
           <div className="flex items-center gap-5 md:gap-8">
-            <button
-              onClick={() => scrollToSection("curated")}
-              className="hidden md:block text-sm tracking-widest uppercase text-ink-soft hover:text-ink transition-colors cursor-pointer"
-              data-cursor-hover
-            >
-              Discover
-            </button>
-            <Link
-              href="/browse"
-              className="hidden md:block text-sm tracking-widest uppercase text-ink-soft hover:text-ink transition-colors"
-              data-cursor-hover
-            >
-              Browse
-            </Link>
+            {!scrolled && (
+              <motion.button
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                onClick={() => scrollToSection("curated")}
+                className="hidden md:block text-sm tracking-widest uppercase text-ink-soft hover:text-ink transition-colors cursor-pointer"
+                data-cursor-hover
+              >
+                Discover
+              </motion.button>
+            )}
+            
+            {!scrolled && (
+              <motion.div
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                className="hidden md:block"
+              >
+                <Link
+                  href="/browse"
+                  className="text-sm tracking-widest uppercase text-ink-soft hover:text-ink transition-colors block"
+                  data-cursor-hover
+                >
+                  Browse
+                </Link>
+              </motion.div>
+            )}
+
             <button
               onClick={() => scrollToSection("spin")}
               className="hidden md:block text-sm tracking-widest uppercase text-ink-soft hover:text-ink transition-colors cursor-pointer"
@@ -99,12 +143,12 @@ export default function Navbar() {
 
             <motion.button
               onClick={() => scrollToSection("spin")}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              transition={{ type: "spring", stiffness: 320, damping: 18 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
               className={`glow-button btn-premium btn-primary text-sm uppercase font-medium text-white border border-golden/45
                 ${activeFilters.length > 0 ? "ring-2 ring-golden/35 shadow-[0_0_24px_rgba(216,154,63,0.35)]" : ""}
-                transition-all duration-300 cursor-pointer
+                transition-all duration-300 cursor-pointer ${scrolled ? "px-4 py-1.5 text-xs" : ""}
               `}
               data-cursor-hover
             >

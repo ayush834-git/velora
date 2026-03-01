@@ -44,6 +44,17 @@
   --glass-border: rgba(255, 255, 255, 0.2);
   --glass-blur: 24px;
 
+  /* ── Easing tokens ── */
+  --ease-out-expo:   cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart:  cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-in-out-circ: cubic-bezier(0.85, 0, 0.15, 1);
+  --ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1);  /* slight overshoot */
+
+  /* ── Section transition timing ── */
+  --scene-enter-duration: 0.9s;
+  --stagger-tight: 0.06s;
+  --stagger-loose: 0.12s;
+
   /* ===== ACCENT PALETTE (6 hex) ===== */
   --accent-sky: #4A9EFF;
   --accent-peach: #F5A870;
@@ -469,3 +480,38 @@ body {
 /* ===== SCROLLBAR HIDING ===== */
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-none::-webkit-scrollbar { display: none; }
+
+/* ── Horizontal rule with golden fade ── */
+.rule-golden {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-golden) 40%, transparent);
+  opacity: 0.25;
+}
+
+/* ── Clip-path reveal utility ── */
+.clip-reveal {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.9s var(--ease-out-expo);
+}
+.clip-reveal.revealed {
+  clip-path: inset(0 0% 0 0);
+}
+
+/* ── Section transition: bottom fade-blur into next ── */
+.scene-fade-bottom::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 160px;
+  background: linear-gradient(to bottom, transparent, var(--color-cream));
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ── Text gradient ── */
+.text-gradient-gold {
+  background: linear-gradient(135deg, #e8a838 0%, #f0c060 50%, #d4922a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

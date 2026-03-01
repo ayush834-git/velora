@@ -23,6 +23,102 @@ const MOOD_PREFERRED_IDS: Record<string, number[]> = {
   "underrated":   [424, 637, 578, 244786],          // Schindler's, Life is Beautiful, Prisoners, Whiplash
 };
 
+function MoodCard({
+  mood,
+  index,
+  backdropUrl,
+  isInView,
+  onSelect,
+}: {
+  mood: typeof MOODS[0];
+  index: number;
+  backdropUrl: string | null;
+  isInView: boolean;
+  onSelect: () => void;
+}) {
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const tiltX = ((y - centerY) / centerY) * -12;
+    const tiltY = ((x - centerX) / centerX) * 12;
+    setTilt({ x: tiltX, y: tiltY });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+    setIsHovered(false);
+  };
+
+  return (
+    <motion.button
+      onClick={onSelect}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={handleMouseLeave}
+      initial={{ opacity: 0, y: 50, scale: 0.9 }}
+      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+      transition={{
+        duration: 1,
+        delay: 0.4 + index * 0.12,
+        ease: [0.16, 1, 0.3, 1],
+      }}
+      className="mood-card relative overflow-hidden rounded-2xl md:rounded-3xl h-44 md:h-56
+        cursor-pointer text-left border border-white/40"
+      style={{
+        transform: isHovered
+          ? `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale3d(1.02, 1.02, 1.02)`
+          : "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)",
+        transition: isHovered ? "none" : "transform 0.5s ease-out",
+        "--mood-glow": `${mood.accentColor}30`,
+        transformStyle: "preserve-3d",
+      } as React.CSSProperties}
+      data-cursor-hover
+    >
+      {/* Backdrop image */}
+      {backdropUrl && (
+        <div className="absolute inset-0 bg-ink/5" style={{ transform: "translateZ(-20px)" }}>
+          <Image
+            src={backdropUrl}
+            alt=""
+            fill
+            sizes="(max-width: 768px) 50vw, 33vw"
+            className={`object-cover opacity-100 transition-transform duration-700 ease-out ${isHovered ? "scale-110" : "scale-100"}`}
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent opacity-80" />
+        </div>
+      )}
+
+      {/* Accent corner glow */}
+      <div
+        className={`absolute top-0 right-0 w-32 h-32 rounded-full transition-opacity duration-500 -translate-y-1/2 translate-x-1/2 ${isHovered ? "opacity-40" : "opacity-20"}`}
+        style={{
+          background: `radial-gradient(circle, ${mood.accentColor}, transparent)`,
+        }}
+      />
+
+      {/* Label */}
+      <div className="relative z-10 h-full flex flex-col justify-end p-5 md:p-6 drop-shadow-md" style={{ transform: "translateZ(30px)" }}>
+        <h3
+          className="font-display font-semibold text-xl md:text-2xl mb-1 text-white"
+          style={{ color: mood.accentColor, textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
+        >
+          {mood.label}
+        </h3>
+        <p className="text-xs md:text-sm text-white/90 font-medium" style={{ textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}>
+          {mood.subtitle}
+        </p>
+      </div>
+    </motion.button>
+  );
+}
+
 export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-10%" });
@@ -96,72 +192,20 @@ export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps
             : null;
 
           return (
-            <motion.button
+            <MoodCard
               key={mood.id}
-              onClick={() => {
+              mood={mood}
+              index={i}
+              backdropUrl={backdropUrl}
+              isInView={isInView}
+              onSelect={() => {
                 if (onMoodSelect) onMoodSelect(mood.id, mood.genreIds);
                 setIsTransitioning(true);
                 setTimeout(() => {
                   router.push(`/browse?mood=${mood.id}&genres=${mood.genreIds.join(",")}`);
                 }, 400);
               }}
-              initial={{ opacity: 0, y: 50, scale: 0.9 }}
-              animate={
-                isInView
-                  ? { opacity: 1, y: 0, scale: 1 }
-                  : {}
-              }
-              transition={{
-                duration: 1,
-                delay: 0.4 + i * 0.12,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              className="mood-card relative overflow-hidden rounded-2xl md:rounded-3xl h-44 md:h-56
-                cursor-pointer group text-left border border-white/40"
-              style={{
-                "--mood-glow": `${mood.accentColor}30`,
-              } as React.CSSProperties}
-              data-cursor-hover
-            >
-              {/* Backdrop image */}
-              {backdropUrl && (
-                <div className="absolute inset-0 bg-ink/5">
-                  <Image
-                    src={backdropUrl}
-                    alt=""
-                    fill
-                    sizes="(max-width: 768px) 50vw, 33vw"
-                    className="object-cover opacity-100 group-hover:scale-110
-                      transition-transform duration-700 ease-out"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                  />
-                  {/* Subtle dark gradient for text legibility, avoiding the washed-out white layer */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-70" />
-                </div>
-              )}
-
-              {/* Accent corner glow */}
-              <div
-                className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-20 group-hover:opacity-40
-                  transition-opacity duration-500 -translate-y-1/2 translate-x-1/2"
-                style={{
-                  background: `radial-gradient(circle, ${mood.accentColor}, transparent)`,
-                }}
-              />
-
-              {/* Label */}
-              <div className="relative z-10 h-full flex flex-col justify-end p-5 md:p-6 drop-shadow-md">
-                <h3
-                  className="font-display font-semibold text-xl md:text-2xl mb-1 text-white"
-                  style={{ color: mood.accentColor, textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
-                >
-                  {mood.label}
-                </h3>
-                <p className="text-xs md:text-sm text-white/90 font-medium" style={{ textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}>
-                  {mood.subtitle}
-                </p>
-              </div>
-            </motion.button>
+            />
           );
         })}
       </div>

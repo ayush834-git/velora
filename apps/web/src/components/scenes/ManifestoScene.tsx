@@ -29,6 +29,16 @@ export default function ManifestoScene() {
           start: "top 82%",
         },
       });
+      gsap.to(headlineRef.current, {
+        x: -150,
+        ease: "none",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
+        }
+      });
     });
     return () => ctx.revert();
   }, []);
@@ -62,7 +72,7 @@ export default function ManifestoScene() {
 
         <h2
           ref={headlineRef}
-          className="font-display font-extralight text-ink overflow-hidden"
+          className="font-display font-extralight text-ink whitespace-nowrap flex"
           style={{
             fontSize: "clamp(3rem, 8.5vw, 8.5rem)",
             letterSpacing: "-0.02em",

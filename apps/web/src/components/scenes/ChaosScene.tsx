@@ -96,12 +96,19 @@ export default function ChaosScene({ movies }: ChaosSceneProps) {
           ))}
         </div>
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 1.5 }}
+          initial={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
+          whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          transition={{ duration: 2.5, ease: [0.2, 0.8, 0.2, 1] }}
           className="absolute inset-0 flex items-center justify-center z-10"
         >
-          <p className="text-base tracking-wide text-neutral-500/80 font-display uppercase font-medium">Fate is aligning your story…</p>
+          <motion.p 
+            initial={{ letterSpacing: "0.1em" }}
+            whileInView={{ letterSpacing: "0.8em" }}
+            transition={{ duration: 3, ease: [0.22, 1, 0.36, 1] }}
+            className="text-base text-neutral-500/80 font-display uppercase font-medium ml-[0.8em]"
+          >
+            Fate is aligning your story…
+          </motion.p>
         </motion.div>
       </div>
 

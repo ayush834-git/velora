@@ -138,6 +138,19 @@ export default function ConstellationScene() {
   const { setFilter } = useFilters();
   const uid = useId();
 
+  // Shooting star effect
+  const [shootingStar, setShootingStar] = useState(false);
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    const triggerStar = () => {
+      setShootingStar(true);
+      setTimeout(() => setShootingStar(false), 2000);
+      timeoutId = setTimeout(triggerStar, 8000 + Math.random() * 4000);
+    };
+    timeoutId = setTimeout(triggerStar, 5000);
+    return () => clearTimeout(timeoutId);
+  }, []);
+
   // Measure rects for tooltip positioning
   const measure = useCallback(() => {
     if (svgRef.current)  setSvgRect(svgRef.current.getBoundingClientRect());
@@ -164,7 +177,7 @@ export default function ConstellationScene() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden py-16 md:py-20"
+      className="relative overflow-hidden py-16 md:py-20 min-h-screen"
       style={{
         background: "linear-gradient(180deg, #080714 0%, #0e0c1e 50%, #080714 100%)",
       }}
@@ -204,9 +217,29 @@ export default function ConstellationScene() {
 
       {/* Vignette */}
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: "radial-gradient(ellipse 70% 70% at 50% 50%, transparent 35%, rgba(4,3,14,0.75) 100%)" }}
+        className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_70%_70%_at_50%_50%,transparent_35%,rgba(4,3,14,0.75)_100%)]"
       />
+
+      {/* Nebula Background Effect */}
+      <div className="absolute inset-0 pointer-events-none opacity-80 mix-blend-screen">
+        <div className="nebula-1" />
+        <div className="nebula-2" />
+      </div>
+
+      {/* Shooting Star */}
+      <AnimatePresence>
+        {shootingStar && (
+          <motion.div
+            className="absolute top-[20%] right-[30%] pointer-events-none z-10"
+            initial={{ opacity: 0, x: 0, y: 0, scaleX: 0 }}
+            animate={{ opacity: [0, 1, 0], x: -600, y: 200, scaleX: [0, 1, 0] }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <div className="w-[120px] h-[1px] bg-gradient-to-r from-transparent via-white to-transparent rotate-[-20deg]" />
+            <div className="w-[60px] h-[2px] bg-white rounded-full blur-[2px] absolute right-0 top-0 rotate-[-20deg] origin-right" />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Header */}
       <div className="relative z-10 text-center px-[5vw] mb-16 md:mb-24">
@@ -412,10 +445,31 @@ export default function ConstellationScene() {
       </motion.div>
 
 
+      {/* Bottom fade transition to next section */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-10" 
+        style={{ background: "linear-gradient(to bottom, transparent, #faf8f5)" }} 
+      />
+
       <style>{`
         @keyframes velor-twinkle {
           from { opacity: var(--lo, 0.06); transform: scale(1); }
           to   { opacity: var(--hi, 0.22); transform: scale(1.5); }
+        }
+        @keyframes nebula-drift {
+          0%   { transform: translate(0, 0) scale(1); }
+          50%  { transform: translate(20px, -15px) scale(1.08); }
+          100% { transform: translate(0, 0) scale(1); }
+        }
+        .nebula-1 { 
+          position: absolute; width: 40%; height: 50%; top: 10%; left: 10%;
+          background: radial-gradient(ellipse, rgba(124,58,237,0.08) 0%, transparent 70%);
+          animation: nebula-drift 18s ease-in-out infinite;
+        }
+        .nebula-2 {
+          position: absolute; width: 35%; height: 45%; right: 10%; bottom: 10%;
+          background: radial-gradient(ellipse, rgba(232,168,56,0.06) 0%, transparent 70%);
+          animation: nebula-drift 24s ease-in-out infinite reverse;
         }
       `}</style>
     </section>

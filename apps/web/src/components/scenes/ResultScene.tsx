@@ -32,18 +32,21 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
   const [showTrailer, setShowTrailer] = useState(false);
   const { filters } = useFilters();
+  
   const directBackdropPath = movie ? getBackdropPath(movie) : null;
   const backdropSourcePath = movie ? directBackdropPath ?? getPosterPath(movie) : null;
   const isPosterBackdropFallback = Boolean(backdropSourcePath && !directBackdropPath);
-  const directBackdropUrl =
-    movie?.backdrop && movie.backdrop.startsWith("http") ? movie.backdrop : null;
-  const backdropSrc = backdropSourcePath
-    ? getImageUrl(backdropSourcePath, IMAGE_SIZES.backdrop.large)
-    : directBackdropUrl;
+  const directBackdropUrl = movie?.backdrop && movie.backdrop.startsWith("http") ? movie.backdrop : null;
+  const backdropSrc = backdropSourcePath ? getImageUrl(backdropSourcePath, IMAGE_SIZES.backdrop.large) : directBackdropUrl;
   const backdropBlur = backdropSourcePath ? getImageUrl(backdropSourcePath, "w92") : undefined;
+  
   const posterPath = movie ? getPosterPath(movie) : null;
   const posterSrc = posterPath ? getImageUrl(posterPath, IMAGE_SIZES.poster.large) : null;
   const posterBlur = posterPath ? getImageUrl(posterPath, "w92") : undefined;
+
+  // Wait for reveal triggers
+  const titleWords = (movie?.title ?? "Loading Film").split(" ");
+  const aiReasonChars = aiReason.split("");
 
   useEffect(() => {
     if (!movie?.poster_path) return;
@@ -68,7 +71,6 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
 
   useEffect(() => {
     if (!movie?.id) return;
-
     let active = true;
     const year = movie.release_date?.slice(0, 4) ?? "";
 
@@ -76,51 +78,29 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
       try {
         const [reasonResponse, providersResponse, videosResponse] = await Promise.all([
           fetch("/api/film-reason", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              title: movie.title,
-              year,
-              filters,
-            }),
-            cache: "no-store",
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title: movie.title, year, filters }), cache: "no-store",
           }),
-          fetch(`/api/watch-providers?id=${movie.id}&region=US`, {
-            method: "GET",
-            cache: "no-store",
-          }),
-          fetch(`/api/tmdb?action=videos&id=${movie.id}`, {
-            method: "GET",
-            cache: "no-store",
-          }),
+          fetch(`/api/watch-providers?id=${movie.id}&region=US`, { method: "GET", cache: "no-store" }),
+          fetch(`/api/tmdb?action=videos&id=${movie.id}`, { method: "GET", cache: "no-store" }),
         ]);
 
         if (!active) return;
 
-        const reasonJson = reasonResponse.ok
-          ? ((await reasonResponse.json()) as { reason?: string })
-          : { reason: "" };
-        const providersJson = providersResponse.ok
-          ? ((await providersResponse.json()) as { providers?: WatchProvider[] })
-          : { providers: [] };
+        const reasonJson = reasonResponse.ok ? await reasonResponse.json() : { reason: "" };
+        const providersJson = providersResponse.ok ? await providersResponse.json() : { providers: [] };
 
         setAiReason(reasonJson.reason?.trim() ?? "");
         setWatchProviders(Array.isArray(providersJson.providers) ? providersJson.providers : []);
 
-        // Extract YouTube trailer key
         if (videosResponse.ok) {
-          const videosJson = (await videosResponse.json()) as {
-            results?: { key: string; site: string; type: string; official?: boolean }[];
-          };
+          const videosJson = await videosResponse.json();
           const videos = videosJson.results ?? [];
-          // Prefer official trailer, then any trailer, then any teaser
           const trailer =
-            videos.find((v) => v.site === "YouTube" && v.type === "Trailer" && v.official) ??
-            videos.find((v) => v.site === "YouTube" && v.type === "Trailer") ??
-            videos.find((v) => v.site === "YouTube" && v.type === "Teaser") ??
-            videos.find((v) => v.site === "YouTube");
+            videos.find((v: any) => v.site === "YouTube" && v.type === "Trailer" && v.official) ??
+            videos.find((v: any) => v.site === "YouTube" && v.type === "Trailer") ??
+            videos.find((v: any) => v.site === "YouTube" && v.type === "Teaser") ??
+            videos.find((v: any) => v.site === "YouTube");
           setTrailerKey(trailer?.key ?? null);
         } else {
           setTrailerKey(null);
@@ -136,34 +116,22 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
     };
 
     loadMeta();
-
-    return () => {
-      active = false;
-    };
-  }, [
-    filters,
-    movie?.id,
-    movie?.release_date,
-    movie?.title,
-  ]);
+    return () => { active = false; };
+  }, [filters, movie?.id, movie?.release_date, movie?.title]);
 
   return (
-    <section
-      ref={sectionRef}
-      id="movie-banner"
-      className="scene relative min-h-[90vh] flex items-center overflow-hidden"
-    >
+    <section ref={sectionRef} id="movie-banner" className="scene relative min-h-[90vh] flex items-center overflow-hidden bg-ink">
       <div id="result" className="absolute top-0 left-0 h-px w-px" />
 
-      <div
-        className="absolute inset-0 z-0 transition-colors duration-700"
-        style={{ background: `linear-gradient(180deg, ${dominantColor}, var(--background))` }}
-      />
-
       {backdropSrc && (
-        <div
-          className="absolute inset-0 z-0"
-          style={{ transform: "translateY(calc(var(--scroll) * -0.2px)) translateZ(0)" }}
+        <motion.div
+          className="absolute inset-0 z-0 origin-center"
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={isInView && movie ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.05 }}
+          transition={{
+            opacity: { duration: 0.6, ease: "easeOut" },
+            scale: { duration: 1.5, delay: 0.3, ease: "easeOut" }
+          }}
         >
           <Image
             src={backdropSrc}
@@ -174,14 +142,14 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
             sizes="100vw"
             placeholder={backdropBlur ? "blur" : "empty"}
             blurDataURL={backdropBlur}
-            className={`object-cover scale-[1.05] blur-[18px] brightness-[0.75] ${
-              isPosterBackdropFallback ? "contrast-[0.96]" : ""
-            }`}
+            className="object-cover blur-[6px] saturate-[1.2] brightness-[0.45]"
           />
-        </div>
+          {/* Phase 8B: Backdrop Treatments */}
+          <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-ink/70 via-transparent to-transparent" />
+          <div className="absolute inset-0 z-0 grain-overlay" />
+        </motion.div>
       )}
-
-      <div className="absolute inset-0 z-[1] bg-[linear-gradient(to_bottom,rgba(0,0,0,0.1),rgba(0,0,0,0.65))]" />
 
       <motion.div
         className="relative z-10 w-full max-w-[1200px] mx-auto px-[5vw] py-16 md:py-24"
@@ -190,15 +158,17 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
       >
         <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-10 md:gap-14 items-center">
           <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.45, ease: [0.2, 0.8, 0.2, 1] }}
-            className="flex justify-center md:justify-start"
+            initial={{ opacity: 0, x: -40, rotateY: -8 }}
+            animate={isInView && movie ? { opacity: 1, x: 0, rotateY: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.5, ease: [0.2, 1, 0.3, 1] }}
+            style={{ perspective: 1000 }}
+            className="flex justify-center md:justify-start pt-8 md:pt-0"
           >
+            {/* Phase 8C: Poster 3D Presentation */}
             <motion.div
-              whileHover={{ y: -4, scale: 1.01 }}
-              transition={{ duration: 0.25, ease: [0.2, 0.8, 0.2, 1] }}
-              className="relative w-64 h-96 md:w-80 md:h-[30rem] rounded-2xl overflow-hidden shadow-[0_24px_50px_rgba(0,0,0,0.28)]"
+              whileHover={{ rotateY: 5, scale: 1.02 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="relative w-64 h-96 md:w-80 md:h-[30rem] rounded-xl overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.08)]"
             >
               {posterSrc ? (
                 <Image
@@ -216,12 +186,14 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
                 <div className="h-full w-full bg-cream-warm/50" />
               )}
 
+              <div className="absolute top-0 right-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/30 to-transparent" />
+
               <motion.div
                 initial={{ scale: 0.88, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.32, delay: 0.12, ease: [0.2, 0.8, 0.2, 1] }}
-                className="absolute -top-3 -right-3 h-14 w-14 rounded-full bg-golden text-white
-                  flex items-center justify-center text-sm font-semibold shadow-lg ring-4 ring-cream"
+                transition={{ duration: 0.32, delay: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
+                className="absolute -top-3 -right-3 h-14 w-14 rounded-full bg-golden border border-white/20 text-white
+                  flex items-center justify-center text-sm font-semibold shadow-xl"
               >
                 {(movie?.vote_average ?? 0).toFixed(1)}
               </motion.div>
@@ -230,14 +202,9 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
             </motion.div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.45, delay: 0.06, ease: [0.2, 0.8, 0.2, 1] }}
-            className="space-y-5 md:space-y-6 text-center md:text-left"
-          >
+          <div className="space-y-6 md:space-y-8 text-center md:text-left pt-2 md:pt-6">
             <h2
-              className="text-cream"
+              className="text-cream relative overflow-hidden flex flex-wrap justify-center md:justify-start"
               style={{
                 fontFamily: "var(--font-accent), serif",
                 fontWeight: 500,
@@ -246,117 +213,137 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
                 fontSize: "var(--text-headline)",
               }}
             >
-              {movie?.title ?? "Loading Film"}
+              {/* phase 8A limit 0.7s: title clips in top-to-bottom */}
+              <motion.div
+                initial={{ clipPath: "inset(0 0 100% 0)", opacity: 0, y: 10 }}
+                animate={isInView && movie ? { clipPath: "inset(0 0 0% 0)", opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              >
+                {movie?.title ?? "Loading Film"}
+              </motion.div>
             </h2>
 
-            <div
-              className="text-cream/85 uppercase"
-              style={{
-                fontFamily: "var(--font-body), sans-serif",
-                letterSpacing: "0.08em",
-                fontSize: "0.8rem",
-              }}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={isInView && movie ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.4, delay: 0.9 }}
+              className="text-cream/80 uppercase"
+              style={{ fontFamily: "var(--font-body), sans-serif", letterSpacing: "0.08em", fontSize: "0.85rem" }}
             >
               <span>{movie?.release_date?.slice(0, 4) ?? "----"}</span>
               <span className="mx-2">·</span>
               <span>★ {(movie?.vote_average ?? 0).toFixed(1)}</span>
               <span className="mx-2">·</span>
               <span>{movie?.original_language?.toUpperCase() ?? "--"}</span>
-            </div>
+            </motion.div>
 
-            <p
-              className="text-cream/90 leading-[1.75] max-w-[540px] mx-auto md:mx-0"
-              style={{ fontSize: "max(1rem, var(--text-body))" }}
-            >
-              {movie?.overview ?? "Preparing your next cinematic pick..."}
-            </p>
+            <div className="text-cream/90 leading-[1.75] max-w-[540px] mx-auto md:mx-0" style={{ fontSize: "max(1rem, var(--text-body))" }}>
+              {(movie?.overview ?? "Preparing your next cinematic pick...").split(" ").map((word, i) => (
+                <motion.span
+                  key={i}
+                  initial={{ opacity: 0 }}
+                  animate={isInView && movie ? { opacity: 1 } : {}}
+                  transition={{ duration: 0.4, delay: 1.1 + i * 0.02 }}
+                  className="inline-block mr-1.5"
+                >
+                  {word}
+                </motion.span>
+              ))}
+            </div>
 
             {aiReason && (
-              <p className="text-cream/70 italic text-sm max-w-[560px] mx-auto mt-1 leading-relaxed">
-                {aiReason}
-              </p>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={isInView && movie ? { opacity: 1 } : {}}
+                transition={{ duration: 0.5, delay: 1.8 }}
+                className="max-w-[560px] mx-auto md:mx-0 mt-4 pl-5 border-l-2 border-golden relative"
+              >
+                <span className="absolute -top-3 -left-4 text-golden font-accent text-5xl opacity-40">"</span>
+                <p className="text-cream/85 font-accent italic text-[1.1rem] leading-relaxed tracking-wide">
+                  {aiReasonChars.map((char, i) => (
+                    <motion.span
+                      key={i}
+                      initial={{ opacity: 0 }}
+                      animate={isInView ? { opacity: 1 } : {}}
+                      transition={{ duration: 0.1, delay: 1.8 + i * 0.015 }}
+                    >
+                      {char}
+                    </motion.span>
+                  ))}
+                </p>
+              </motion.div>
             )}
 
-            {watchProviders.length > 0 && (
-              <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
-                <span className="text-cream/60 text-xs uppercase tracking-[0.08em]">
-                  Available on
-                </span>
-                {watchProviders.map((provider) =>
-                  provider.logo_path ? (
-                    <div
-                      key={provider.provider_id}
-                      className="h-7 w-7 rounded-md overflow-hidden bg-white/20 ring-1 ring-white/40"
-                    >
-                      <Image
-                        src={getImageUrl(provider.logo_path, "w92")}
-                        alt={provider.provider_name}
-                        width={28}
-                        height={28}
-                        className="h-7 w-7 object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <span
-                      key={provider.provider_id}
-                      className="text-cream/75 text-xs"
-                    >
-                      {provider.provider_name}
-                    </span>
-                  )
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={isInView && movie ? { opacity: 1 } : {}}
+              transition={{ duration: 0.5, delay: 1.4 }}
+            >
+              <div className="flex items-center flex-wrap justify-center md:justify-start gap-4">
+                <GlowButton
+                  variant="primary"
+                  onClick={() => {
+                    if (onSpinAgain) onSpinAgain();
+                    else document.getElementById("spin")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                >
+                  Spin Again
+                </GlowButton>
+                
+                {trailerKey && (
+                  <GlowButton
+                    variant="ghost"
+                    onClick={() => setShowTrailer((prev) => !prev)}
+                    className="!border !border-cream/30 !text-cream hover:!text-white hover:!border-cream/50 hover:!bg-cream/10"
+                  >
+                    {showTrailer ? "Hide Trailer" : "▶ Trailer"}
+                  </GlowButton>
+                )}
+                
+                {movie && (
+                  <a
+                    href={`https://www.themoviedb.org/movie/${movie.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 h-10 px-5 rounded-full bg-transparent border border-cream/20 text-cream/70 text-xs tracking-[0.03em] uppercase font-display hover:bg-cream/10 hover:text-cream transition-all duration-300 cursor-pointer"
+                  >
+                    View on TMDB ↗
+                  </a>
                 )}
               </div>
-            )}
 
-            <div className="flex items-center flex-wrap justify-center md:justify-start gap-3 pt-2">
-              <GlowButton
-                variant="primary"
-                onClick={() => {
-                  if (onSpinAgain) {
-                    onSpinAgain();
-                  } else {
-                    const el = document.getElementById("spin");
-                    if (el) el.scrollIntoView({ behavior: "smooth" });
-                  }
-                }}
-              >
-                Spin Again
-              </GlowButton>
-              <GlowButton
-                variant="secondary"
-                onClick={() => {
-                  const url = window.location.origin + "/#result";
-                  navigator.clipboard.writeText(url).then(() => {
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2000);
-                  });
-                }}
-              >
-                {copied ? "Copied!" : "Share →"}
-              </GlowButton>
-              {movie && (
-                <a
-                  href={`https://www.themoviedb.org/movie/${movie.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 h-10 px-5 rounded-full
-                    bg-transparent border border-cream/20 text-cream/70 text-xs
-                    tracking-[0.03em] uppercase font-display
-                    hover:bg-cream/10 hover:text-cream transition-all duration-300 cursor-pointer"
-                >
-                  View on TMDB ↗
-                </a>
+              {watchProviders.length > 0 && (
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mt-6">
+                  <span className="text-cream/50 text-xs uppercase tracking-[0.1em] font-display">
+                    Available on
+                  </span>
+                  {watchProviders.map((provider, i) =>
+                    provider.logo_path ? (
+                      <motion.div
+                        key={provider.provider_id}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={isInView && movie ? { opacity: 1, scale: 1 } : {}}
+                        transition={{ duration: 0.3, delay: 1.4 + i * 0.1 }}
+                        className="h-8 w-8 rounded-md overflow-hidden bg-white/10 ring-1 ring-white/20 hover:ring-white/60 transition-colors grayscale hover:grayscale-0"
+                        title={provider.provider_name}
+                      >
+                        <Image
+                          src={getImageUrl(provider.logo_path, "w92")}
+                          alt={provider.provider_name}
+                          width={32}
+                          height={32}
+                          className="h-full w-full object-cover"
+                        />
+                      </motion.div>
+                    ) : (
+                      <span key={provider.provider_id} className="text-cream/60 text-xs px-2 py-1 bg-white/5 rounded">
+                        {provider.provider_name}
+                      </span>
+                    )
+                  )}
+                </div>
               )}
-              {trailerKey && (
-                <GlowButton
-                  variant="ghost"
-                  onClick={() => setShowTrailer((prev) => !prev)}
-                  className="!border !border-cream/30 !text-cream hover:!text-white hover:!border-cream/50 hover:!bg-cream/10"
-                >
-                  {showTrailer ? "Hide Trailer" : "▶ Trailer"}
-                </GlowButton>
-              )}
-            </div>
+            </motion.div>
 
             {/* Trailer section */}
             <AnimatePresence>
@@ -382,7 +369,7 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
                 </motion.div>
               )}
             </AnimatePresence>
-          </motion.div>
+          </div>
         </div>
       </motion.div>
 

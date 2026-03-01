@@ -15,6 +15,7 @@ interface Props {
 
 export default function DirectorPicksScene({ movies }: Props) {
   const ref = useRef<HTMLDivElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-5%" });
 
   const essentials = movies.filter((m) => ESSENTIAL_IDS.includes(m.id));
@@ -50,12 +51,14 @@ export default function DirectorPicksScene({ movies }: Props) {
         </span>
       </div>
 
-      <div
-        className="flex gap-4 px-[5vw] overflow-x-auto pb-4 scrollbar-none
-          cursor-grab active:cursor-grabbing select-none"
-        style={{ scrollSnapType: "x mandatory" }}
-      >
-        {picks.map((movie, i) => (
+      <div ref={carouselRef} className="overflow-hidden px-[5vw] cursor-grab active:cursor-grabbing">
+        <motion.div
+          drag="x"
+          dragConstraints={carouselRef}
+          dragElastic={0.15}
+          className="flex gap-4 pb-4 w-max"
+        >
+          {picks.map((movie, i) => (
           <motion.div
             key={movie.id}
             initial={{ opacity: 0, x: 24 }}
@@ -66,11 +69,10 @@ export default function DirectorPicksScene({ movies }: Props) {
               ease: [0.22, 1, 0.36, 1],
             }}
             whileHover={{ y: -8, scale: 1.02 }}
-            className="relative flex-shrink-0 rounded-2xl overflow-hidden group"
+            className="relative flex-shrink-0 rounded-2xl overflow-hidden group pointer-events-none"
             style={{
               width: "clamp(140px, 13vw, 190px)",
               aspectRatio: "2/3",
-              scrollSnapAlign: "start",
             }}
           >
             {movie.poster_path ? (
@@ -107,6 +109,7 @@ export default function DirectorPicksScene({ movies }: Props) {
             )}
           </motion.div>
         ))}
+        </motion.div>
       </div>
     </section>
   );

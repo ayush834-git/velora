@@ -260,12 +260,15 @@ export default function MoodClockScene() {
   // Day progress (0–100)
   const dayPct = ((hour * 60 + min) / (24 * 60)) * 100;
 
+  const isDay = hour >= 6 && hour < 18;
+  const outerBg = isDay ? "var(--color-cream)" : "#131221";
+
   return (
     <section
       className="relative overflow-hidden flex items-center justify-center
-        px-[5vw] py-24 min-h-[90vh]"
+        px-[5vw] py-24 min-h-[100vh] border-t border-golden/30"
       style={{
-        background: `radial-gradient(ellipse 90% 70% at 50% 45%, ${mood.bg} 0%, var(--color-cream) 65%)`,
+        background: `radial-gradient(ellipse 90% 80% at 50% 45%, ${mood.bg} 0%, ${outerBg} 80%)`,
         transition: "background 1.5s ease",
       }}
     >
@@ -298,17 +301,24 @@ export default function MoodClockScene() {
 
       <div className="relative z-10 flex flex-col items-center max-w-3xl w-full">
 
-        {/* Eyebrow */}
-        <motion.span
+        {/* Vintage Lobby Header */}
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-15%" }}
           transition={{ duration: 0.55 }}
-          className="font-display text-[10px] md:text-xs tracking-[0.4em] uppercase mb-12 md:mb-16 block"
-          style={{ color: mood.accent, transition: "color 1s ease" }}
+          className="flex flex-col items-center mb-12 md:mb-16"
         >
-          ✦ What are you watching today?
-        </motion.span>
+          <span className="font-display text-[9px] tracking-[0.5em] uppercase text-golden/70 mb-3 border border-golden/20 px-4 py-1.5 rounded-full">
+            Velora Cinema
+          </span>
+          <span
+            className="font-display text-[11px] md:text-xs tracking-[0.3em] uppercase block"
+            style={{ color: mood.accent, transition: "color 1s ease" }}
+          >
+            ✦ What are you watching today?
+          </span>
+        </motion.div>
 
         {/* Flip clock */}
         <motion.div

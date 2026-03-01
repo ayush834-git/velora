@@ -1,30 +1,47 @@
 "use client";
 
-import { useMemo } from "react";
-import { motion } from "framer-motion";
+import { useMemo, useRef, useState, useEffect, useLayoutEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import GlowButton from "@/components/ui/GlowButton";
 import BlurUpImage from "@/components/ui/BlurUpImage";
 import CinematicDust from "@/components/ui/CinematicDust";
 import { Movie } from "@/types/movie";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 interface HeroSceneProps {
   movies: Movie[];
 }
 
 const GHOST_LAYOUT = [
-  { top: "8%", left: "3%", rotate: -12, w: 140, h: 200 },
-  { top: "55%", left: "6%", rotate: 8, w: 130, h: 190 },
-  { top: "12%", right: "4%", rotate: 15, w: 135, h: 195 },
-  { top: "50%", right: "6%", rotate: -10, w: 120, h: 175 },
-  { top: "30%", left: "12%", rotate: 5, w: 110, h: 160 },
-  { top: "35%", right: "10%", rotate: -8, w: 115, h: 168 },
+  { top: "8%", left: "3%", rotate: -12, w: 140, h: 200, z: 120 },
+  { top: "55%", left: "6%", rotate: 8, w: 130, h: 190, z: 80 },
+  { top: "12%", right: "4%", rotate: 15, w: 135, h: 195, z: 100 },
+  { top: "50%", right: "6%", rotate: -10, w: 120, h: 175, z: 60 },
+  { top: "30%", left: "12%", rotate: 5, w: 110, h: 160, z: 40 },
+  { top: "35%", right: "10%", rotate: -8, w: 115, h: 168, z: 20 },
 ] as const;
 
+const SUBTITLES = [
+  "An AI-powered cinematic ritual for this exact moment.",
+  "No endless scrolling. No algorithms. Just fate.",
+  "One click. One film. The one you need right now.",
+];
+
 export default function HeroScene({ movies }: HeroSceneProps) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const headlineRef = useRef<HTMLDivElement>(null);
   const prefersReduced = useReducedMotion();
   const ghostPosters = movies.slice(0, 6);
   const title = "Today, fate chooses your film.";
+  
+  const [subIndex, setSubIndex] = useState(0);
+
   const titleWords = useMemo(() => {
     return title.split(" ").map((word) => ({
       word,
@@ -37,8 +54,65 @@ export default function HeroScene({ movies }: HeroSceneProps) {
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
+  useEffect(() => {
+    const t = setInterval(() => setSubIndex(i => (i + 1) % SUBTITLES.length), 3000);
+    return () => clearInterval(t);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (prefersReduced || !sectionRef.current) return;
+    
+    const ctx = gsap.context(() => {
+      // Pin hero for 200vh
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top top",
+        end: "+=200%",
+        pin: true,
+        pinSpacing: true,
+      });
+
+      // Headline drifts up and fades as hero pins
+      if (headlineRef.current) {
+        gsap.to(headlineRef.current, {
+          y: -80,
+          opacity: 0,
+          scale: 0.92,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "+=120%",
+            scrub: 1.2,
+          },
+        });
+      }
+
+      // Parallax for ghost posters
+      gsap.utils.toArray<HTMLElement>(".ghost-poster").forEach((el, i) => {
+        gsap.to(el, {
+          y: -60 - i * 18,
+          scale: 0.88,
+          opacity: 0,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "+=180%",
+            scrub: 1.5,
+          },
+        });
+      });
+    }, sectionRef);
+
+    return () => {
+      ctx.revert();
+      ScrollTrigger.getAll().forEach(st => st.kill());
+    };
+  }, [prefersReduced]);
+
   return (
-    <section className="scene relative min-h-[100svh] flex items-center justify-center" id="hero">
+    <section ref={sectionRef} className="scene relative h-[100svh] flex items-center justify-center" id="hero">
       <motion.div
         className="absolute inset-0 bg-gradient-to-b from-cream/80 via-cream-warm/70 to-transparent"
         initial={prefersReduced ? false : { opacity: 0, scale: 1.05 }}
@@ -54,7 +128,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
           return (
             <motion.div
               key={movie.id}
-              className="absolute rounded-xl overflow-hidden"
+              className="ghost-poster absolute rounded-xl overflow-hidden"
               style={{
                 top: layout.top,
                 left: "left" in layout ? layout.left : undefined,
@@ -64,31 +138,15 @@ export default function HeroScene({ movies }: HeroSceneProps) {
                 transform: `rotate(${layout.rotate}deg)`,
                 filter: "blur(3px) saturate(0.5) brightness(1.1)",
                 willChange: "transform, opacity",
+                zIndex: layout.z,
               }}
               initial={prefersReduced ? false : { opacity: 0, y: 18, scale: 0.94 }}
-              animate={
-                prefersReduced
-                  ? undefined
-                  : {
-                      opacity: 0.14,
-                      y: [0, -5, 0],
-                      scale: 1,
-                    }
-              }
-              transition={
-                prefersReduced
-                  ? undefined
-                  : {
-                      opacity: { duration: 0.34, delay: 0.16 + i * 0.06 },
-                      scale: { duration: 0.34, delay: 0.16 + i * 0.06 },
-                      y: {
-                        duration: 4.6,
-                        repeat: Number.POSITIVE_INFINITY,
-                        ease: "easeInOut",
-                        delay: i * 0.14,
-                      },
-                    }
-              }
+              animate={prefersReduced ? undefined : { opacity: 0.14, y: [0, -5, 0], scale: 1 }}
+              transition={prefersReduced ? undefined : {
+                opacity: { duration: 0.34, delay: 0.16 + i * 0.06 },
+                scale: { duration: 0.34, delay: 0.16 + i * 0.06 },
+                y: { duration: 4.6, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: i * 0.14 },
+              }}
             >
               <BlurUpImage path={movie.poster_path} alt="" type="poster" fill />
             </motion.div>
@@ -96,7 +154,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
         })}
       </div>
 
-      <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
+      <div ref={headlineRef} className="relative z-10 text-center px-6 max-w-3xl mx-auto w-full">
         <motion.div
           className="mb-6"
           initial={prefersReduced ? false : { opacity: 0, y: 12 }}
@@ -114,25 +172,15 @@ export default function HeroScene({ movies }: HeroSceneProps) {
           aria-label={title}
         >
           {titleWords.map((wordObj, wi) => {
-            const charOffset = titleWords
-              .slice(0, wi)
-              .reduce((sum, w) => sum + w.chars.length + 1, 0);
+            const charOffset = titleWords.slice(0, wi).reduce((sum, w) => sum + w.chars.length + 1, 0);
             return (
               <span key={wi} style={{ display: "inline-block", whiteSpace: "nowrap" }}>
                 {wordObj.chars.map((char, ci) => (
                   <motion.span
                     key={`${char}-${ci}`}
                     className="inline-block"
-                    initial={
-                      prefersReduced
-                        ? false
-                        : { opacity: 0, y: 24, filter: "blur(8px)" }
-                    }
-                    animate={
-                      prefersReduced
-                        ? undefined
-                        : { opacity: 1, y: 0, filter: "blur(0px)" }
-                    }
+                    initial={prefersReduced ? false : { opacity: 0, y: 24, filter: "blur(8px)" }}
+                    animate={prefersReduced ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}
                     transition={{
                       duration: 0.28,
                       delay: 0.12 + (charOffset + ci) * 0.018,
@@ -149,18 +197,23 @@ export default function HeroScene({ movies }: HeroSceneProps) {
           })}
         </h1>
 
-        <motion.p
-          className="mt-6 text-lg text-ink-soft/80 font-body leading-relaxed tracking-wide"
-          initial={prefersReduced ? false : { opacity: 0, y: 10 }}
-          animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, delay: 0.36, ease: [0.22, 1, 0.36, 1] }}
-        >
-          An AI&#8209;powered cinematic ritual that discovers the perfect film
-          for this exact moment in your life.
-        </motion.p>
+        <div className="mt-8 mb-4 h-16 relative w-full flex justify-center">
+          <AnimatePresence mode="popLayout">
+            <motion.p
+              key={subIndex}
+              initial={prefersReduced ? false : { y: 20, opacity: 0, clipPath: "inset(100% 0 0 0)" }}
+              animate={prefersReduced ? undefined : { y: 0, opacity: 1, clipPath: "inset(0% 0 0 0)" }}
+              exit={prefersReduced ? undefined : { y: -20, opacity: 0, clipPath: "inset(0 0 100% 0)" }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="text-lg text-ink-soft/80 font-body leading-relaxed tracking-wide absolute w-full"
+            >
+              {SUBTITLES[subIndex]}
+            </motion.p>
+          </AnimatePresence>
+        </div>
 
         <motion.div
-          className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4"
+          className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6"
           initial={prefersReduced ? false : { opacity: 0, y: 12 }}
           animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.32, delay: 0.48, ease: [0.22, 1, 0.36, 1] }}
@@ -172,21 +225,25 @@ export default function HeroScene({ movies }: HeroSceneProps) {
             Spin Now →
           </GlowButton>
         </motion.div>
-
-        <motion.div
-          className="absolute -bottom-28 left-1/2 -translate-x-1/2"
-          initial={prefersReduced ? false : { opacity: 0 }}
-          animate={prefersReduced ? undefined : { opacity: 1 }}
-          transition={{ duration: 0.28, delay: 0.62 }}
-        >
-          <div className="flex flex-col items-center gap-2 animate-bounce-slow">
-            <span className="text-xs tracking-[0.2em] uppercase text-ink-muted">
-              Scroll to discover
-            </span>
-            <div className="w-px h-10 bg-gradient-to-b from-golden/40 to-transparent" />
-          </div>
-        </motion.div>
       </div>
+
+      <motion.div
+        className="absolute bottom-12 left-0 right-0 overflow-hidden flex justify-center opacity-60"
+        initial={prefersReduced ? false : { opacity: 0 }}
+        animate={prefersReduced ? undefined : { opacity: 0.6 }}
+        transition={{ duration: 0.28, delay: 0.62 }}
+        title="Scroll to discover"
+      >
+        <motion.div 
+          className="h-[2px] w-48 flex gap-3"
+          animate={{ x: [-40, 40], opacity: [0.3, 1, 0.3] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        >
+          {Array.from({length: 8}).map((_, i) => (
+            <div key={i} className="h-full w-4 bg-golden" />
+          ))}
+        </motion.div>
+      </motion.div>
     </section>
   );
 }
