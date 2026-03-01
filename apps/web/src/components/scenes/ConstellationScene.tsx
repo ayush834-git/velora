@@ -398,17 +398,7 @@ export default function ConstellationScene() {
         </div>
       </motion.div>
 
-      {/* Bottom fade back to cream */}
-      <div
-        className="absolute bottom-0 left-0 right-0 pointer-events-none"
-        style={{
-          height: 120,
-          background: "linear-gradient(to bottom, transparent, var(--color-cream))",
-          zIndex: 15,
-        }}
-      />
 
-      {/* Twinkle keyframes — scoped to avoid global collision */}
       <style>{`
         @keyframes velor-twinkle {
           from { opacity: var(--lo, 0.06); transform: scale(1); }
