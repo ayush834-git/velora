@@ -80,7 +80,7 @@ export default function ChaosScene({ movies }: ChaosSceneProps) {
   return (
     <section ref={sectionRef} className="scene relative h-[160vh] bg-transparent" id="chaos">
       <div className="sticky top-0 h-screen flex items-center justify-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream-warm/60 to-cream" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cream-warm/60 to-cream" />
 
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[1]">
           <h2

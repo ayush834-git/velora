@@ -38,9 +38,9 @@ export default function HeroScene({ movies }: HeroSceneProps) {
   };
 
   return (
-    <section className="scene relative min-h-[110vh] flex items-center justify-center" id="hero">
+    <section className="scene relative min-h-[100svh] flex items-center justify-center" id="hero">
       <motion.div
-        className="absolute inset-0 bg-gradient-to-b from-cream/80 via-cream-warm/70 to-cream"
+        className="absolute inset-0 bg-gradient-to-b from-cream/80 via-cream-warm/70 to-transparent"
         initial={prefersReduced ? false : { opacity: 0, scale: 1.05 }}
         animate={prefersReduced ? undefined : { opacity: 1, scale: 1 }}
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
@@ -96,7 +96,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
         })}
       </div>
 
-      <div className="relative z-10 text-center px-6 max-w-6xl mx-auto">
+      <div className="relative z-10 text-center px-6 max-w-3xl mx-auto">
         <motion.div
           className="mb-6"
           initial={prefersReduced ? false : { opacity: 0, y: 12 }}
@@ -150,8 +150,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
         </h1>
 
         <motion.p
-          className="mt-8 md:mt-10 text-ink-soft/80 font-body max-w-lg mx-auto leading-[1.7] tracking-wide"
-          style={{ fontSize: "clamp(0.95rem, 1.3vw, 1.15rem)" }}
+          className="mt-6 text-lg text-ink-soft/80 font-body leading-relaxed tracking-wide"
           initial={prefersReduced ? false : { opacity: 0, y: 10 }}
           animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.36, ease: [0.22, 1, 0.36, 1] }}
@@ -161,7 +160,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
         </motion.p>
 
         <motion.div
-          className="mt-8 md:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
+          className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4"
           initial={prefersReduced ? false : { opacity: 0, y: 12 }}
           animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.32, delay: 0.48, ease: [0.22, 1, 0.36, 1] }}
