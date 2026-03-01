@@ -77,6 +77,7 @@ export default function ManifestoScene() {
             fontSize: "clamp(3rem, 8.5vw, 8.5rem)",
             letterSpacing: "-0.02em",
             lineHeight: 1.0,
+            willChange: "transform",
           }}
         >
           {["Every", "film", "is", "a"].map((word, i) => (

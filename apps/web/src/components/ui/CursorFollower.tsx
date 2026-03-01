@@ -19,11 +19,15 @@ export default function CursorFollower() {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
 
+      let nextMode: CursorMode = "default";
+      let nextLabel = "";
+
       const target = e.target as HTMLElement;
       const closest = target.closest("[data-cursor]") as HTMLElement | null;
+      
       if (closest) {
-        setMode(closest.dataset.cursor as CursorMode ?? "hover");
-        setLabel(closest.dataset.cursorLabel ?? "");
+        nextMode = (closest.dataset.cursor as CursorMode) ?? "hover";
+        nextLabel = closest.dataset.cursorLabel ?? "";
       } else if (
         target.closest("[data-cursor-hover]") ||
         target.closest("button") ||
@@ -31,10 +35,11 @@ export default function CursorFollower() {
         target.closest(".floating-card") ||
         target.closest(".mood-card")
       ) {
-        setMode("hover"); setLabel("");
-      } else {
-        setMode("default"); setLabel("");
+        nextMode = "hover";
       }
+
+      setMode((prev) => prev !== nextMode ? nextMode : prev);
+      setLabel((prev) => prev !== nextLabel ? nextLabel : prev);
     };
     window.addEventListener("mousemove", move);
     return () => window.removeEventListener("mousemove", move);

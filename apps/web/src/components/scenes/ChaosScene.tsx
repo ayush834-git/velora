@@ -81,23 +81,28 @@ export default function ChaosScene({ movies }: ChaosSceneProps) {
   return (
     <section ref={sectionRef} className="scene relative h-[160vh] bg-transparent overflow-hidden" id="chaos">
       
-      {/* FEATURE LAYER: AI IN MOTION (Injected into existing gap container) */}
-      <div className="absolute inset-0 pointer-events-none z-0 select-none overflow-hidden" style={{ maskImage: "linear-gradient(to bottom, transparent, black 15%, black 85%, transparent)" }}>
-        <div className="absolute inset-0 flex items-center justify-center gap-4 sm:gap-8 opacity-20 blur-[5px] scale-105 -rotate-2">
+      {/* FEATURE LAYER: AI IN MOTION */}
+      <div className="absolute inset-0 pointer-events-none z-0 select-none overflow-hidden">
+        {/* Top/bottom gradient fade instead of expensive mask-image */}
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-cream to-transparent z-10" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-cream to-transparent z-10" />
+        
+        <div className="absolute inset-0 flex items-center justify-center gap-4 sm:gap-8 opacity-[0.08] scale-105 -rotate-2" style={{ transform: "translateZ(0)" }}>
           {movies.slice(0, 3).map((movie, i) => (
             <motion.div
               key={`drift-${movie.id}`}
               className="w-48 sm:w-64 aspect-[2/3] relative rounded-xl overflow-hidden shadow-2xl"
-              animate={{ y: [-40, 40] }}
-              transition={{ duration: 12, ease: "easeInOut", repeat: Infinity, repeatType: "reverse", delay: i * 1.5 }}
+              animate={{ y: [-30, 30] }}
+              transition={{ duration: 14, ease: "linear", repeat: Infinity, repeatType: "reverse", delay: i * 2 }}
+              style={{ willChange: "transform" }}
             >
               <img src={getImageUrl(movie.poster_path, IMAGE_SIZES.poster.medium)} alt="" className="w-full h-full object-cover" loading="lazy" />
             </motion.div>
           ))}
         </div>
         <motion.div
-          initial={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
-          whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          initial={{ opacity: 0, scale: 1.05 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           transition={{ duration: 2.5, ease: [0.2, 0.8, 0.2, 1] }}
           className="absolute inset-0 flex items-center justify-center z-10"
         >
