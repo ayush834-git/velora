@@ -136,19 +136,22 @@ export default function HeroScene({ movies }: HeroSceneProps) {
                 width: layout.w,
                 height: layout.h,
                 transform: `rotate(${layout.rotate}deg)`,
-                filter: "blur(3px) saturate(0.5) brightness(1.1)",
-                willChange: "transform, opacity",
                 zIndex: layout.z,
               }}
-              initial={prefersReduced ? false : { opacity: 0, y: 18, scale: 0.94 }}
-              animate={prefersReduced ? undefined : { opacity: 0.14, y: [0, -5, 0], scale: 1 }}
-              transition={prefersReduced ? undefined : {
-                opacity: { duration: 0.34, delay: 0.16 + i * 0.06 },
-                scale: { duration: 0.34, delay: 0.16 + i * 0.06 },
-                y: { duration: 4.6, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: i * 0.14 },
-              }}
             >
-              <BlurUpImage path={movie.poster_path} alt="" type="poster" fill />
+              <motion.div
+                className="w-full h-full relative"
+                style={{ filter: "blur(3px) saturate(0.5) brightness(1.1)", willChange: "transform, opacity" }}
+                initial={prefersReduced ? false : { opacity: 0, y: 18, scale: 0.94 }}
+                animate={prefersReduced ? undefined : { opacity: 0.14, y: [0, -5, 0], scale: 1 }}
+                transition={prefersReduced ? undefined : {
+                  opacity: { duration: 0.34, delay: 0.16 + i * 0.06 },
+                  scale: { duration: 0.34, delay: 0.16 + i * 0.06 },
+                  y: { duration: 4.6, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: i * 0.14 },
+                }}
+              >
+                <BlurUpImage path={movie.poster_path} alt="" type="poster" fill />
+              </motion.div>
             </motion.div>
           );
         })}
@@ -179,14 +182,14 @@ export default function HeroScene({ movies }: HeroSceneProps) {
                   <motion.span
                     key={`${char}-${ci}`}
                     className="inline-block"
-                    initial={prefersReduced ? false : { opacity: 0, y: 24, filter: "blur(8px)" }}
-                    animate={prefersReduced ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}
+                    initial={prefersReduced ? false : { opacity: 0, y: 24 }}
+                    animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
                     transition={{
                       duration: 0.28,
                       delay: 0.12 + (charOffset + ci) * 0.018,
                       ease: [0.16, 1, 0.3, 1],
                     }}
-                    style={{ willChange: "transform, opacity, filter" }}
+                    style={{ willChange: "transform, opacity" }}
                   >
                     {char}
                   </motion.span>

@@ -30,7 +30,7 @@ export default function ManifestoScene() {
         },
       });
       gsap.to(headlineRef.current, {
-        x: -150,
+        x: 200,
         ease: "none",
         scrollTrigger: {
           trigger: sectionRef.current,

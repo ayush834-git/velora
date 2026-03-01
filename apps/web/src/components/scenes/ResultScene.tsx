@@ -244,9 +244,9 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
                   initial={{ opacity: 0 }}
                   animate={isInView && movie ? { opacity: 1 } : {}}
                   transition={{ duration: 0.4, delay: 1.1 + i * 0.02 }}
-                  className="inline-block mr-1.5"
+                  style={{ display: "inline-block" }}
                 >
-                  {word}
+                  {word}&nbsp;
                 </motion.span>
               ))}
             </div>
