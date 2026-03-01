@@ -266,11 +266,7 @@ export default function MoodClockScene() {
   return (
     <section
       className="relative overflow-hidden flex items-center justify-center
-        px-[5vw] py-24 min-h-[100vh] border-t border-golden/30"
-      style={{
-        background: `radial-gradient(ellipse 90% 80% at 50% 45%, ${mood.bg} 0%, ${outerBg} 80%)`,
-        transition: "background 1.5s ease",
-      }}
+        px-[5vw] py-24 min-h-[100vh]"
     >
       {/* Film strip perforation columns — purely decorative */}
       {["left-0", "right-0"].map((side) => (

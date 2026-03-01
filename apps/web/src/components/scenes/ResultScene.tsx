@@ -120,7 +120,7 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
   }, [filters, movie?.id, movie?.release_date, movie?.title]);
 
   return (
-    <section ref={sectionRef} id="movie-banner" className="scene relative min-h-[90vh] flex items-center overflow-hidden bg-ink">
+    <section ref={sectionRef} id="movie-banner" className="scene relative min-h-[90vh] flex items-center overflow-hidden">
       <div id="result" className="absolute top-0 left-0 h-px w-px" />
 
       {backdropSrc && (

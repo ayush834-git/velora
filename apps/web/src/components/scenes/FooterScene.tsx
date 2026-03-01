@@ -27,7 +27,7 @@ export default function FooterScene() {
     <footer
       ref={sectionRef}
       className="scene relative pt-40 pb-20 px-[5vw] min-h-[75svh] flex flex-col justify-end overflow-hidden
-        bg-black border-t border-white/10"
+        border-t border-white/10"
       id="footer"
     >
       {/* Spotlight and Grain */}

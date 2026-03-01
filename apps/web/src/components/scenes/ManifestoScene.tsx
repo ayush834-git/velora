@@ -49,9 +49,6 @@ export default function ManifestoScene() {
       className="relative min-h-[50vh] min-h-[500px] flex flex-col justify-center
         py-24 md:py-32 px-[5vw]
         overflow-hidden"
-      style={{
-        background: "linear-gradient(to bottom, #080714 0%, #faf8f5 35%, #faf8f5 65%, #1a1a2e 100%)",
-      }}
     >
       {/* Decorative giant V */}
       <div

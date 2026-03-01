@@ -239,6 +239,46 @@ body {
   50% { transform: translate3d(0, -18px, 0); opacity: 0.45; }
 }
 
+/* ===== ATMOSPHERIC BACKGROUND SYSTEM ===== */
+.velora-atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: -1;          /* Sit below all content sections */
+  pointer-events: none;
+  /* 
+    Layered radial gradients for seamless atmospheric blending.
+    Top -> Bottom flow mimicking the page structure:
+    - Top: Dark Indigo (Constellation/Hero bleed)
+    - Upper Mid: Light cream/warm (Manifesto)
+    - Mid: Deep Navy/Slate (How It Works)
+    - Lower Mid: Cream/Warm gold (Curated/Grid)
+    - Bottom: Deep Black (Footer)
+  */
+  background:
+    /* Glow: Sunrise/Dawn (Hero/Constellation) */
+    radial-gradient(ellipse 1400px 800px at 50% 10%, #0f1324 0%, transparent 80%),
+    /* Mid-transition: Dusty Blue */
+    radial-gradient(ellipse 1600px 600px at 50% 25%, #7f8698 0%, transparent 60%),
+    /* Glow: Morning (Manifesto) */
+    radial-gradient(ellipse 1800px 900px at 50% 40%, #efe2cc 0%, transparent 70%),
+    /* Mid-transition: Slate Gray */
+    radial-gradient(ellipse 1500px 600px at 50% 55%, #aab0bc 0%, transparent 60%),
+    /* Glow: Twilight (How It Works/Spin Ritual) */
+    radial-gradient(ellipse 1800px 1000px at 50% 70%, #141a35 0%, transparent 80%),
+    /* Mid-transition: Warm dusk */
+    radial-gradient(ellipse 1600px 800px at 50% 85%, #e6d9c4 0%, transparent 70%),
+    /* Glow: Midnight (Footer) */
+    radial-gradient(ellipse 2000px 800px at 50% 100%, #080714 0%, transparent 90%);
+  
+  /* Fallback base color if gradients run out */
+  background-color: #faf8f5;
+  
+  /* Extremely heavy blur for pure color diffusion */
+  filter: blur(60px);
+  opacity: 0.9;
+  transform: translateZ(0); /* Hardware accelerate the blur */
+}
+
 /* ===== SCROLLBAR UTILITIES ===== */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;

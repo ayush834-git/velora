@@ -28,9 +28,6 @@ export default function HowItWorksScene() {
     <section
       ref={ref}
       className="relative py-28 px-[5vw] overflow-hidden"
-      style={{
-        background: "linear-gradient(to bottom, #1a1a2e 0%, #1a1a2e 65%, #faf8f5 100%)",
-      }}
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(232,168,56,0.05),transparent_50%)] pointer-events-none z-0" />
 

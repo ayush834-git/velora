@@ -52,6 +52,8 @@ export default function RootLayout({
       >
         <FilterProvider>
           <SmoothScroll>
+            {/* Global atmospheric background layer (under scenes, over parallax) */}
+            <div className="velora-atmosphere" aria-hidden="true" />
             {children}
           </SmoothScroll>
         </FilterProvider>

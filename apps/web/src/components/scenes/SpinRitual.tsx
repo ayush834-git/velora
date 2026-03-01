@@ -231,7 +231,6 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
       className="scene relative min-h-screen flex items-center justify-center py-24"
       id="spin"
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream-warm to-cream-warm/60" />
       {backdropSrc && (
         <div className="absolute inset-0 overflow-hidden">
           <Image
@@ -247,7 +246,6 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
           />
         </div>
       )}
-      <div className="absolute inset-0 bg-gradient-to-b from-cream/50 via-cream/72 to-cream" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_34%,rgba(24,22,27,0.3)_100%)]" />
 
       <div className="absolute inset-0 z-[1] pointer-events-none opacity-50">

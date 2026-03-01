@@ -26,9 +26,6 @@ export default function GridScene({
       ref={sectionRef}
       className="scene relative py-20 md:py-28"
       id="grid"
-      style={{
-        background: "linear-gradient(to bottom, #faf8f5 0%, #faf8f5 50%, #000000 100%)",
-      }}
     >
 
       {/* Section heading */}
