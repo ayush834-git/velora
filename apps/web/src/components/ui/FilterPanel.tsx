@@ -169,7 +169,7 @@ export default function FilterPanel() {
                   {FILTER_GROUPS.map((group, groupIndex) => (
                     <motion.section
                       key={group.key}
-                      className="space-y-3"
+                      className="space-y-3 mb-6"
                       initial={{ opacity: 0, x: 18 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{
@@ -179,12 +179,12 @@ export default function FilterPanel() {
                       }}
                     >
                       <h4
-                        className="text-[12px] uppercase tracking-[0.24em] text-ink-muted mb-3"
+                        className="text-[12px] uppercase tracking-[0.24em] text-ink-muted mb-4"
                         style={{ fontFamily: "var(--font-accent), serif" }}
                       >
                         {group.label}
                       </h4>
-                      <div className="flex flex-wrap gap-2.5 gap-y-4" role="listbox" aria-label={group.label}>
+                      <div className="flex flex-wrap gap-x-3 gap-y-3" role="listbox" aria-label={group.label}>
                         {group.items.map((item, itemIndex) => {
                           const active = filters[group.key] === item;
                           const rippleId = `${group.key}:${item}`;
@@ -200,13 +200,13 @@ export default function FilterPanel() {
                                   item
                                 )
                               }
-                              whileHover={{ scale: 1.05, y: -2 }}
+                              whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.97 }}
                               initial={{ opacity: 0, y: 6 }}
                               animate={
                                 active
-                                  ? { opacity: 1, y: 0, scale: [1, 1.08, 1] }
-                                  : { opacity: 1, y: 0, scale: 1 }
+                                  ? { opacity: 1, y: 0, scale: 1.02, boxShadow: "0 4px 10px rgba(0,0,0,0.06)" }
+                                  : { opacity: 1, y: 0, scale: 1, boxShadow: "0 0 0 rgba(0,0,0,0)" }
                               }
                               transition={
                                 active
@@ -219,10 +219,10 @@ export default function FilterPanel() {
                                     }
                                   : { duration: 0.2, delay: itemIndex * 0.03 }
                               }
-                              className={`relative overflow-hidden px-5 py-2.5 rounded-xl text-sm leading-none font-medium cursor-pointer transition-all duration-200
+                              className={`relative overflow-hidden px-5 py-2.5 min-h-[38px] rounded-full text-sm tracking-wide leading-none font-medium cursor-pointer transition-all duration-200 ease-out flex items-center justify-center
                                 border ${
                                   active
-                                    ? "text-white border-transparent bg-gradient-to-br from-[#e7b45e] to-[#d89a3f] shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_8px_20px_rgba(216,154,63,0.35)]"
+                                    ? "text-white border-transparent bg-gradient-to-br from-[#e7b45e] to-[#d89a3f] shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_4px_10px_rgba(216,154,63,0.35)]"
                                     : "text-ink bg-[rgba(243,243,245,0.9)] border-neutral-200 hover:border-neutral-300 hover:shadow-[0_6px_15px_rgba(0,0,0,0.08)]"
                                 }`}
                               data-cursor-hover
