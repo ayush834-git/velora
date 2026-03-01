@@ -74,37 +74,50 @@ function NodeTooltip({ node, svgRect, wrapRect }: TooltipProps) {
       }}
     >
       <div
-        className="rounded-2xl px-5 py-4"
+        className="rounded-2xl px-6 py-5 shadow-2xl transition-all"
         style={{
-          background: "rgba(10, 9, 22, 0.95)",
-          backdropFilter: "blur(20px)",
-          border: `1px solid ${node.color}28`,
-          boxShadow: `0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.04)`,
+          background: "linear-gradient(135deg, rgba(16, 15, 30, 0.95) 0%, rgba(8, 7, 20, 0.98) 100%)",
+          backdropFilter: "blur(24px)",
+          border: `1px solid ${node.color}33`,
+          boxShadow: `0 24px 64px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.03), 0 0 32px ${node.color}15`,
         }}
       >
-        <div
-          className="font-display text-[10px] tracking-[0.38em] uppercase mb-3"
-          style={{ color: node.color }}
+        <motion.div
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="font-display text-sm md:text-base tracking-[0.25em] uppercase mb-4 pb-3 border-b border-white/5"
+          style={{ 
+            color: node.color,
+            textShadow: `0 0 12px ${node.color}40`,
+          }}
         >
           {node.label}
-        </div>
-        <div className="flex flex-col gap-1.5 mb-3">
-          {node.films.map((film) => (
-            <div
+        </motion.div>
+        <div className="flex flex-col gap-2.5 mb-5">
+          {node.films.map((film, idx) => (
+            <motion.div
               key={film}
-              className="text-xs leading-snug font-body"
-              style={{ color: "rgba(255,255,255,0.6)" }}
+              initial={{ opacity: 0, x: -6 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.08 + idx * 0.05, duration: 0.3, ease: "easeOut" }}
+              className="text-sm font-body tracking-wide font-light"
+              style={{ color: "rgba(255,255,255,0.8)" }}
             >
               {film}
-            </div>
+            </motion.div>
           ))}
         </div>
-        <div
-          className="font-display text-[9px] tracking-[0.3em] uppercase"
-          style={{ color: "rgba(255,255,255,0.35)" }}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+          className="font-display text-[10px] tracking-[0.3em] uppercase flex items-center gap-2"
+          style={{ color: "rgba(255,255,255,0.3)" }}
         >
-          Click to filter →
-        </div>
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: node.color, opacity: 0.8, boxShadow: `0 0 6px ${node.color}` }}></span>
+          Click to filter
+        </motion.div>
       </div>
     </motion.div>
   );
