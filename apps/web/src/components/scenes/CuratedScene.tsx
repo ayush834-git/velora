@@ -162,12 +162,6 @@ export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps
       }`}
       id="curated"
     >
-      {/* Background bleed from HowItWorks to Curated */}
-      <div 
-        className="absolute top-0 left-0 right-0 h-40 pointer-events-none z-10" 
-        style={{ background: "linear-gradient(to bottom, #04030e, transparent)" }} 
-      />
-
       {/* Section heading */}
       <div className="relative z-10 text-center mb-14 md:mb-20 px-6">
         <motion.span

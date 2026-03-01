@@ -24,11 +24,14 @@ export default function GridScene({
   return (
     <section
       ref={sectionRef}
-      className="scene relative py-20 md:py-28"
+      className="scene relative pt-20 pb-48 md:pt-28 md:pb-64"
       id="grid"
     >
-      {/* Background */}
-      <div className="absolute inset-0 bg-cream" />
+      {/* Massive seamless bleed background */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{ background: "linear-gradient(to bottom, rgba(245,240,232,0.6) 0%, #faf8f5 15%, #faf8f5 70%, #000000 100%)" }}
+      />
 
       {/* Section heading */}
       <div className="relative z-10 px-6 md:px-12 mb-12 max-w-7xl mx-auto">
@@ -118,12 +121,6 @@ export default function GridScene({
           )}
         </div>
       </div>
-
-      {/* Bleed into dark FooterScene */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-10" 
-        style={{ background: "linear-gradient(to bottom, transparent, #000000)" }} 
-      />
     </section>
   );
 }

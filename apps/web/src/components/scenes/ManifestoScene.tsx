@@ -46,10 +46,15 @@ export default function ManifestoScene() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[50vh] min-h-[500px] flex flex-col justify-center
-        py-16 md:py-20 px-[5vw] bg-cream
+      className="relative min-h-[70vh] flex flex-col justify-center
+        pt-40 pb-40 px-[5vw]
         overflow-hidden"
     >
+      {/* Massive seamless bleed background */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{ background: "linear-gradient(to bottom, #080714 0%, #faf8f5 25%, #faf8f5 75%, #1a1a2e 100%)" }}
+      />
       {/* Decorative giant V */}
       <div
         aria-hidden
@@ -133,12 +138,6 @@ export default function ManifestoScene() {
           ))}
         </motion.div>
       </div>
-
-      {/* Bottom bleed into the dark HowItWorks scene */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-10" 
-        style={{ background: "linear-gradient(to bottom, transparent, #04030e)" }} 
-      />
     </section>
   );
 }

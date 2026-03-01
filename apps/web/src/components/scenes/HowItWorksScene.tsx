@@ -27,9 +27,14 @@ export default function HowItWorksScene() {
   return (
     <section
       ref={ref}
-      className="relative py-28 px-[5vw] bg-ink overflow-hidden"
+      className="relative pt-28 pb-48 px-[5vw] overflow-hidden"
     >
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(232,168,56,0.05),transparent_50%)] pointer-events-none" />
+      {/* Massive seamless bleed background */}
+      <div 
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{ background: "linear-gradient(to bottom, #1a1a2e 0%, #1a1a2e 75%, #faf8f5 100%)" }}
+      />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(232,168,56,0.05),transparent_50%)] pointer-events-none z-0" />
 
       <div className="max-w-6xl mx-auto relative z-10">
         <motion.span
@@ -81,12 +86,6 @@ export default function HowItWorksScene() {
           ))}
         </div>
       </div>
-
-      {/* Bleed back into light theme for CuratedScene */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-10" 
-        style={{ background: "linear-gradient(to bottom, transparent, #faf8f5)" }} 
-      />
     </section>
   );
 }

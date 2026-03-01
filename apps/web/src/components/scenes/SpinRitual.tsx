@@ -529,11 +529,6 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
         </AnimatePresence>
       </div>
 
-      {/* Bottom bleed into GridScene */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-10" 
-        style={{ background: "linear-gradient(to bottom, transparent, #faf8f5)" }} 
-      />
     </section>
   );
 }
