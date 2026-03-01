@@ -23,8 +23,6 @@ export default function DirectorPicksScene({ movies }: Props) {
   );
   const picks = [...essentials, ...topRated].slice(0, 8);
 
-  if (picks.length === 0) return null;
-
   return (
     <section ref={ref} className="relative py-16 overflow-hidden bg-cream">
       <div className="px-[5vw] mb-8 flex items-end justify-between">
