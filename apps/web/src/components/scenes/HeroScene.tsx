@@ -87,22 +87,6 @@ export default function HeroScene({ movies }: HeroSceneProps) {
           },
         });
       }
-
-      // Parallax for ghost posters
-      gsap.utils.toArray<HTMLElement>(".ghost-poster").forEach((el, i) => {
-        gsap.to(el, {
-          y: -60 - i * 18,
-          scale: 0.88,
-          opacity: 0,
-          ease: "none",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top top",
-            end: "+=180%",
-            scrub: 1.5,
-          },
-        });
-      });
     }, sectionRef);
 
     return () => {

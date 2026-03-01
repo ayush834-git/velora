@@ -6,7 +6,6 @@ import Navbar from "@/components/ui/Navbar";
 import ParallaxBackground from "@/components/ui/ParallaxBackground";
 import CursorFollower from "@/components/ui/CursorFollower";
 import HeroScene from "@/components/scenes/HeroScene";
-import CinematicTransition from "@/components/scenes/CinematicTransition";
 import ChaosScene from "@/components/scenes/ChaosScene";
 import MarqueeScene from "@/components/scenes/MarqueeScene";
 import MoodClockScene from "@/components/scenes/MoodClockScene";
@@ -146,7 +145,6 @@ export default function Home() {
       <LayoutGroup id="velora-shared-layout">
         <div className="relative z-10">
           <HeroScene movies={baseMovies} />
-          <CinematicTransition />
           <ChaosScene movies={baseMovies} />
           <MarqueeScene />
           <MoodClockScene />
