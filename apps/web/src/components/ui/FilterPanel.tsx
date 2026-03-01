@@ -15,38 +15,51 @@ export interface ActiveFilters {
   rating: string | null;
 }
 
-const GENRES = ["Action", "Drama", "Comedy", "Sci-Fi", "Horror", "Romance", "Thriller", "Animation"];
+const GENRES = [
+  "Action",
+  "Drama",
+  "Comedy",
+  "Sci-Fi",
+  "Horror",
+  "Romance",
+  "Thriller",
+  "Animation",
+];
 const MOODS = ["Mind-Bending", "Comfort", "Dark", "Uplifting", "Epic", "Romantic"];
 const ERAS = ["Classic (pre-1980)", "80s & 90s", "2000s", "2010s", "Recent (2020+)"];
 const LANGUAGES = ["English", "Korean", "Japanese", "French", "Spanish", "Hindi"];
 const RATINGS = ["9+ Masterpiece", "8+ Excellent", "7+ Great", "Any"];
 
-// All filter groups for keyboard navigation
 const FILTER_GROUPS = [
-  { key: "genres" as const, label: "Genre", items: GENRES, multi: true },
-  { key: "mood" as const, label: "Mood", items: MOODS, multi: false },
-  { key: "era" as const, label: "Era", items: ERAS, multi: false },
-  { key: "language" as const, label: "Language", items: LANGUAGES, multi: false },
-  { key: "rating" as const, label: "Rating", items: RATINGS, multi: false },
+  { key: "genres" as const, label: "GENRE", items: GENRES, multi: true },
+  { key: "mood" as const, label: "MOOD", items: MOODS, multi: false },
+  { key: "era" as const, label: "ERA", items: ERAS, multi: false },
+  { key: "language" as const, label: "LANGUAGE", items: LANGUAGES, multi: false },
+  { key: "rating" as const, label: "RATING", items: RATINGS, multi: false },
 ];
 
-/*
-  FilterPanel — Glass UI with keyboard navigation
-  ─────────────────────────────────────────────────
-  - Glassmorphism backdrop (backdrop-filter: blur)
-  - Animated open/close with spring easing
-  - Keyboard nav: ArrowDown/ArrowUp between groups, ArrowLeft/ArrowRight between chips
-  - Enter/Space to toggle chip, Escape to close panel
-  - aria-expanded, role="listbox", role="option" for a11y
-  - Active filter count badge
-*/
+const DESKTOP_PANEL_MOTION = {
+  initial: { opacity: 0, x: 60 },
+  animate: { opacity: 1, x: 0 },
+  exit: { opacity: 0, x: 60 },
+  transition: { duration: 0.4, ease: [0.19, 1, 0.22, 1] as [number, number, number, number] },
+};
+
+const MOBILE_PANEL_MOTION = {
+  initial: { opacity: 0, y: 80 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: 80 },
+  transition: { duration: 0.4, ease: [0.19, 1, 0.22, 1] as [number, number, number, number] },
+};
 
 export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const [focusGroup, setFocusGroup] = useState(0);
   const [focusItem, setFocusItem] = useState(0);
+
+  const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const [filters, setFilters] = useState<ActiveFilters>({
     genres: [],
@@ -56,31 +69,34 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
     rating: null,
   });
 
-  // ── Toggle genre (multi-select) ──
-  const toggleGenre = useCallback((genre: string) => {
-    setFilters((prev) => {
-      const newGenres = prev.genres.includes(genre)
-        ? prev.genres.filter((g) => g !== genre)
-        : [...prev.genres, genre];
-      const newFilters = { ...prev, genres: newGenres };
-      onFilterChange?.(newFilters);
-      return newFilters;
-    });
-  }, [onFilterChange]);
+  const toggleGenre = useCallback(
+    (genre: string) => {
+      setFilters((prev) => {
+        const newGenres = prev.genres.includes(genre)
+          ? prev.genres.filter((g) => g !== genre)
+          : [...prev.genres, genre];
+        const newFilters = { ...prev, genres: newGenres };
+        onFilterChange?.(newFilters);
+        return newFilters;
+      });
+    },
+    [onFilterChange]
+  );
 
-  // ── Set single-select filter ──
-  const setFilter = useCallback((key: keyof ActiveFilters, value: string) => {
-    setFilters((prev) => {
-      const newFilters = {
-        ...prev,
-        [key]: prev[key] === value ? null : value,
-      } as ActiveFilters;
-      onFilterChange?.(newFilters);
-      return newFilters;
-    });
-  }, [onFilterChange]);
+  const setFilter = useCallback(
+    (key: keyof ActiveFilters, value: string) => {
+      setFilters((prev) => {
+        const newFilters = {
+          ...prev,
+          [key]: prev[key] === value ? null : value,
+        } as ActiveFilters;
+        onFilterChange?.(newFilters);
+        return newFilters;
+      });
+    },
+    [onFilterChange]
+  );
 
-  // ── Active filter count ──
   const activeCount =
     filters.genres.length +
     (filters.mood ? 1 : 0) +
@@ -88,96 +104,109 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
     (filters.language ? 1 : 0) +
     (filters.rating ? 1 : 0);
 
-  // ── Close on outside click ──
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)");
+    const apply = () => setIsMobile(media.matches);
+    apply();
+
+    media.addEventListener("change", apply);
+    return () => media.removeEventListener("change", apply);
+  }, []);
+
   useEffect(() => {
     if (!isOpen) return;
-    const handleClickOutside = (e: MouseEvent) => {
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
       if (
         panelRef.current &&
-        !panelRef.current.contains(e.target as Node) &&
+        !panelRef.current.contains(target) &&
         triggerRef.current &&
-        !triggerRef.current.contains(e.target as Node)
+        !triggerRef.current.contains(target)
       ) {
         setIsOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
-  // ── Keyboard navigation ──
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
+    (event: React.KeyboardEvent) => {
       if (!isOpen) return;
 
       const group = FILTER_GROUPS[focusGroup];
+      if (!group) return;
 
-      switch (e.key) {
+      switch (event.key) {
         case "Escape":
           setIsOpen(false);
           triggerRef.current?.focus();
-          e.preventDefault();
+          event.preventDefault();
           break;
         case "ArrowDown":
-          setFocusGroup((g) => Math.min(g + 1, FILTER_GROUPS.length - 1));
+          setFocusGroup((value) => Math.min(value + 1, FILTER_GROUPS.length - 1));
           setFocusItem(0);
-          e.preventDefault();
+          event.preventDefault();
           break;
         case "ArrowUp":
-          setFocusGroup((g) => Math.max(g - 1, 0));
+          setFocusGroup((value) => Math.max(value - 1, 0));
           setFocusItem(0);
-          e.preventDefault();
+          event.preventDefault();
           break;
         case "ArrowRight":
-          setFocusItem((i) => Math.min(i + 1, group.items.length - 1));
-          e.preventDefault();
+          setFocusItem((value) => Math.min(value + 1, group.items.length - 1));
+          event.preventDefault();
           break;
         case "ArrowLeft":
-          setFocusItem((i) => Math.max(i - 1, 0));
-          e.preventDefault();
+          setFocusItem((value) => Math.max(value - 1, 0));
+          event.preventDefault();
           break;
         case "Enter":
         case " ":
-          e.preventDefault();
+          event.preventDefault();
           if (group.multi) {
             toggleGenre(group.items[focusItem]);
           } else {
             setFilter(group.key, group.items[focusItem]);
           }
           break;
+        default:
+          break;
       }
     },
     [isOpen, focusGroup, focusItem, toggleGenre, setFilter]
   );
 
-  // ── Check if a chip is active ──
   const isActive = (groupKey: string, item: string): boolean => {
     if (groupKey === "genres") return filters.genres.includes(item);
     return filters[groupKey as keyof ActiveFilters] === item;
   };
 
+  const closeOnDrag = (_: MouseEvent | TouchEvent | PointerEvent, info: { offset: { y: number }; velocity: { y: number } }) => {
+    if (info.offset.y > 120 || info.velocity.y > 700) {
+      setIsOpen(false);
+    }
+  };
+
   return (
-    <div className="relative z-30" onKeyDown={handleKeyDown}>
-      {/* Toggle button */}
+    <div className="relative z-40" onKeyDown={handleKeyDown}>
       <motion.button
         ref={triggerRef}
-        onClick={() => setIsOpen(!isOpen)}
-        whileTap={{ scale: 0.95 }}
+        onClick={() => setIsOpen((value) => !value)}
+        whileTap={{ scale: 0.96 }}
+        whileHover={{ scale: 1.02 }}
         aria-expanded={isOpen}
-        aria-haspopup="true"
-        className="rounded-full px-5 py-2.5 flex items-center gap-2 cursor-pointer
-          hover:shadow-lg transition-shadow duration-300"
-        style={{
-          background: "var(--glass-tint)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          border: "1px solid rgba(255, 255, 255, 0.4)",
-          boxShadow: "var(--shadow-glass), inset 0 1px 0 rgba(255,255,255,0.5)",
-        }}
+        aria-haspopup="dialog"
+        className="group rounded-full h-10 px-5 inline-flex items-center gap-2.5 cursor-pointer
+          bg-[rgba(255,255,255,0.62)] border border-white/70 text-ink
+          backdrop-blur-[14px] shadow-[0_10px_26px_rgba(0,0,0,0.06)]
+          hover:shadow-[0_14px_34px_rgba(243,166,58,0.20)] transition-shadow duration-300"
         data-cursor-hover
       >
         <svg
-          className="w-4 h-4 text-ink-soft"
+          className="w-4 h-4 text-ink-soft group-hover:text-golden-warm transition-colors"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -189,80 +218,139 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
             d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
           />
         </svg>
-        <span className="text-sm font-medium text-ink-light tracking-wide">
-          Filters
-        </span>
+        <span className="text-sm font-medium tracking-wide">Filters</span>
         {activeCount > 0 && (
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 400, damping: 15 }}
-            className="w-5 h-5 rounded-full bg-golden text-white text-xs flex items-center justify-center font-bold"
+            transition={{ type: "spring", stiffness: 420, damping: 20 }}
+            className="w-5 h-5 rounded-full text-[11px] font-semibold text-white
+              inline-flex items-center justify-center
+              bg-gradient-to-br from-[#f7c873] to-[#f3a63a]
+              shadow-[0_0_18px_rgba(243,166,58,0.45)]"
           >
             {activeCount}
           </motion.span>
         )}
       </motion.button>
 
-      {/* Panel */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            ref={panelRef}
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ duration: 0.4, ease: [0.19, 1, 0.22, 1] }}
-            className="absolute top-14 right-0 w-[380px] max-h-[70vh] overflow-y-auto rounded-2xl p-6 shadow-xl"
-            style={{
-              background: "var(--glass-tint)",
-              backdropFilter: "blur(24px)",
-              WebkitBackdropFilter: "blur(24px)",
-              border: "1px solid rgba(255, 255, 255, 0.35)",
-              boxShadow:
-                "0 25px 60px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.4)",
-            }}
-            role="dialog"
-            aria-label="Filter options"
-          >
-            {FILTER_GROUPS.map((group, gi) => (
-              <div key={group.key} className={gi < FILTER_GROUPS.length - 1 ? "mb-5" : ""}>
-                <h4 className="font-display text-xs tracking-[0.2em] uppercase text-ink-muted mb-3">
-                  {group.label}
-                </h4>
-                <div className="flex flex-wrap gap-2" role="listbox" aria-label={group.label}>
-                  {group.items.map((item, ii) => {
-                    const active = isActive(group.key, item);
-                    const focused = gi === focusGroup && ii === focusItem;
+          <>
+            <motion.div
+              className="fixed inset-0 bg-transparent z-[65]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+            />
 
-                    return (
-                      <button
-                        key={item}
-                        onClick={() =>
-                          group.multi
-                            ? toggleGenre(item)
-                            : setFilter(group.key, item)
-                        }
-                        role="option"
-                        aria-selected={active}
-                        tabIndex={focused ? 0 : -1}
-                        className={`filter-chip px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer
-                          ${
-                            active
-                              ? "active"
-                              : "bg-white/50 border-ink/10 text-ink-light hover:bg-white/80"
-                          }
-                          ${focused ? "ring-2 ring-golden/50 ring-offset-1" : ""}
-                        `}
-                      >
-                        {item}
-                      </button>
-                    );
-                  })}
+            {!isMobile ? (
+              <motion.aside
+                ref={panelRef}
+                {...DESKTOP_PANEL_MOTION}
+                className="fixed z-[70] right-[40px] top-[100px] w-[calc(100vw-2.5rem)] max-w-[420px]
+                  max-h-[calc(100vh-140px)] overflow-y-auto rounded-[28px] p-7
+                  bg-[rgba(255,255,255,0.55)] backdrop-blur-[24px]
+                  border border-white/70 shadow-[0_20px_60px_rgba(0,0,0,0.08)]"
+                role="dialog"
+                aria-label="Filter options"
+              >
+                <div className="space-y-8">
+                  {FILTER_GROUPS.map((group, groupIndex) => (
+                    <section key={group.key} className="space-y-3">
+                      <h4 className="text-[12px] uppercase tracking-[0.25em] text-ink-muted">
+                        {group.label}
+                      </h4>
+                      <div className="flex flex-wrap gap-2.5" role="listbox" aria-label={group.label}>
+                        {group.items.map((item, itemIndex) => {
+                          const active = isActive(group.key, item);
+                          const focused = groupIndex === focusGroup && itemIndex === focusItem;
+
+                          return (
+                            <motion.button
+                              key={item}
+                              role="option"
+                              aria-selected={active}
+                              tabIndex={focused ? 0 : -1}
+                              onClick={() => (group.multi ? toggleGenre(item) : setFilter(group.key, item))}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.97 }}
+                              className={`h-9 px-4 rounded-full text-xs font-medium cursor-pointer transition-all duration-300
+                                border ${
+                                  active
+                                    ? "text-white border-transparent bg-gradient-to-br from-[#f7c873] to-[#f3a63a] shadow-[0_0_18px_rgba(243,166,58,0.35)]"
+                                    : "text-ink bg-[rgba(255,255,255,0.75)] border-[rgba(20,28,45,0.12)] hover:border-[rgba(243,166,58,0.45)] hover:shadow-[0_0_14px_rgba(243,166,58,0.22)]"
+                                } ${focused ? "ring-2 ring-[#f3a63a]/50 ring-offset-2 ring-offset-transparent" : ""}`}
+                              data-cursor-hover
+                            >
+                              {item}
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  ))}
                 </div>
-              </div>
-            ))}
-          </motion.div>
+              </motion.aside>
+            ) : (
+              <motion.aside
+                ref={panelRef}
+                {...MOBILE_PANEL_MOTION}
+                drag="y"
+                dragConstraints={{ top: 0, bottom: 240 }}
+                dragElastic={0.2}
+                onDragEnd={closeOnDrag}
+                className="fixed z-[70] inset-x-0 bottom-0 h-[80vh] rounded-t-[28px] px-6 pt-3 pb-6
+                  bg-[rgba(255,255,255,0.72)] backdrop-blur-[24px]
+                  border-t border-white/80 shadow-[0_-20px_60px_rgba(0,0,0,0.10)]"
+                role="dialog"
+                aria-label="Filter options"
+              >
+                <div className="mx-auto mb-5 h-1.5 w-14 rounded-full bg-[rgba(20,28,45,0.16)]" />
+                <div className="h-[calc(80vh-3rem)] overflow-y-auto pr-1">
+                  <div className="space-y-8">
+                    {FILTER_GROUPS.map((group, groupIndex) => (
+                      <section key={group.key} className="space-y-3">
+                        <h4 className="text-[12px] uppercase tracking-[0.25em] text-ink-muted">
+                          {group.label}
+                        </h4>
+                        <div className="flex flex-wrap gap-2.5" role="listbox" aria-label={group.label}>
+                          {group.items.map((item, itemIndex) => {
+                            const active = isActive(group.key, item);
+                            const focused = groupIndex === focusGroup && itemIndex === focusItem;
+
+                            return (
+                              <motion.button
+                                key={item}
+                                role="option"
+                                aria-selected={active}
+                                tabIndex={focused ? 0 : -1}
+                                onClick={() =>
+                                  group.multi ? toggleGenre(item) : setFilter(group.key, item)
+                                }
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.97 }}
+                                className={`h-9 px-4 rounded-full text-xs font-medium cursor-pointer transition-all duration-300
+                                  border ${
+                                    active
+                                      ? "text-white border-transparent bg-gradient-to-br from-[#f7c873] to-[#f3a63a] shadow-[0_0_18px_rgba(243,166,58,0.35)]"
+                                      : "text-ink bg-[rgba(255,255,255,0.82)] border-[rgba(20,28,45,0.12)] hover:border-[rgba(243,166,58,0.45)] hover:shadow-[0_0_14px_rgba(243,166,58,0.22)]"
+                                  } ${focused ? "ring-2 ring-[#f3a63a]/50 ring-offset-2 ring-offset-transparent" : ""}`}
+                                data-cursor-hover
+                              >
+                                {item}
+                              </motion.button>
+                            );
+                          })}
+                        </div>
+                      </section>
+                    ))}
+                  </div>
+                </div>
+              </motion.aside>
+            )}
+          </>
         )}
       </AnimatePresence>
     </div>
