@@ -104,26 +104,25 @@ export default function Navbar() {
             </motion.button>
           </div>
         </div>
-        {activeFilters.length > 0 && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-            className="overflow-hidden border-t border-golden/20 bg-golden/[0.07]"
-          >
-            <div className="flex items-center gap-3 flex-wrap px-6 md:px-12 py-2 min-h-[2.5rem] max-w-7xl mx-auto">
-              <span className="text-[10px] tracking-[0.3em] uppercase text-ink-muted shrink-0">
-                Filtering by
-              </span>
-              <AnimatePresence mode="popLayout">
+        <AnimatePresence>
+          {activeFilters.length > 0 && (
+            <motion.div
+              key="filter-bar"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+              className="overflow-hidden border-t border-golden/20 bg-golden/[0.07]"
+            >
+              <div className="flex items-center gap-3 flex-wrap px-6 md:px-12 py-2 min-h-[2.5rem] max-w-7xl mx-auto">
+                <span className="text-[10px] tracking-[0.3em] uppercase text-ink-muted shrink-0">
+                  Filtering by
+                </span>
                 {activeFilters.map(([key, value]) => (
                   <motion.button
                     key={key}
-                    layout
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.8, opacity: 0 }}
                     transition={{ type: "spring", stiffness: 380, damping: 22 }}
                     onClick={() => setFilter(key, null)}
                     className="flex items-center gap-1.5 h-7 px-3 rounded-full
@@ -134,18 +133,17 @@ export default function Navbar() {
                     <span className="opacity-60 text-xs leading-none ml-0.5">×</span>
                   </motion.button>
                 ))}
-              </AnimatePresence>
-              <motion.button
-                layout
-                onClick={clearFilters}
-                className="text-[10px] tracking-widest uppercase text-ink-muted
-                  hover:text-ink transition-colors cursor-pointer ml-auto"
-              >
-                Clear all
-              </motion.button>
-            </div>
-          </motion.div>
-        )}
+                <button
+                  onClick={clearFilters}
+                  className="text-[10px] tracking-widest uppercase text-ink-muted
+                    hover:text-ink transition-colors cursor-pointer ml-auto"
+                >
+                  Clear all
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.nav>
     </>
   );
