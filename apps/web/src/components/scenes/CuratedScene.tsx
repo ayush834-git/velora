@@ -68,9 +68,8 @@ function MoodCard({
         delay: 0.4 + index * 0.12,
         ease: [0.16, 1, 0.3, 1],
       }}
-      className="mood-card relative overflow-hidden rounded-2xl md:rounded-3xl h-44 md:h-56
-        cursor-pointer text-left border border-white/40"
-      style={{
+      className="mood-card relative overflow-hidden rounded-2xl md:rounded-3xl cursor-pointer text-left border border-white/40"
+      style={{ height: "clamp(13rem, 22vw, 19rem)",
         transform: isHovered
           ? `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale3d(1.02, 1.02, 1.02)`
           : "perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)",
@@ -104,14 +103,14 @@ function MoodCard({
       />
 
       {/* Label */}
-      <div className="relative z-10 h-full flex flex-col justify-end p-5 md:p-6 drop-shadow-md" style={{ transform: "translateZ(30px)" }}>
+      <div className="relative z-10 h-full flex flex-col justify-end p-6 md:p-8 drop-shadow-md" style={{ transform: "translateZ(30px)" }}>
         <h3
-          className="font-display font-semibold text-xl md:text-2xl mb-1 text-white"
+          className="font-display font-semibold text-2xl md:text-3xl mb-2 text-white"
           style={{ color: mood.accentColor, textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}
         >
           {mood.label}
         </h3>
-        <p className="text-xs md:text-sm text-white/90 font-medium" style={{ textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}>
+        <p className="text-sm md:text-base text-white/90 font-medium" style={{ textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}>
           {mood.subtitle}
         </p>
       </div>
@@ -157,18 +156,18 @@ export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps
   return (
     <section
       ref={sectionRef}
-      className={`scene relative flex flex-col items-center py-20 md:py-28 transition-all duration-500 ${
+      className={`scene relative flex flex-col items-center py-28 md:py-40 transition-all duration-500 ${
         isTransitioning ? "blur-sm scale-105 opacity-80" : ""
       }`}
       id="curated"
     >
       {/* Section heading */}
-      <div className="relative z-10 text-center mb-14 md:mb-20 px-6">
+      <div className="relative z-10 text-center mb-16 md:mb-24 px-6">
         <motion.span
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 1, delay: 0.2 }}
-          className="font-display text-xs tracking-[0.4em] uppercase text-golden-warm/70 mb-4 block"
+          className="font-display text-[13px] tracking-[0.4em] uppercase text-golden-warm/80 mb-5 block"
         >
           Curated Intelligence
         </motion.span>
@@ -183,7 +182,7 @@ export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps
       </div>
 
       {/* Mood grid */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-8">
         {MOODS.map((mood, i) => {
           const backdropUrl = moodBackdrops[mood.id]
             ? getImageUrl(moodBackdrops[mood.id]!, IMAGE_SIZES.backdrop.medium)

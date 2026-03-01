@@ -27,7 +27,7 @@ export default function HowItWorksScene() {
   return (
     <section
       ref={ref}
-      className="relative py-28 px-[5vw] overflow-hidden"
+      className="relative py-36 md:py-48 px-[6vw] overflow-hidden"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(232,168,56,0.05),transparent_50%)] pointer-events-none z-0" />
 
@@ -36,12 +36,12 @@ export default function HowItWorksScene() {
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.5 }}
-          className="block text-[10px] tracking-[0.42em] uppercase text-golden-warm mb-16 text-center md:text-left"
+          className="block text-[13px] tracking-[0.42em] uppercase text-golden-warm mb-20 text-center md:text-left"
         >
           The Ritual
         </motion.span>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10">
           {STEPS.map((step, i) => (
             <motion.div
               key={step.number}
@@ -53,28 +53,28 @@ export default function HowItWorksScene() {
                 ease: [0.22, 1, 0.36, 1],
               }}
               whileHover={{ y: -8, backgroundColor: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.15)" }}
-              className="relative p-8 rounded-3xl bg-white/[0.03] backdrop-blur-md border border-white/[0.08] transition-all duration-500 overflow-hidden group border-b-white/[0.02] border-r-white/[0.02]"
+              className="relative p-10 md:p-12 rounded-3xl bg-white/[0.03] backdrop-blur-md border border-white/[0.08] transition-all duration-500 overflow-hidden group border-b-white/[0.02] border-r-white/[0.02]"
             >
               <div className="absolute top-0 left-0 w-32 h-32 bg-golden opacity-0 group-hover:opacity-10 transition-opacity duration-700 blur-[40px] -translate-x-1/2 -translate-y-1/2 mix-blend-screen" />
               
               <div
-                className="font-display font-extralight leading-none mb-6 select-none opacity-80 text-gradient-gold"
+                className="font-display font-extralight leading-none mb-8 select-none opacity-80 text-gradient-gold"
                 style={{
-                  fontSize: "clamp(3.5rem, 6vw, 4.5rem)",
+                  fontSize: "clamp(4rem, 7vw, 6rem)",
                 }}
               >
                 {step.number}
               </div>
               
-              <div className="w-8 h-[2px] mb-6 bg-gradient-to-r from-golden to-transparent opacity-60" />
+              <div className="w-10 h-[2px] mb-8 bg-gradient-to-r from-golden to-transparent opacity-60" />
               
               <h3
-                className="font-display font-light text-cream mb-4 tracking-wide"
-                style={{ fontSize: "clamp(1.1rem, 2vw, 1.4rem)" }}
+                className="font-display font-light text-cream mb-5 tracking-wide"
+                style={{ fontSize: "clamp(1.25rem, 2.2vw, 1.6rem)" }}
               >
                 {step.title}
               </h3>
-              <p className="text-cream/60 text-sm leading-[1.8] font-body">
+              <p className="text-cream/75 leading-[2.0] font-body" style={{ fontSize: "clamp(0.95rem, 1.2vw, 1.1rem)" }}>
                 {step.body}
               </p>
             </motion.div>

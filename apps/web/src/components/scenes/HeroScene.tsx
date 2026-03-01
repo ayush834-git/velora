@@ -142,12 +142,12 @@ export default function HeroScene({ movies }: HeroSceneProps) {
 
       <div ref={headlineRef} className="relative z-10 text-center px-6 max-w-3xl mx-auto w-full">
         <motion.div
-          className="mb-6"
+          className="mb-8"
           initial={prefersReduced ? false : { opacity: 0, y: 12 }}
           animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.32, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
         >
-          <span className="font-display text-sm md:text-base tracking-[0.5em] uppercase text-golden-warm/80">
+          <span className="font-display text-sm md:text-base tracking-[0.5em] uppercase text-golden-warm mb-6 block">
             VELORA
           </span>
         </motion.div>
@@ -183,7 +183,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
           })}
         </h1>
 
-        <div className="mt-8 mb-4 h-16 relative w-full flex justify-center">
+        <div className="mt-10 mb-6 h-20 relative w-full flex justify-center">
           <AnimatePresence mode="popLayout">
             <motion.p
               key={subIndex}
@@ -191,7 +191,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
               animate={prefersReduced ? undefined : { y: 0, opacity: 1 }}
               exit={prefersReduced ? undefined : { y: -15, opacity: 0 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
-              className="text-lg text-ink-soft/80 font-body leading-relaxed tracking-wide absolute w-full"
+              className="text-xl text-ink-soft/85 font-body leading-[1.9] tracking-wide absolute w-full"
               style={{ willChange: "transform, opacity" }}
             >
               {SUBTITLES[subIndex]}
@@ -200,7 +200,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
         </div>
 
         <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6"
+          className="flex flex-col sm:flex-row items-center justify-center gap-5 mt-8"
           initial={prefersReduced ? false : { opacity: 0, y: 12 }}
           animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.32, delay: 0.48, ease: [0.22, 1, 0.36, 1] }}

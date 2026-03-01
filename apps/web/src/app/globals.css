@@ -34,11 +34,11 @@
   --foreground: #1a1a2e;
   --scroll: 0;
   --text-hero: clamp(3.5rem, 10vw, 10rem);
-  --text-headline: clamp(2.5rem, 6vw, 6rem);
+  --text-headline: clamp(2.8rem, 6vw, 6.5rem);
   --text-subheadline: clamp(1.5rem, 3vw, 2.5rem);
-  --text-body: clamp(1rem, 1.3vw, 1.2rem);
-  --text-small: clamp(0.8rem, 1vw, 0.95rem);
-  --text-micro: clamp(0.7rem, 0.8vw, 0.8rem);
+  --text-body: clamp(1.05rem, 1.5vw, 1.3rem);
+  --text-small: clamp(0.9rem, 1.1vw, 1.05rem);
+  --text-micro: clamp(0.75rem, 0.85vw, 0.85rem);
   --grain-opacity: 0.025;
   --glass-bg: rgba(255, 255, 255, 0.12);
   --glass-border: rgba(255, 255, 255, 0.2);
@@ -104,6 +104,7 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.75;
 }
 
 .app-shell {
@@ -519,6 +520,12 @@ body {
   color: white;
   border-color: transparent;
   box-shadow: 0 4px 20px rgba(232, 168, 56, 0.3);
+}
+
+/* Marquee ticker — improved legibility */
+.ticker-text {
+  font-size: 0.8rem;
+  letter-spacing: 0.35em;
 }
 
 /* ===== RESPONSIVE HERO TEXT ===== */

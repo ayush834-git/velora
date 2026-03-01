@@ -25,14 +25,14 @@ export default function DirectorPicksScene({ movies }: Props) {
   const picks = [...essentials, ...topRated].slice(0, 20);
 
   return (
-    <section ref={ref} className="relative py-16 overflow-hidden">
-      <div className="px-[5vw] mb-8 flex items-end justify-between">
+    <section ref={ref} className="relative py-24 md:py-36 overflow-hidden">
+      <div className="px-[5vw] mb-12 flex items-end justify-between">
         <div>
           <motion.span
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : {}}
             transition={{ duration: 0.5 }}
-            className="block text-[10px] tracking-[0.42em] uppercase text-golden-warm mb-2"
+            className="block text-[13px] tracking-[0.42em] uppercase text-golden-warm mb-3"
           >
             Essential Cinema
           </motion.span>
@@ -41,19 +41,19 @@ export default function DirectorPicksScene({ movies }: Props) {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.12, duration: 0.5 }}
             className="font-display font-extralight text-ink"
-            style={{ fontSize: "clamp(1.5rem, 3vw, 2.2rem)" }}
+            style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)" }}
           >
             Films that define a genre
           </motion.h2>
         </div>
-        <span className="hidden md:block text-[11px] text-ink-muted tracking-wider">
+        <span className="hidden md:block text-sm text-ink-muted tracking-wider">
           Drag to explore →
         </span>
       </div>
 
       <div className="overflow-x-auto px-[5vw] hide-scrollbar snap-x snap-mandatory">
         <motion.div
-          className="flex gap-4 pb-4 w-max"
+          className="flex gap-5 pb-6 w-max"
         >
           {picks.map((movie, i) => (
           <motion.div
@@ -68,7 +68,7 @@ export default function DirectorPicksScene({ movies }: Props) {
             whileHover={{ y: -8, scale: 1.02 }}
             className="relative flex-shrink-0 rounded-2xl overflow-hidden group"
             style={{
-              width: "clamp(140px, 13vw, 190px)",
+              width: "clamp(160px, 15vw, 220px)",
               aspectRatio: "2/3",
               scrollSnapAlign: "start",
             }}
@@ -85,21 +85,21 @@ export default function DirectorPicksScene({ movies }: Props) {
               <div className="w-full h-full bg-cream-warm" />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-4">
-              <div className="text-[9px] tracking-widest uppercase text-golden-warm mb-1.5">
+            <div className="absolute bottom-0 left-0 right-0 p-5">
+              <div className="text-[11px] tracking-widest uppercase text-golden-warm mb-2">
                 ★ {movie.vote_average.toFixed(1)}
               </div>
-              <div className="font-display text-cream text-sm font-light leading-snug">
+              <div className="font-display text-cream text-base font-light leading-snug">
                 {movie.title}
               </div>
-              <div className="text-cream/40 text-[10px] mt-1">
+              <div className="text-cream/55 text-xs mt-1.5">
                 {movie.release_date?.slice(0, 4)}
               </div>
             </div>
             {ESSENTIAL_IDS.includes(movie.id) && (
               <div
-                className="absolute top-3 right-3 px-2 py-0.5 rounded-full
-                  bg-golden/90 backdrop-blur-sm text-white text-[8px]
+                className="absolute top-3 right-3 px-2.5 py-1 rounded-full
+                  bg-golden/90 backdrop-blur-sm text-white text-[10px]
                   tracking-widest uppercase"
               >
                 Essential

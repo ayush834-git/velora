@@ -46,8 +46,8 @@ export default function ManifestoScene() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[50vh] min-h-[500px] flex flex-col justify-center
-        py-24 md:py-32 px-[5vw]
+      className="relative min-h-[80vh] flex flex-col justify-center
+        py-36 md:py-52 px-[7vw]
         overflow-hidden"
     >
       {/* Decorative giant V */}
@@ -60,12 +60,12 @@ export default function ManifestoScene() {
         V
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto w-full">
+      <div className="relative z-10 max-w-5xl mx-auto w-full pl-2 md:pl-0">
         <motion.span
           initial={{ opacity: 0, y: 10 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          className="block text-[11px] tracking-[0.42em] uppercase text-golden-warm mb-10"
+          className="block text-[13px] tracking-[0.42em] uppercase text-golden-warm mb-14"
         >
           The Philosophy
         </motion.span>
@@ -101,8 +101,8 @@ export default function ManifestoScene() {
           initial={{ opacity: 0, y: 14 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.65, delay: 0.62 }}
-          className="mt-8 max-w-lg text-ink-soft leading-[1.8]"
-          style={{ fontSize: "var(--text-body)" }}
+          className="mt-12 max-w-xl text-ink-soft leading-[2.0]"
+          style={{ fontSize: "clamp(1.05rem, 1.4vw, 1.25rem)" }}
         >
           Velora reads the moment, not just your mood. The right film is rarely the
           most popular — it is the one that finds you exactly where you are today.
@@ -112,7 +112,7 @@ export default function ManifestoScene() {
           initial={{ opacity: 0, y: 18 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.65, delay: 0.84 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 pt-10
+          className="grid grid-cols-2 md:grid-cols-4 gap-10 mt-24 pt-14
             border-t border-ink/10"
         >
           {STATS.map((s) => (
@@ -120,13 +120,13 @@ export default function ManifestoScene() {
               <div
                 className="font-display font-light"
                 style={{
-                  fontSize: "clamp(2rem, 4vw, 3.5rem)",
+                  fontSize: "clamp(2.4rem, 4.5vw, 4rem)",
                   color: "var(--color-golden-warm)",
                 }}
               >
                 {s.value}
               </div>
-              <div className="text-[10px] tracking-[0.24em] uppercase text-ink-muted mt-2">
+              <div className="text-[12px] tracking-[0.24em] uppercase text-ink-muted mt-3">
                 {s.label}
               </div>
             </div>

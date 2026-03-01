@@ -24,9 +24,9 @@ function TickerRow({
 }) {
   const repeated = [...items, ...items, ...items, ...items];
   return (
-    <div className="relative overflow-hidden py-3.5 border-y border-ink/[0.06]">
+    <div className="relative overflow-hidden py-5 border-y border-ink/[0.08]">
       <motion.div
-        className="flex gap-10 whitespace-nowrap"
+        className="flex gap-14 whitespace-nowrap"
         animate={{ x: reverse ? ["-50%", "0%"] : ["0%", "-50%"] }}
         transition={{ duration, ease: "linear", repeat: Infinity }}
         style={{ width: "max-content" }}
@@ -35,7 +35,7 @@ function TickerRow({
           <span
             key={i}
             className={[
-              "text-[11px] tracking-[0.35em] uppercase select-none font-display",
+              "text-[13px] tracking-[0.35em] uppercase select-none font-display",
               item === "★" || item === "◆"
                 ? "text-golden-warm"
                 : "text-ink-soft",
