@@ -7,6 +7,7 @@ import { Movie } from "@/types/movie";
 import { getImageUrl } from "@/lib/tmdb";
 import { IMAGE_SIZES } from "@/lib/constants";
 import GlowButton from "@/components/ui/GlowButton";
+import { getBackdropPath, getPosterPath } from "@/lib/movie-utils";
 
 interface ResultSceneProps {
   movie: Movie | null;
@@ -16,6 +17,7 @@ export default function ResultScene({ movie }: ResultSceneProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-10%" });
   const [dominantColor, setDominantColor] = useState("rgba(232, 168, 56, 0.15)");
+  const backdropSourcePath = movie ? getBackdropPath(movie) ?? getPosterPath(movie) : null;
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -103,13 +105,13 @@ export default function ResultScene({ movie }: ResultSceneProps) {
       />
 
       {/* Backdrop image */}
-      {movie.backdrop_path && (
+      {backdropSourcePath && (
         <motion.div
           className="absolute inset-0 opacity-20"
           style={{ y: bgY }}
         >
           <img
-            src={getImageUrl(movie.backdrop_path, IMAGE_SIZES.backdrop.large)}
+            src={getImageUrl(backdropSourcePath, IMAGE_SIZES.backdrop.large)}
             alt=""
             className="w-full h-full object-cover"
             loading="lazy"
