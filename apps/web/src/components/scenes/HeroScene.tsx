@@ -55,7 +55,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
   };
 
   useEffect(() => {
-    const t = setInterval(() => setSubIndex(i => (i + 1) % SUBTITLES.length), 6000);
+    const t = setInterval(() => setSubIndex(i => (i + 1) % SUBTITLES.length), 1500);
     return () => clearInterval(t);
   }, []);
 
@@ -141,9 +141,9 @@ export default function HeroScene({ movies }: HeroSceneProps) {
             >
               <motion.div
                 className="w-full h-full relative"
-                style={{ filter: "blur(3px) saturate(0.5) brightness(1.1)", willChange: "transform, opacity" }}
+                style={{ willChange: "transform, opacity" }}
                 initial={prefersReduced ? false : { opacity: 0, scale: 0.94 }}
-                animate={prefersReduced ? undefined : { opacity: 0.14, scale: 1 }}
+                animate={prefersReduced ? undefined : { opacity: 0.08, scale: 1 }}
                 transition={prefersReduced ? undefined : {
                   opacity: { duration: 0.5, delay: 0.16 + i * 0.06 },
                   scale: { duration: 0.5, delay: 0.16 + i * 0.06 },
