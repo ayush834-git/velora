@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, AnimatePresence } from "framer-motion";
 import { Movie } from "@/types/movie";
 import { getImageUrl } from "@/lib/tmdb";
 import { IMAGE_SIZES } from "@/lib/constants";
@@ -29,6 +29,8 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
   const [aiReason, setAiReason] = useState("");
   const [watchProviders, setWatchProviders] = useState<WatchProvider[]>([]);
   const [copied, setCopied] = useState(false);
+  const [trailerKey, setTrailerKey] = useState<string | null>(null);
+  const [showTrailer, setShowTrailer] = useState(false);
   const { filters } = useFilters();
   const directBackdropPath = movie ? getBackdropPath(movie) : null;
   const backdropSourcePath = movie ? directBackdropPath ?? getPosterPath(movie) : null;
@@ -72,7 +74,7 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
 
     const loadMeta = async () => {
       try {
-        const [reasonResponse, providersResponse] = await Promise.all([
+        const [reasonResponse, providersResponse, videosResponse] = await Promise.all([
           fetch("/api/film-reason", {
             method: "POST",
             headers: {
@@ -89,6 +91,10 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
             method: "GET",
             cache: "no-store",
           }),
+          fetch(`/api/tmdb?action=videos&id=${movie.id}`, {
+            method: "GET",
+            cache: "no-store",
+          }),
         ]);
 
         if (!active) return;
@@ -102,10 +108,30 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
 
         setAiReason(reasonJson.reason?.trim() ?? "");
         setWatchProviders(Array.isArray(providersJson.providers) ? providersJson.providers : []);
+
+        // Extract YouTube trailer key
+        if (videosResponse.ok) {
+          const videosJson = (await videosResponse.json()) as {
+            results?: { key: string; site: string; type: string; official?: boolean }[];
+          };
+          const videos = videosJson.results ?? [];
+          // Prefer official trailer, then any trailer, then any teaser
+          const trailer =
+            videos.find((v) => v.site === "YouTube" && v.type === "Trailer" && v.official) ??
+            videos.find((v) => v.site === "YouTube" && v.type === "Trailer") ??
+            videos.find((v) => v.site === "YouTube" && v.type === "Teaser") ??
+            videos.find((v) => v.site === "YouTube");
+          setTrailerKey(trailer?.key ?? null);
+        } else {
+          setTrailerKey(null);
+        }
+        setShowTrailer(false);
       } catch {
         if (!active) return;
         setAiReason("");
         setWatchProviders([]);
+        setTrailerKey(null);
+        setShowTrailer(false);
       }
     };
 
@@ -321,7 +347,41 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
                   View on TMDB ↗
                 </a>
               )}
+              {trailerKey && (
+                <GlowButton
+                  variant="ghost"
+                  onClick={() => setShowTrailer((prev) => !prev)}
+                  className="border border-cream/20 text-cream/80 hover:text-cream"
+                >
+                  {showTrailer ? "Hide Trailer" : "▶ Trailer"}
+                </GlowButton>
+              )}
             </div>
+
+            {/* Trailer section */}
+            <AnimatePresence>
+              {trailerKey && showTrailer && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="pt-4">
+                    <div className="relative w-full max-w-[560px] mx-auto md:mx-0 rounded-xl overflow-hidden shadow-2xl aspect-video ring-1 ring-white/10">
+                      <iframe
+                        src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0&modestbranding=1`}
+                        title="Trailer"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="absolute inset-0 w-full h-full"
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         </div>
       </motion.div>

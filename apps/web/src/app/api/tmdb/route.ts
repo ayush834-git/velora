@@ -88,6 +88,14 @@ export async function GET(request: Request) {
       endpoint = `/movie/${encodeURIComponent(movieId)}/similar?language=en-US&page=1`;
       break;
     }
+    case "videos": {
+      const vid = searchParams.get("id");
+      if (!vid) {
+        return NextResponse.json({ error: "Movie ID required." }, { status: 400 });
+      }
+      endpoint = `/movie/${encodeURIComponent(vid)}/videos?language=en-US`;
+      break;
+    }
     default:
       return NextResponse.json({ error: "Invalid action." }, { status: 400 });
   }
