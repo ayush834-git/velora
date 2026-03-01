@@ -55,7 +55,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
   };
 
   useEffect(() => {
-    const t = setInterval(() => setSubIndex(i => (i + 1) % SUBTITLES.length), 3000);
+    const t = setInterval(() => setSubIndex(i => (i + 1) % SUBTITLES.length), 6000);
     return () => clearInterval(t);
   }, []);
 
@@ -142,12 +142,11 @@ export default function HeroScene({ movies }: HeroSceneProps) {
               <motion.div
                 className="w-full h-full relative"
                 style={{ filter: "blur(3px) saturate(0.5) brightness(1.1)", willChange: "transform, opacity" }}
-                initial={prefersReduced ? false : { opacity: 0, y: 18, scale: 0.94 }}
-                animate={prefersReduced ? undefined : { opacity: 0.14, y: [0, -5, 0], scale: 1 }}
+                initial={prefersReduced ? false : { opacity: 0, scale: 0.94 }}
+                animate={prefersReduced ? undefined : { opacity: 0.14, scale: 1 }}
                 transition={prefersReduced ? undefined : {
-                  opacity: { duration: 0.34, delay: 0.16 + i * 0.06 },
-                  scale: { duration: 0.34, delay: 0.16 + i * 0.06 },
-                  y: { duration: 4.6, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: i * 0.14 },
+                  opacity: { duration: 0.5, delay: 0.16 + i * 0.06 },
+                  scale: { duration: 0.5, delay: 0.16 + i * 0.06 },
                 }}
               >
                 <BlurUpImage path={movie.poster_path} alt="" type="poster" fill />
@@ -204,11 +203,12 @@ export default function HeroScene({ movies }: HeroSceneProps) {
           <AnimatePresence mode="popLayout">
             <motion.p
               key={subIndex}
-              initial={prefersReduced ? false : { y: 20, opacity: 0, clipPath: "inset(100% 0 0 0)" }}
-              animate={prefersReduced ? undefined : { y: 0, opacity: 1, clipPath: "inset(0% 0 0 0)" }}
-              exit={prefersReduced ? undefined : { y: -20, opacity: 0, clipPath: "inset(0 0 100% 0)" }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              initial={prefersReduced ? false : { y: 15, opacity: 0 }}
+              animate={prefersReduced ? undefined : { y: 0, opacity: 1 }}
+              exit={prefersReduced ? undefined : { y: -15, opacity: 0 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
               className="text-lg text-ink-soft/80 font-body leading-relaxed tracking-wide absolute w-full"
+              style={{ willChange: "transform, opacity" }}
             >
               {SUBTITLES[subIndex]}
             </motion.p>
@@ -239,8 +239,8 @@ export default function HeroScene({ movies }: HeroSceneProps) {
       >
         <motion.div 
           className="h-[2px] w-48 flex gap-3"
-          animate={{ x: [-40, 40], opacity: [0.3, 1, 0.3] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          animate={{ opacity: [0.2, 0.8, 0.2] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         >
           {Array.from({length: 8}).map((_, i) => (
             <div key={i} className="h-full w-4 bg-golden" />

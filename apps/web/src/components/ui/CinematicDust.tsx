@@ -17,7 +17,7 @@ interface Particle {
 }
 
 const generateParticles = (): Particle[] => {
-  const particleCount = 40;
+  const particleCount = 15; // Drastically reduced for performance
   const newParticles: Particle[] = [];
 
   for (let i = 0; i < particleCount; i++) {
@@ -53,7 +53,7 @@ export default function CinematicDust() {
       {particles.map((p) => (
         <div
           key={p.id}
-          className={`absolute rounded-full bg-golden-light mix-blend-screen particle-${p.id}`}
+          className={`absolute rounded-full bg-golden-light particle-${p.id}`}
           style={{
             left: `${p.x}%`,
             top: `${p.y}%`,
@@ -61,7 +61,7 @@ export default function CinematicDust() {
             height: `${p.size}px`,
             opacity: p.opacity,
             animation: `floatUp-${p.id} ${p.duration}s linear ${p.delay}s infinite`,
-            filter: "blur(1px)",
+            willChange: "transform, opacity",
           }}
         />
       ))}
