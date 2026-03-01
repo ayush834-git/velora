@@ -28,7 +28,7 @@ export default function GridScene({
       id="grid"
     >
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-cream to-cream-warm/60" />
+      <div className="absolute inset-0 bg-cream" />
 
       {/* Section heading */}
       <div className="relative z-10 px-6 md:px-12 mb-12 max-w-7xl mx-auto">
@@ -118,6 +118,12 @@ export default function GridScene({
           )}
         </div>
       </div>
+
+      {/* Bleed into dark FooterScene */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-10" 
+        style={{ background: "linear-gradient(to bottom, transparent, #000000)" }} 
+      />
     </section>
   );
 }

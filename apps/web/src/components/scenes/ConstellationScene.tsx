@@ -445,7 +445,7 @@ export default function ConstellationScene() {
       </motion.div>
 
 
-      {/* Bottom fade transition to next section */}
+      {/* Bottom fade transition to next section (Manifesto: starts from-cream) */}
       <div 
         className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-10" 
         style={{ background: "linear-gradient(to bottom, transparent, #faf8f5)" }} 

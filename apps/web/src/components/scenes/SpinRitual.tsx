@@ -231,7 +231,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
       className="scene relative min-h-screen flex items-center justify-center py-24"
       id="spin"
     >
-      <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream-warm to-cream" />
+      <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream-warm to-cream-warm/60" />
       {backdropSrc && (
         <div className="absolute inset-0 overflow-hidden">
           <Image
@@ -528,6 +528,12 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Bottom bleed into GridScene */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-10" 
+        style={{ background: "linear-gradient(to bottom, transparent, #faf8f5)" }} 
+      />
     </section>
   );
 }

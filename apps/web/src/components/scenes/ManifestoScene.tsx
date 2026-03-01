@@ -47,7 +47,7 @@ export default function ManifestoScene() {
     <section
       ref={sectionRef}
       className="relative min-h-[50vh] min-h-[500px] flex flex-col justify-center
-        py-16 md:py-20 px-[5vw] bg-gradient-to-b from-cream via-cream-warm/30 to-cream
+        py-16 md:py-20 px-[5vw] bg-cream
         overflow-hidden"
     >
       {/* Decorative giant V */}
@@ -133,6 +133,12 @@ export default function ManifestoScene() {
           ))}
         </motion.div>
       </div>
+
+      {/* Bottom bleed into the dark HowItWorks scene */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-10" 
+        style={{ background: "linear-gradient(to bottom, transparent, #04030e)" }} 
+      />
     </section>
   );
 }
