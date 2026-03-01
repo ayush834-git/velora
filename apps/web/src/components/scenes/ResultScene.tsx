@@ -351,7 +351,7 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
                 <GlowButton
                   variant="ghost"
                   onClick={() => setShowTrailer((prev) => !prev)}
-                  className="border border-cream/30 text-cream hover:text-white hover:border-cream/50 hover:bg-cream/10"
+                  className="!border !border-cream/30 !text-cream hover:!text-white hover:!border-cream/50 hover:!bg-cream/10"
                 >
                   {showTrailer ? "Hide Trailer" : "▶ Trailer"}
                 </GlowButton>
