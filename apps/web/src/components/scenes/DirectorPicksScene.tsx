@@ -51,11 +51,8 @@ export default function DirectorPicksScene({ movies }: Props) {
         </span>
       </div>
 
-      <div ref={carouselRef} className="overflow-hidden px-[5vw] cursor-grab active:cursor-grabbing">
+      <div className="overflow-x-auto px-[5vw] hide-scrollbar snap-x snap-mandatory">
         <motion.div
-          drag="x"
-          dragConstraints={carouselRef}
-          dragElastic={0.15}
           className="flex gap-4 pb-4 w-max"
         >
           {picks.map((movie, i) => (
@@ -73,6 +70,7 @@ export default function DirectorPicksScene({ movies }: Props) {
             style={{
               width: "clamp(140px, 13vw, 190px)",
               aspectRatio: "2/3",
+              scrollSnapAlign: "start",
             }}
           >
             {movie.poster_path ? (

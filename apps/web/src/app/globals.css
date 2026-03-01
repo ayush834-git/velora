@@ -239,6 +239,16 @@ body {
   50% { transform: translate3d(0, -18px, 0); opacity: 0.45; }
 }
 
+/* ===== SCROLLBAR UTILITIES ===== */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ===== LENIS SMOOTH SCROLL ===== */
 /* ===== GLASSMORPHISM ===== */
 .glass {
   background: var(--glass-bg);
