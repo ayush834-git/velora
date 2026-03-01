@@ -179,12 +179,12 @@ export default function FilterPanel() {
                       }}
                     >
                       <h4
-                        className="text-[12px] uppercase tracking-[0.24em] text-ink-muted"
+                        className="text-[12px] uppercase tracking-[0.24em] text-ink-muted mb-3"
                         style={{ fontFamily: "var(--font-accent), serif" }}
                       >
                         {group.label}
                       </h4>
-                      <div className="flex flex-wrap gap-2.5" role="listbox" aria-label={group.label}>
+                      <div className="flex flex-wrap gap-2.5 gap-y-4" role="listbox" aria-label={group.label}>
                         {group.items.map((item, itemIndex) => {
                           const active = filters[group.key] === item;
                           const rippleId = `${group.key}:${item}`;
@@ -219,11 +219,11 @@ export default function FilterPanel() {
                                     }
                                   : { duration: 0.2, delay: itemIndex * 0.03 }
                               }
-                              className={`relative overflow-hidden h-9 px-4 rounded-full text-xs font-medium cursor-pointer transition-all duration-300
+                              className={`relative overflow-hidden px-5 py-2.5 rounded-xl text-sm leading-none font-medium cursor-pointer transition-all duration-200
                                 border ${
                                   active
                                     ? "text-white border-transparent bg-gradient-to-br from-[#e7b45e] to-[#d89a3f] shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_8px_20px_rgba(216,154,63,0.35)]"
-                                    : "text-ink bg-[rgba(243,243,245,0.9)] border-[rgba(0,0,0,0.05)] hover:border-[rgba(0,0,0,0.08)] hover:shadow-[0_6px_15px_rgba(0,0,0,0.08)]"
+                                    : "text-ink bg-[rgba(243,243,245,0.9)] border-neutral-200 hover:border-neutral-300 hover:shadow-[0_6px_15px_rgba(0,0,0,0.08)]"
                                 }`}
                               data-cursor-hover
                             >
