@@ -74,50 +74,37 @@ function NodeTooltip({ node, svgRect, wrapRect }: TooltipProps) {
       }}
     >
       <div
-        className="rounded-2xl px-6 py-5 shadow-2xl transition-all"
+        className="rounded-2xl px-5 py-4"
         style={{
-          background: "linear-gradient(135deg, rgba(16, 15, 30, 0.95) 0%, rgba(8, 7, 20, 0.98) 100%)",
-          backdropFilter: "blur(24px)",
-          border: `1px solid ${node.color}33`,
-          boxShadow: `0 24px 64px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.03), 0 0 32px ${node.color}15`,
+          background: "rgba(10, 9, 22, 0.95)",
+          backdropFilter: "blur(20px)",
+          border: `1px solid ${node.color}28`,
+          boxShadow: `0 16px 48px rgba(0,0,0,0.65), 0 0 0 1px rgba(255,255,255,0.04)`,
         }}
       >
-        <motion.div
-          initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="font-display text-sm md:text-base tracking-[0.25em] uppercase mb-4 pb-3 border-b border-white/5"
-          style={{ 
-            color: node.color,
-            textShadow: `0 0 12px ${node.color}40`,
-          }}
+        <div
+          className="font-display text-[10px] tracking-[0.38em] uppercase mb-3"
+          style={{ color: node.color }}
         >
           {node.label}
-        </motion.div>
-        <div className="flex flex-col gap-2.5 mb-5">
-          {node.films.map((film, idx) => (
-            <motion.div
+        </div>
+        <div className="flex flex-col gap-1.5 mb-3">
+          {node.films.map((film) => (
+            <div
               key={film}
-              initial={{ opacity: 0, x: -6 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.08 + idx * 0.05, duration: 0.3, ease: "easeOut" }}
-              className="text-sm font-body tracking-wide font-light"
-              style={{ color: "rgba(255,255,255,0.8)" }}
+              className="text-xs leading-snug font-body"
+              style={{ color: "rgba(255,255,255,0.6)" }}
             >
               {film}
-            </motion.div>
+            </div>
           ))}
         </div>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.4 }}
-          className="font-display text-[10px] tracking-[0.3em] uppercase flex items-center gap-2"
-          style={{ color: "rgba(255,255,255,0.3)" }}
+        <div
+          className="font-display text-[9px] tracking-[0.3em] uppercase"
+          style={{ color: "rgba(255,255,255,0.35)" }}
         >
-          <span className="w-1.5 h-1.5 rounded-full" style={{ background: node.color, opacity: 0.8, boxShadow: `0 0 6px ${node.color}` }}></span>
-          Click to filter
-        </motion.div>
+          Click to filter →
+        </div>
       </div>
     </motion.div>
   );
@@ -137,19 +124,6 @@ export default function ConstellationScene() {
 
   const { setFilter } = useFilters();
   const uid = useId();
-
-  // Shooting star effect
-  const [shootingStar, setShootingStar] = useState(false);
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    const triggerStar = () => {
-      setShootingStar(true);
-      setTimeout(() => setShootingStar(false), 2000);
-      timeoutId = setTimeout(triggerStar, 8000 + Math.random() * 4000);
-    };
-    timeoutId = setTimeout(triggerStar, 5000);
-    return () => clearTimeout(timeoutId);
-  }, []);
 
   // Measure rects for tooltip positioning
   const measure = useCallback(() => {
@@ -177,7 +151,11 @@ export default function ConstellationScene() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden py-16 md:py-20 min-h-screen"
+      className="relative overflow-hidden py-20"
+      style={{
+        background: "linear-gradient(180deg, #080714 0%, #0e0c1e 50%, #080714 100%)",
+        minHeight: "88vh",
+      }}
     >
       {/* Star field — CSS-only twinkle */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden>
@@ -214,29 +192,9 @@ export default function ConstellationScene() {
 
       {/* Vignette */}
       <div
-        className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_70%_70%_at_50%_50%,transparent_35%,rgba(4,3,14,0.75)_100%)]"
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: "radial-gradient(ellipse 70% 70% at 50% 50%, transparent 35%, rgba(4,3,14,0.75) 100%)" }}
       />
-
-      {/* Nebula Background Effect */}
-      <div className="absolute inset-0 pointer-events-none opacity-80 mix-blend-screen">
-        <div className="nebula-1" />
-        <div className="nebula-2" />
-      </div>
-
-      {/* Shooting Star */}
-      <AnimatePresence>
-        {shootingStar && (
-          <motion.div
-            className="absolute top-[20%] right-[30%] pointer-events-none z-10"
-            initial={{ opacity: 0, x: 0, y: 0, scaleX: 0 }}
-            animate={{ opacity: [0, 1, 0], x: -600, y: 200, scaleX: [0, 1, 0] }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
-            <div className="w-[120px] h-[1px] bg-gradient-to-r from-transparent via-white to-transparent rotate-[-20deg]" />
-            <div className="w-[60px] h-[2px] bg-white rounded-full blur-[2px] absolute right-0 top-0 rotate-[-20deg] origin-right" />
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Header */}
       <div className="relative z-10 text-center px-[5vw] mb-16 md:mb-24">
@@ -307,7 +265,7 @@ export default function ConstellationScene() {
                 x1={a.x} y1={a.y} x2={b.x} y2={b.y}
                 stroke="white"
                 strokeWidth={lit ? 0.18 : 0.09}
-                strokeOpacity={lit ? 0.3 : 0.1}
+                strokeOpacity={lit ? 0.35 : 0.15}
                 initial={{ opacity: 0 }}
                 animate={isInView ? { opacity: 1 } : { opacity: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 + i * 0.07 }}
@@ -339,7 +297,7 @@ export default function ConstellationScene() {
                   fill={`url(#${uid}-halo-${node.id})`}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={isInView
-                    ? { scale: hovered || clicked ? 1.8 : 1, opacity: hovered || clicked ? 1 : 0.5 }
+                    ? { scale: hovered || clicked ? 1.8 : 1, opacity: hovered || clicked ? 1 : 0.4 }
                     : { scale: 0, opacity: 0 }
                   }
                   transition={hovered
@@ -392,7 +350,7 @@ export default function ConstellationScene() {
                   fontSize={hovered ? "2.8" : "2.3"}
                   fontFamily="var(--font-display)"
                   letterSpacing="0.06"
-                  fillOpacity={hovered ? 0.96 : 0.42}
+                  fillOpacity={hovered ? 1 : 0.6}
                   initial={{ opacity: 0 }}
                   animate={isInView ? { opacity: 1 } : { opacity: 0 }}
                   transition={{ duration: 0.5, delay: 0.9 + i * 0.08 }}
@@ -441,28 +399,21 @@ export default function ConstellationScene() {
         </div>
       </motion.div>
 
+      {/* Bottom fade back to cream */}
+      <div
+        className="absolute bottom-0 left-0 right-0 pointer-events-none"
+        style={{
+          height: 120,
+          background: "linear-gradient(to bottom, transparent, var(--color-cream))",
+          zIndex: 15,
+        }}
+      />
 
-
-
+      {/* Twinkle keyframes — scoped to avoid global collision */}
       <style>{`
         @keyframes velor-twinkle {
           from { opacity: var(--lo, 0.06); transform: scale(1); }
           to   { opacity: var(--hi, 0.22); transform: scale(1.5); }
-        }
-        @keyframes nebula-drift {
-          0%   { transform: translate(0, 0) scale(1); }
-          50%  { transform: translate(20px, -15px) scale(1.08); }
-          100% { transform: translate(0, 0) scale(1); }
-        }
-        .nebula-1 { 
-          position: absolute; width: 40%; height: 50%; top: 10%; left: 10%;
-          background: radial-gradient(ellipse, rgba(124,58,237,0.08) 0%, transparent 70%);
-          animation: nebula-drift 18s ease-in-out infinite;
-        }
-        .nebula-2 {
-          position: absolute; width: 35%; height: 45%; right: 10%; bottom: 10%;
-          background: radial-gradient(ellipse, rgba(232,168,56,0.06) 0%, transparent 70%);
-          animation: nebula-drift 24s ease-in-out infinite reverse;
         }
       `}</style>
     </section>
