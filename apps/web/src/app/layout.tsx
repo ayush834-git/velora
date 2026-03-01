@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Outfit, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
-import { FilterProvider } from "@/context/filterContext";
+import { FilterProvider } from "@/context/FilterContext";
 
 const inter = Inter({
   variable: "--font-body",

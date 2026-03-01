@@ -3,24 +3,24 @@
 import { createContext, useContext, useMemo, useState } from "react";
 
 export interface FiltersState {
-  genres: string[];
-  moods: string[];
+  genre: string | null;
+  mood: string | null;
   era: string | null;
   language: string | null;
   rating: string | null;
 }
 
-type FiltersUpdater = Partial<FiltersState> | ((prev: FiltersState) => FiltersState);
+type FilterCategory = keyof FiltersState;
 
 interface FilterContextValue {
   filters: FiltersState;
-  setFilters: (updater: FiltersUpdater) => void;
+  setFilter: (category: FilterCategory, value: string | null) => void;
   clearFilters: () => void;
 }
 
 const DEFAULT_FILTERS: FiltersState = {
-  genres: [],
-  moods: [],
+  genre: null,
+  mood: null,
   era: null,
   language: null,
   rating: null,
@@ -31,15 +31,10 @@ const FilterContext = createContext<FilterContextValue | undefined>(undefined);
 export function FilterProvider({ children }: { children: React.ReactNode }) {
   const [filters, setFiltersState] = useState<FiltersState>(DEFAULT_FILTERS);
 
-  const setFilters = (updater: FiltersUpdater) => {
-    if (typeof updater === "function") {
-      setFiltersState((prev) => updater(prev));
-      return;
-    }
-
+  const setFilter = (category: FilterCategory, value: string | null) => {
     setFiltersState((prev) => ({
       ...prev,
-      ...updater,
+      [category]: prev[category] === value ? null : value,
     }));
   };
 
@@ -50,7 +45,7 @@ export function FilterProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo(
     () => ({
       filters,
-      setFilters,
+      setFilter,
       clearFilters,
     }),
     [filters]

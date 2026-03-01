@@ -105,6 +105,7 @@ export default function GridScene({
                     width={isLarger ? 260 : 220}
                     height={isLarger ? 390 : 330}
                     showInfo={true}
+                    preferBackdrop={true}
                   />
                 </motion.div>
               );

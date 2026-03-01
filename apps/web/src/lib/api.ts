@@ -1,7 +1,7 @@
 import { BackendMovie } from "@/types/movie";
 
-export interface ApiFilters {
-  genres?: string[];
+export interface SpinFilters {
+  genre?: string | null;
   mood?: string | null;
   era?: string | null;
   language?: string | null;
@@ -16,32 +16,24 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-function normalizeFilters(filters: ApiFilters = {}) {
-  const normalized: Record<string, string> = {};
+function buildSpinQuery(filters: SpinFilters = {}) {
+  const params = new URLSearchParams();
 
-  if (Array.isArray(filters.genres) && filters.genres.length > 0) {
-    normalized.genre = filters.genres.join(",");
-  }
-  if (filters.mood) normalized.mood = filters.mood;
-  if (filters.era) normalized.era = filters.era;
-  if (filters.language) normalized.language = filters.language;
+  if (filters.genre) params.set("genre", filters.genre);
+  if (filters.mood) params.set("mood", filters.mood);
+  if (filters.era) params.set("era", filters.era);
+  if (filters.language) params.set("language", filters.language);
   if (filters.rating && filters.rating !== "Any") {
     const match = filters.rating.match(/(\d+(?:\.\d+)?)/);
-    normalized.rating = match?.[1] || filters.rating;
+    params.set("rating", match?.[1] || filters.rating);
   }
 
-  return normalized;
+  const query = params.toString();
+  return query ? `?${query}` : "";
 }
 
-function buildFiltersQuery(filters: ApiFilters = {}) {
-  const entries = Object.entries(normalizeFilters(filters));
-  if (entries.length === 0) return "";
-  return `?${new URLSearchParams(entries).toString()}`;
-}
-
-export async function fetchDiscoverMovies(filters: ApiFilters = {}): Promise<BackendMovie[]> {
-  const query = buildFiltersQuery(filters);
-  const response = await fetch(`/api/discover${query}`, {
+export async function fetchDiscoverMovies(): Promise<BackendMovie[]> {
+  const response = await fetch("/api/discover", {
     method: "GET",
     cache: "no-store",
   });
@@ -54,10 +46,8 @@ export async function fetchDiscoverMovies(filters: ApiFilters = {}): Promise<Bac
   return [];
 }
 
-export async function fetchSpinMovie(
-  filters: ApiFilters = {}
-): Promise<BackendMovie> {
-  const query = buildFiltersQuery(filters);
+export async function fetchSpinMovie(filters: SpinFilters = {}): Promise<BackendMovie> {
+  const query = buildSpinQuery(filters);
 
   try {
     const postResponse = await fetch(`/api/spin${query}`, {
@@ -66,7 +56,7 @@ export async function fetchSpinMovie(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(normalizeFilters(filters)),
+      body: JSON.stringify(filters),
     });
     return await parseJsonResponse<BackendMovie>(postResponse);
   } catch {

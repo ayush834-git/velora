@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useFilters } from "@/context/filterContext";
+import { useFilters } from "@/context/FilterContext";
 
 const GENRES = [
   "Action",
@@ -20,23 +20,24 @@ const LANGUAGES = ["English", "Korean", "Japanese", "French", "Spanish", "Hindi"
 const RATINGS = ["9+ Masterpiece", "8+ Excellent", "7+ Great", "Any"];
 
 const FILTER_GROUPS = [
-  { key: "genres" as const, label: "GENRE", items: GENRES, multi: true },
-  { key: "moods" as const, label: "MOOD", items: MOODS, multi: true },
-  { key: "era" as const, label: "ERA", items: ERAS, multi: false },
-  { key: "language" as const, label: "LANGUAGE", items: LANGUAGES, multi: false },
-  { key: "rating" as const, label: "RATING", items: RATINGS, multi: false },
+  { key: "genre" as const, label: "GENRE", items: GENRES },
+  { key: "mood" as const, label: "MOOD", items: MOODS },
+  { key: "era" as const, label: "ERA", items: ERAS },
+  { key: "language" as const, label: "LANGUAGE", items: LANGUAGES },
+  { key: "rating" as const, label: "RATING", items: RATINGS },
 ];
 
 export default function FilterPanel() {
   const [isOpen, setIsOpen] = useState(false);
+  const [rippleChip, setRippleChip] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const { filters, setFilters, clearFilters } = useFilters();
+  const { filters, setFilter, clearFilters } = useFilters();
 
   const activeCount = useMemo(() => {
     return (
-      filters.genres.length +
-      filters.moods.length +
+      (filters.genre ? 1 : 0) +
+      (filters.mood ? 1 : 0) +
       (filters.era ? 1 : 0) +
       (filters.language ? 1 : 0) +
       (filters.rating && filters.rating !== "Any" ? 1 : 0)
@@ -73,33 +74,16 @@ export default function FilterPanel() {
     };
   }, [isOpen]);
 
-  const toggleMulti = (key: "genres" | "moods", value: string) => {
-    setFilters((prev) => {
-      const nextValues = prev[key].includes(value)
-        ? prev[key].filter((item) => item !== value)
-        : [...prev[key], value];
-
-      return {
-        ...prev,
-        [key]: nextValues,
-      };
-    });
-  };
-
-  const toggleSingle = (key: "era" | "language" | "rating", value: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: prev[key] === value ? null : value,
-    }));
-  };
-
-  const isActive = (groupKey: string, value: string) => {
-    if (groupKey === "genres") return filters.genres.includes(value);
-    if (groupKey === "moods") return filters.moods.includes(value);
-    if (groupKey === "era") return filters.era === value;
-    if (groupKey === "language") return filters.language === value;
-    if (groupKey === "rating") return filters.rating === value;
-    return false;
+  const handleChipClick = (
+    category: "genre" | "mood" | "era" | "language" | "rating",
+    item: string
+  ) => {
+    const rippleId = `${category}:${item}`;
+    setRippleChip(rippleId);
+    window.setTimeout(() => {
+      setRippleChip((prev) => (prev === rippleId ? null : prev));
+    }, 320);
+    setFilter(category, item);
   };
 
   return (
@@ -135,7 +119,7 @@ export default function FilterPanel() {
         {isOpen && (
           <>
             <motion.div
-              className="fixed top-16 md:top-20 left-0 right-0 bottom-0 z-[65] bg-black/10 backdrop-blur-[2px]"
+              className="fixed inset-0 z-[65] bg-transparent"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -151,13 +135,13 @@ export default function FilterPanel() {
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
               className="fixed z-[70] right-0 top-16 md:top-20 h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)]
                 w-full max-w-[420px] border-l border-white/70
-                bg-[rgba(255,255,255,0.58)] backdrop-blur-[24px]
+                bg-[rgba(255,255,255,0.6)] backdrop-blur-[6px]
                 shadow-[-16px_0_36px_rgba(0,0,0,0.08)]"
               role="dialog"
               aria-label="Filter options"
             >
               <div className="h-full overflow-y-auto px-6 py-6">
-                <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center justify-between mb-6">
                   <h3
                     className="text-xl text-ink"
                     style={{ fontFamily: "var(--font-accent), serif" }}
@@ -175,8 +159,18 @@ export default function FilterPanel() {
                 </div>
 
                 <div className="space-y-8">
-                  {FILTER_GROUPS.map((group) => (
-                    <section key={group.key} className="space-y-3">
+                  {FILTER_GROUPS.map((group, groupIndex) => (
+                    <motion.section
+                      key={group.key}
+                      className="space-y-3"
+                      initial={{ opacity: 0, x: 18 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{
+                        duration: 0.25,
+                        delay: groupIndex * 0.05,
+                        ease: [0.22, 1, 0.36, 1],
+                      }}
+                    >
                       <h4
                         className="text-[12px] uppercase tracking-[0.24em] text-ink-muted"
                         style={{ fontFamily: "var(--font-accent), serif" }}
@@ -185,7 +179,8 @@ export default function FilterPanel() {
                       </h4>
                       <div className="flex flex-wrap gap-2.5" role="listbox" aria-label={group.label}>
                         {group.items.map((item) => {
-                          const active = isActive(group.key, item);
+                          const active = filters[group.key] === item;
+                          const rippleId = `${group.key}:${item}`;
 
                           return (
                             <motion.button
@@ -193,9 +188,10 @@ export default function FilterPanel() {
                               role="option"
                               aria-selected={active}
                               onClick={() =>
-                                group.multi
-                                  ? toggleMulti(group.key as "genres" | "moods", item)
-                                  : toggleSingle(group.key as "era" | "language" | "rating", item)
+                                handleChipClick(
+                                  group.key as "genre" | "mood" | "era" | "language" | "rating",
+                                  item
+                                )
                               }
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.97 }}
@@ -205,7 +201,7 @@ export default function FilterPanel() {
                                   ? { type: "spring", stiffness: 420, damping: 20, duration: 0.35 }
                                   : { duration: 0.2 }
                               }
-                              className={`h-9 px-4 rounded-full text-xs font-medium cursor-pointer transition-all duration-300
+                              className={`relative overflow-hidden h-9 px-4 rounded-full text-xs font-medium cursor-pointer transition-all duration-300
                                 border ${
                                   active
                                     ? "text-white border-transparent bg-gradient-to-br from-[#f7c873] to-[#f3a63a] shadow-[0_0_18px_rgba(243,166,58,0.34)]"
@@ -213,12 +209,22 @@ export default function FilterPanel() {
                                 }`}
                               data-cursor-hover
                             >
-                              {item}
+                              {rippleChip === rippleId && (
+                                <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                  <motion.span
+                                    initial={{ scale: 0, opacity: 0.35 }}
+                                    animate={{ scale: 2.8, opacity: 0 }}
+                                    transition={{ duration: 0.3, ease: "easeOut" }}
+                                    className="w-6 h-6 rounded-full bg-white/70"
+                                  />
+                                </span>
+                              )}
+                              <span className="relative z-10">{item}</span>
                             </motion.button>
                           );
                         })}
                       </div>
-                    </section>
+                    </motion.section>
                   ))}
                 </div>
               </div>

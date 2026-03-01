@@ -1,7 +1,7 @@
-﻿/* eslint-disable @next/next/no-img-element */
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useRef, useState, useCallback, useLayoutEffect } from "react";
+import { useRef, useState, useCallback, useLayoutEffect, useMemo, useEffect } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsapConfig";
 import { AnimatePresence, motion } from "framer-motion";
 import { Movie } from "@/types/movie";
@@ -12,6 +12,7 @@ import ParticleField from "@/components/ui/ParticleField";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { fetchSpinMovie } from "@/lib/api";
 import { getMovieRating, getPosterPath, normalizeBackendMovie } from "@/lib/movie-utils";
+import { useFilters } from "@/context/FilterContext";
 
 interface SpinRitualProps {
   movies: Movie[];
@@ -25,8 +26,43 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
   const [phase, setPhase] = useState<SpinPhase>("idle");
   const [flashIndex, setFlashIndex] = useState(0);
   const [chosenMovie, setChosenMovie] = useState<Movie | null>(null);
+  const [previewMovie, setPreviewMovie] = useState<Movie | null>(null);
+  const [isFilterLoading, setIsFilterLoading] = useState(false);
   const apiResultRef = useRef<Movie | null>(null);
   const prefersReduced = useReducedMotion();
+  const { filters } = useFilters();
+
+  const spinFilters = useMemo(
+    () => ({
+      genre: filters.genre,
+      mood: filters.mood,
+      era: filters.era,
+      language: filters.language,
+      rating: filters.rating,
+    }),
+    [filters.genre, filters.mood, filters.era, filters.language, filters.rating]
+  );
+
+  useEffect(() => {
+    let active = true;
+    setIsFilterLoading(true);
+
+    fetchSpinMovie(spinFilters)
+      .then((movie) => {
+        if (!active) return;
+        setPreviewMovie(normalizeBackendMovie(movie));
+      })
+      .catch((error) => {
+        console.error("Failed to refresh filtered spin movie", error);
+      })
+      .finally(() => {
+        if (active) setIsFilterLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [spinFilters]);
 
   useLayoutEffect(() => {
     if (!sectionRef.current || prefersReduced) return;
@@ -49,7 +85,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
     setPhase("spinning");
 
     apiResultRef.current = null;
-    fetchSpinMovie()
+    fetchSpinMovie(spinFilters)
       .then((data) => {
         apiResultRef.current = normalizeBackendMovie(data);
       })
@@ -93,7 +129,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
       }
     };
     flash();
-  }, [movies, onResult, phase]);
+  }, [movies, onResult, phase, spinFilters]);
 
   const reset = useCallback(() => {
     setPhase("idle");
@@ -105,6 +141,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
   const flashMovie = movies[flashIndex] || movies[0] || null;
   const flashPosterPath = flashMovie ? getPosterPath(flashMovie) : null;
   const chosenPosterPath = chosenMovie ? getPosterPath(chosenMovie) : null;
+  const previewPosterPath = previewMovie ? getPosterPath(previewMovie) : null;
   const chosenRating = chosenMovie ? getMovieRating(chosenMovie) : 0;
 
   return (
@@ -183,7 +220,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                         whileHover={canSpin ? { scale: 1.08 } : undefined}
                         whileTap={canSpin ? { scale: 0.95 } : undefined}
                         disabled={!canSpin}
-                        className="w-28 h-28 md:w-36 md:h-36 rounded-full cursor-pointer
+                        className="spin-glow-pulse w-28 h-28 md:w-36 md:h-36 rounded-full cursor-pointer
                           bg-gradient-to-br from-golden via-golden-light to-sunset
                           text-white font-display text-xl md:text-2xl tracking-[0.2em] uppercase
                           shadow-[0_8px_40px_rgba(232,168,56,0.35)]
@@ -196,6 +233,30 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                     )}
                   </AnimatePresence>
                 </div>
+              </div>
+
+              <div className="h-16 flex items-center justify-center">
+                <AnimatePresence mode="wait">
+                  {previewPosterPath && (
+                    <motion.div
+                      key={previewMovie?.id || "preview"}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: isFilterLoading ? 0.3 : 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.35 }}
+                      className="w-12 h-16 rounded-md overflow-hidden shadow-md"
+                    >
+                      <img
+                        src={getImageUrl(previewPosterPath, IMAGE_SIZES.poster.small)}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               <motion.p

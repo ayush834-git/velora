@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { motion } from "framer-motion";
 import CinematicImage from "./CinematicImage";
 import { BackendMovie, Movie } from "@/types/movie";
-import { getMovieRating, getPosterPath } from "@/lib/movie-utils";
+import { getBackdropPath, getMovieRating, getPosterPath } from "@/lib/movie-utils";
 
 interface MovieCardProps {
   movie: Movie | BackendMovie;
@@ -12,6 +12,7 @@ interface MovieCardProps {
   height?: number;
   className?: string;
   showInfo?: boolean;
+  preferBackdrop?: boolean;
   onClick?: () => void;
 }
 
@@ -21,11 +22,14 @@ export default function MovieCard({
   height = 390,
   className = "",
   showInfo = true,
+  preferBackdrop = false,
   onClick,
 }: MovieCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
-  const posterPath = getPosterPath(movie);
+  const posterPath = preferBackdrop
+    ? getBackdropPath(movie) ?? getPosterPath(movie)
+    : getPosterPath(movie);
   const rating = getMovieRating(movie);
 
   const handleMouseMove = (e: React.MouseEvent) => {
