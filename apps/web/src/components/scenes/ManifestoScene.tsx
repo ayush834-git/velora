@@ -36,8 +36,8 @@ export default function ManifestoScene() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[75vh] flex flex-col justify-center
-        py-24 px-[5vw] bg-gradient-to-b from-cream via-cream-warm/30 to-cream
+      className="relative min-h-[50vh] min-h-[500px] flex flex-col justify-center
+        py-16 md:py-20 px-[5vw] bg-gradient-to-b from-cream via-cream-warm/30 to-cream
         overflow-hidden"
     >
       {/* Decorative giant V */}

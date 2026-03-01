@@ -151,10 +151,9 @@ export default function ConstellationScene() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden py-20"
+      className="relative overflow-hidden py-16 md:py-20"
       style={{
         background: "linear-gradient(180deg, #080714 0%, #0e0c1e 50%, #080714 100%)",
-        minHeight: "88vh",
       }}
     >
       {/* Star field — CSS-only twinkle */}
