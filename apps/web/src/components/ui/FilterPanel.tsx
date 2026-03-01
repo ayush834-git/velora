@@ -147,7 +147,7 @@ export default function FilterPanel() {
             >
               <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/45 to-transparent" />
               <div className="pointer-events-none absolute -left-24 top-12 h-32 w-56 rotate-[14deg] bg-gradient-to-r from-white/55 to-transparent blur-2xl" />
-              <div className="h-full overflow-y-auto overscroll-contain px-6 py-6 pb-28">
+              <div className="h-full overflow-y-auto overscroll-contain px-8 py-8 pb-32">
                 <div className="flex items-center justify-between mb-6">
                   <h3
                     className="text-xl text-ink"
@@ -169,7 +169,7 @@ export default function FilterPanel() {
                   {FILTER_GROUPS.map((group, groupIndex) => (
                     <motion.section
                       key={group.key}
-                      className="space-y-3 mb-6"
+                      className="mb-8"
                       initial={{ opacity: 0, x: 18 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{
@@ -184,7 +184,7 @@ export default function FilterPanel() {
                       >
                         {group.label}
                       </h4>
-                      <div className="flex flex-wrap gap-x-3 gap-y-3" role="listbox" aria-label={group.label}>
+                      <div className="flex flex-wrap gap-x-4 gap-y-4" role="listbox" aria-label={group.label}>
                         {group.items.map((item, itemIndex) => {
                           const active = filters[group.key] === item;
                           const rippleId = `${group.key}:${item}`;
@@ -219,7 +219,7 @@ export default function FilterPanel() {
                                     }
                                   : { duration: 0.2, delay: itemIndex * 0.03 }
                               }
-                              className={`relative overflow-hidden px-5 py-2.5 min-h-[38px] rounded-full text-sm tracking-wide leading-none font-medium cursor-pointer transition-all duration-200 ease-out flex items-center justify-center
+                              className={`relative overflow-hidden px-6 py-2.5 min-h-[40px] rounded-full text-[15px] font-display uppercase tracking-[0.03em] font-medium leading-snug cursor-pointer transition-all duration-200 ease-out flex items-center justify-center
                                 border ${
                                   active
                                     ? "text-white border-transparent bg-gradient-to-br from-[#e7b45e] to-[#d89a3f] shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_4px_10px_rgba(216,154,63,0.35)]"
