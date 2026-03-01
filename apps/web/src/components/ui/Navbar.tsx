@@ -82,11 +82,9 @@ export default function Navbar() {
             <motion.button
               onClick={() => scrollToSection("spin")}
               whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.95 }}
+              whileTap={{ scale: 0.97 }}
               transition={{ type: "spring", stiffness: 320, damping: 18 }}
-              className="glow-button btn-premium text-sm tracking-[0.03em] uppercase font-medium
-                bg-gradient-to-br from-[#f7c873] to-[#f3a63a] text-white border border-golden/40
-                hover:shadow-[0_8px_28px_rgba(243,166,58,0.45)]
+              className="glow-button btn-premium btn-primary text-sm uppercase font-medium text-white border border-golden/45
                 transition-all duration-300 cursor-pointer"
               data-cursor-hover
             >

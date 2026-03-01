@@ -97,9 +97,7 @@ export default function FilterPanel() {
         aria-expanded={isOpen}
         aria-haspopup="dialog"
         className="btn-premium h-10 cursor-pointer
-          bg-gradient-to-br from-[#f7c873]/95 to-[#f3a63a]/95 text-white
-          border border-golden/40 shadow-[0_8px_24px_rgba(243,166,58,0.28)]
-          hover:shadow-[0_12px_30px_rgba(243,166,58,0.4)] transition-shadow duration-300"
+          btn-primary text-white border border-golden/45 transition-shadow duration-300"
         data-cursor-hover
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -142,8 +140,8 @@ export default function FilterPanel() {
               transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
               className="fixed z-[70] right-4 md:right-10 top-20 h-[80vh]
                 w-[calc(100%-2rem)] md:w-full max-w-[420px] border border-white/70 rounded-[28px]
-                bg-[rgba(255,255,255,0.6)] backdrop-blur-[6px]
-                shadow-[-16px_0_36px_rgba(0,0,0,0.08)]"
+                bg-[rgba(255,255,255,0.75)] backdrop-blur-[18px]
+                shadow-[0_30px_80px_rgba(0,0,0,0.2)]"
               role="dialog"
               aria-label="Filter options"
             >
@@ -187,7 +185,7 @@ export default function FilterPanel() {
                         {group.label}
                       </h4>
                       <div className="flex flex-wrap gap-2.5" role="listbox" aria-label={group.label}>
-                        {group.items.map((item) => {
+                        {group.items.map((item, itemIndex) => {
                           const active = filters[group.key] === item;
                           const rippleId = `${group.key}:${item}`;
 
@@ -204,17 +202,28 @@ export default function FilterPanel() {
                               }
                               whileHover={{ scale: 1.05, y: -2 }}
                               whileTap={{ scale: 0.97 }}
-                              animate={active ? { scale: [1, 1.08, 1] } : { scale: 1 }}
+                              initial={{ opacity: 0, y: 6 }}
+                              animate={
+                                active
+                                  ? { opacity: 1, y: 0, scale: [1, 1.08, 1] }
+                                  : { opacity: 1, y: 0, scale: 1 }
+                              }
                               transition={
                                 active
-                                  ? { type: "spring", stiffness: 420, damping: 20, duration: 0.35 }
-                                  : { duration: 0.2 }
+                                  ? {
+                                      type: "spring",
+                                      stiffness: 300,
+                                      damping: 20,
+                                      duration: 0.35,
+                                      delay: itemIndex * 0.03,
+                                    }
+                                  : { duration: 0.2, delay: itemIndex * 0.03 }
                               }
                               className={`relative overflow-hidden h-9 px-4 rounded-full text-xs font-medium cursor-pointer transition-all duration-300
                                 border ${
                                   active
-                                    ? "text-white border-transparent bg-gradient-to-br from-[#f7c873] to-[#f3a63a] shadow-[0_0_18px_rgba(243,166,58,0.34)]"
-                                    : "text-ink bg-[rgba(255,255,255,0.72)] border-[rgba(20,28,45,0.12)] hover:border-[rgba(243,166,58,0.45)] hover:shadow-[0_8px_18px_rgba(0,0,0,0.08)]"
+                                    ? "text-white border-transparent bg-gradient-to-br from-[#e7b45e] to-[#d89a3f] shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_8px_20px_rgba(216,154,63,0.35)]"
+                                    : "text-ink bg-[rgba(243,243,245,0.9)] border-[rgba(0,0,0,0.05)] hover:border-[rgba(0,0,0,0.08)] hover:shadow-[0_6px_15px_rgba(0,0,0,0.08)]"
                                 }`}
                               data-cursor-hover
                             >

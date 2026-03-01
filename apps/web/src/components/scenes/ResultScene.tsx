@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { Movie } from "@/types/movie";
 import { getImageUrl } from "@/lib/tmdb";
 import { IMAGE_SIZES } from "@/lib/constants";
@@ -11,9 +11,10 @@ import { getBackdropPath, getPosterPath } from "@/lib/movie-utils";
 
 interface ResultSceneProps {
   movie: Movie | null;
+  isTransitioning?: boolean;
 }
 
-export default function ResultScene({ movie }: ResultSceneProps) {
+export default function ResultScene({ movie, isTransitioning = false }: ResultSceneProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-10%" });
   const [dominantColor, setDominantColor] = useState("rgba(232, 168, 56, 0.15)");
@@ -27,13 +28,6 @@ export default function ResultScene({ movie }: ResultSceneProps) {
   const posterPath = movie ? getPosterPath(movie) : null;
   const posterSrc = posterPath ? getImageUrl(posterPath, IMAGE_SIZES.poster.large) : null;
   const posterBlur = posterPath ? getImageUrl(posterPath, "w92") : undefined;
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-
-  const bgY = useTransform(scrollYProgress, [0, 1], ["-10%", "10%"]);
 
   useEffect(() => {
     if (!movie?.poster_path) return;
@@ -50,141 +44,156 @@ export default function ResultScene({ movie }: ResultSceneProps) {
         ctx.drawImage(img, 0, 0, 1, 1);
         const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
         setDominantColor(`rgba(${r}, ${g}, ${b}, 0.12)`);
-
-        const root = document.documentElement;
-        root.style.setProperty("--theme-accent", `rgb(${r}, ${g}, ${b})`);
-        root.style.setProperty("--theme-accent-weak", `rgba(${r}, ${g}, ${b}, 0.15)`);
-        root.style.setProperty(
-          "--glass-tint",
-          `rgba(${Math.min(r + 40, 255)}, ${Math.min(g + 40, 255)}, ${Math.min(b + 40, 255)}, 0.55)`
-        );
-        root.style.setProperty(
-          "--rim-color",
-          `rgba(${Math.min(r + 80, 255)}, ${Math.min(g + 80, 255)}, ${Math.min(b + 80, 255)}, 0.25)`
-        );
       } catch {
-        // CORS fail silently
+        // ignore CORS extraction issues
       }
     };
   }, [movie]);
 
-  if (!movie) {
-    return (
-      <section className="relative h-0 overflow-hidden" id="movie-banner" aria-hidden="true">
-        <div id="result" />
-      </section>
-    );
-  }
-
   return (
     <section
       ref={sectionRef}
-      className="scene relative min-h-screen overflow-hidden"
       id="movie-banner"
+      className="scene relative min-h-[90vh] flex items-center overflow-hidden"
     >
       <div id="result" className="absolute top-0 left-0 h-px w-px" />
 
       <div
-        className="absolute inset-0 transition-colors duration-1000 z-0"
+        className="absolute inset-0 z-0 transition-colors duration-700"
         style={{ background: `linear-gradient(180deg, ${dominantColor}, var(--background))` }}
       />
 
       {backdropSrc && (
-        <motion.div
-          className="absolute inset-0 z-0 opacity-20"
-          style={{ y: bgY, transform: "translateZ(0)" }}
+        <div
+          className="absolute inset-0 z-0"
+          style={{ transform: "translateY(calc(var(--scroll) * -0.2px)) translateZ(0)" }}
         >
           <Image
             src={backdropSrc}
             alt=""
             fill
-            sizes="100vw"
-            quality={90}
             priority
+            quality={95}
+            sizes="100vw"
             placeholder={backdropBlur ? "blur" : "empty"}
             blurDataURL={backdropBlur}
-            className={`object-cover ${isPosterBackdropFallback ? "scale-110 blur-sm" : ""}`}
+            className={`object-cover scale-[1.05] blur-[18px] brightness-[0.75] ${
+              isPosterBackdropFallback ? "contrast-[0.96]" : ""
+            }`}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-cream via-cream/60 to-cream/30" />
-          {isPosterBackdropFallback && (
-            <div className="absolute inset-0 bg-gradient-to-r from-cream/45 via-cream/25 to-cream/45" />
-          )}
-        </motion.div>
+        </div>
       )}
 
-      <div className="relative z-[2] min-h-screen flex items-center py-24 px-6">
-        <div className="max-w-6xl mx-auto w-full grid grid-cols-1 md:grid-cols-[1fr_1.3fr] gap-10 md:gap-16 items-center">
+      <div className="absolute inset-0 z-[1] bg-[linear-gradient(to_bottom,rgba(0,0,0,0.1),rgba(0,0,0,0.65))]" />
+
+      <motion.div
+        className="relative z-10 w-full max-w-[1200px] mx-auto px-[5vw] py-16 md:py-24"
+        animate={{ opacity: isTransitioning ? 0.45 : 1 }}
+        transition={{ duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
+      >
+        <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-10 md:gap-14 items-center">
           <motion.div
-            initial={{ opacity: 0, x: -60 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col items-center md:items-end"
+            initial={{ opacity: 0, y: 14 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.45, ease: [0.2, 0.8, 0.2, 1] }}
+            className="flex justify-center md:justify-start"
           >
-            <div className="relative">
-              <div className="relative w-64 md:w-80 h-96 md:h-[28rem] rounded-2xl overflow-hidden shadow-2xl">
-                {posterSrc && (
-                  <Image
-                    src={posterSrc}
-                    alt={movie.title}
-                    fill
-                    sizes="(max-width:1200px) 33vw, 320px"
-                    quality={90}
-                    priority
-                    placeholder={posterBlur ? "blur" : "empty"}
-                    blurDataURL={posterBlur}
-                    className="object-cover"
-                  />
-                )}
-              </div>
-              <div
-                className="absolute -top-3 -right-3 w-14 h-14 rounded-full bg-golden text-white
-                flex items-center justify-center text-sm font-bold shadow-lg
-                ring-4 ring-cream"
+            <motion.div
+              whileHover={{ y: -4, scale: 1.01 }}
+              transition={{ duration: 0.25, ease: [0.2, 0.8, 0.2, 1] }}
+              className="relative w-64 h-96 md:w-80 md:h-[30rem] rounded-2xl overflow-hidden shadow-[0_24px_50px_rgba(0,0,0,0.28)]"
+            >
+              {posterSrc ? (
+                <Image
+                  src={posterSrc}
+                  alt={movie?.title ?? "Poster"}
+                  fill
+                  priority
+                  quality={95}
+                  sizes="(max-width:1200px) 33vw, 320px"
+                  placeholder={posterBlur ? "blur" : "empty"}
+                  blurDataURL={posterBlur}
+                  className="object-cover"
+                />
+              ) : (
+                <div className="h-full w-full bg-cream-warm/50" />
+              )}
+
+              <motion.div
+                initial={{ scale: 0.88, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.32, delay: 0.12, ease: [0.2, 0.8, 0.2, 1] }}
+                className="absolute -top-3 -right-3 h-14 w-14 rounded-full bg-golden text-white
+                  flex items-center justify-center text-sm font-semibold shadow-lg ring-4 ring-cream"
               >
-                {movie.vote_average.toFixed(1)}
-              </div>
-            </div>
+                {(movie?.vote_average ?? 0).toFixed(1)}
+              </motion.div>
+
+              {isTransitioning && <div className="absolute inset-0 shimmer opacity-80" />}
+            </motion.div>
           </motion.div>
 
           <motion.div
-            className="space-y-5"
-            initial={{ opacity: 0, x: 60 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 1.2, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.45, delay: 0.06, ease: [0.2, 0.8, 0.2, 1] }}
+            className="space-y-5 md:space-y-6 text-center"
           >
-            {movie.tagline && <p className="font-body italic text-golden-warm text-base">&ldquo;{movie.tagline}&rdquo;</p>}
-
             <h2
-              className="font-display font-extralight text-ink leading-[1.05]"
-              style={{ fontSize: "var(--text-headline)" }}
+              className="text-cream"
+              style={{
+                fontFamily: "var(--font-accent), serif",
+                fontWeight: 500,
+                letterSpacing: "-0.02em",
+                lineHeight: 1.05,
+                fontSize: "var(--text-headline)",
+              }}
             >
-              {movie.title}
+              {movie?.title ?? "Loading Film"}
             </h2>
 
-            <div className="flex items-center gap-4 text-sm text-ink-soft">
-              <span>{movie.release_date?.slice(0, 4)}</span>
-              <span>·</span>
-              <span className="flex items-center gap-1">
-                <span className="text-golden">★</span> {movie.vote_average.toFixed(1)}
-              </span>
-              <span>·</span>
-              <span className="uppercase tracking-wider text-xs">{movie.original_language}</span>
+            <div
+              className="text-cream/85 uppercase"
+              style={{
+                fontFamily: "var(--font-body), sans-serif",
+                letterSpacing: "0.08em",
+                fontSize: "0.8rem",
+              }}
+            >
+              <span>{movie?.release_date?.slice(0, 4) ?? "----"}</span>
+              <span className="mx-2">-</span>
+              <span>{(movie?.vote_average ?? 0).toFixed(1)}</span>
+              <span className="mx-2">-</span>
+              <span>{movie?.original_language?.toUpperCase() ?? "--"}</span>
             </div>
 
             <p
-              className="text-ink-soft/80 leading-relaxed max-w-[900px] mx-auto md:mx-0 text-center md:text-left"
+              className="text-cream/90 leading-relaxed max-w-[900px] mx-auto"
               style={{ fontSize: "var(--text-body)" }}
             >
-              {movie.overview}
+              {movie?.overview ?? "Preparing your next cinematic pick..."}
             </p>
 
-            <div className="flex items-center gap-4 pt-4">
+            <div className="flex items-center justify-center gap-3 pt-2">
               <GlowButton variant="primary">Spin Again</GlowButton>
-              <GlowButton variant="secondary">Share ↗</GlowButton>
+              <GlowButton variant="secondary">Share -&gt;</GlowButton>
             </div>
           </motion.div>
         </div>
-      </div>
+      </motion.div>
+
+      {isTransitioning && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3 }}
+          className="absolute inset-0 z-[11] pointer-events-none"
+        >
+          <div className="absolute inset-0 bg-black/10" />
+          <div className="absolute inset-x-[20%] top-[45%] h-3 rounded-full shimmer" />
+        </motion.div>
+      )}
     </section>
   );
 }

@@ -39,6 +39,7 @@ function shuffleMovies(items: Movie[]) {
 export default function Home() {
   const router = useRouter();
   const [chosenMovie, setChosenMovie] = useState<Movie | null>(null);
+  const [isBannerTransitioning, setIsBannerTransitioning] = useState(false);
   const [baseMovies, setBaseMovies] = useState<Movie[]>([]);
   const [isLoadingMovies, setIsLoadingMovies] = useState(true);
   const [moviesError, setMoviesError] = useState<string | null>(null);
@@ -82,6 +83,11 @@ export default function Home() {
   }, [baseMovies]);
 
   useEffect(() => {
+    if (chosenMovie || baseMovies.length === 0) return;
+    setChosenMovie(baseMovies[0]);
+  }, [baseMovies, chosenMovie]);
+
+  useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.location.hash !== "#result") return;
 
@@ -97,15 +103,17 @@ export default function Home() {
 
   const handleSpinResult = useCallback(
     (movie: Movie) => {
-      setChosenMovie(movie);
+      setIsBannerTransitioning(true);
       router.push("/#result", { scroll: false });
 
       window.setTimeout(() => {
+        setChosenMovie(movie);
+        setIsBannerTransitioning(false);
         document.getElementById("movie-banner")?.scrollIntoView({
           behavior: "smooth",
           block: "start",
         });
-      }, 80);
+      }, 300);
     },
     [router]
   );
@@ -129,7 +137,7 @@ export default function Home() {
           <ChaosScene movies={baseMovies} />
           <CuratedScene movies={baseMovies} onMoodSelect={handleMoodSelect} />
           <SpinRitual movies={baseMovies} onResult={handleSpinResult} />
-          <ResultScene movie={chosenMovie} />
+          <ResultScene movie={chosenMovie} isTransitioning={isBannerTransitioning} />
           <GridScene
             movies={exploringMovies}
             isLoading={isLoadingMovies}

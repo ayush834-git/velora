@@ -31,6 +31,7 @@
 :root {
   --background: #faf8f5;
   --foreground: #1a1a2e;
+  --scroll: 0;
   --text-hero: clamp(3.5rem, 10vw, 10rem);
   --text-headline: clamp(2.5rem, 6vw, 6rem);
   --text-subheadline: clamp(1.5rem, 3vw, 2.5rem);
@@ -70,7 +71,7 @@
 }
 
 html {
-  scroll-behavior: auto;
+  scroll-behavior: smooth;
   overflow-x: hidden;
 }
 
@@ -91,9 +92,9 @@ body {
 .filter-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(10, 10, 15, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   z-index: 40;
   pointer-events: none;
 }
@@ -248,13 +249,28 @@ body {
 }
 
 .btn-premium {
-  padding: 0.7rem 1.3rem;
+  padding: 0.625rem 1.25rem;
   letter-spacing: 0.03em;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  line-height: 1;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #e7b45e, #d89a3f);
+  box-shadow: 0 8px 20px rgba(216, 154, 63, 0.35);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(216, 154, 63, 0.5);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
 }
 
 .glow-button::before {

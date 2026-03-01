@@ -300,9 +300,9 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                         whileTap={canSpin ? { scale: 0.95 } : undefined}
                         disabled={!canSpin}
                         className="spin-glow-pulse relative overflow-hidden w-28 h-28 md:w-36 md:h-36 rounded-full cursor-pointer
-                          bg-gradient-to-br from-golden via-golden-light to-sunset
+                          btn-primary
                           text-white font-display text-xl md:text-2xl tracking-[0.2em] uppercase
-                          shadow-[0_8px_40px_rgba(232,168,56,0.35)]
+                          shadow-[0_8px_40px_rgba(216,154,63,0.35)]
                           hover:shadow-[0_14px_52px_rgba(232,168,56,0.56)]
                           transition-shadow duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
                         data-cursor-hover
@@ -452,12 +452,9 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                 transition={{ duration: 0.3, delay: 0.1 }}
                 onClick={reset}
                 whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.95 }}
+                whileTap={{ scale: 0.97 }}
                 className="mt-8 btn-premium text-sm tracking-[0.03em] uppercase
-                  font-display text-white border border-golden/40
-                  bg-gradient-to-br from-[#f7c873] to-[#f3a63a]
-                  shadow-[0_8px_22px_rgba(243,166,58,0.32)]
-                  hover:shadow-[0_12px_30px_rgba(243,166,58,0.45)]
+                  btn-primary font-display text-white border border-golden/45
                   transition-all duration-300 cursor-pointer"
                 data-cursor-hover
               >

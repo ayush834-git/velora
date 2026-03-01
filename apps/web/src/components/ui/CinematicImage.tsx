@@ -32,10 +32,11 @@ export default function CinematicImage({
 
   const size =
     type === "poster"
-      ? IMAGE_SIZES.poster.medium
-      : IMAGE_SIZES.backdrop.medium;
+      ? IMAGE_SIZES.poster.xlarge
+      : IMAGE_SIZES.backdrop.large;
 
   const src = path ? getImageUrl(path, size) : null;
+  const blurSrc = path ? getImageUrl(path, "w92") : undefined;
 
   if (!src || error) {
     return (
@@ -88,7 +89,10 @@ export default function CinematicImage({
           src={src}
           alt={alt}
           fill
-          sizes="(max-width: 768px) 100vw, 50vw"
+          sizes="(max-width:1200px) 33vw, 260px"
+          quality={95}
+          placeholder={blurSrc ? "blur" : "empty"}
+          blurDataURL={blurSrc}
           className={`object-cover transition-opacity duration-700 ${
             loaded ? "opacity-100" : "opacity-0"
           }`}
@@ -102,6 +106,10 @@ export default function CinematicImage({
           alt={alt}
           width={width || 300}
           height={height || 450}
+          sizes="(max-width:1200px) 33vw, 260px"
+          quality={95}
+          placeholder={blurSrc ? "blur" : "empty"}
+          blurDataURL={blurSrc}
           className={`object-cover transition-opacity duration-700 ${
             loaded ? "opacity-100" : "opacity-0"
           }`}

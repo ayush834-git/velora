@@ -27,8 +27,8 @@ interface BlurUpImageProps {
     backdrop: w92 (blur) → w300 (mobile) → w780 (tablet) → w1280 (desktop)
 */
 const SIZE_MAP = {
-  poster: "w342",
-  backdrop: "w780",
+  poster: "w500",
+  backdrop: "w1280",
 } as const;
 
 export default function BlurUpImage({
@@ -90,6 +90,7 @@ export default function BlurUpImage({
           alt={alt}
           fill
           sizes={sizes}
+          quality={95}
           className={`object-cover transition-opacity duration-700 ${
             loaded ? "opacity-100" : "opacity-0"
           }`}
@@ -104,6 +105,7 @@ export default function BlurUpImage({
           width={width || 300}
           height={height || 450}
           sizes={sizes}
+          quality={95}
           className={`object-cover transition-opacity duration-700 ${
             loaded ? "opacity-100" : "opacity-0"
           }`}
