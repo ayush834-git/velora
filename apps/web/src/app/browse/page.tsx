@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useInView } from "framer-motion";
 import { getImageUrl } from "@/lib/tmdb";
 import { IMAGE_SIZES } from "@/lib/constants";
+import { useSearchParams } from "next/navigation";
 
 type TmdbMovie = {
   id: number;
@@ -179,9 +180,18 @@ function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
   );
 }
 
-export default function BrowsePage() {
+function BrowseContent() {
+  const params = useSearchParams();
+  const mood = params.get("mood");
+  const genresParam = params.get("genres");
+
+  const activeGenreIds = genresParam ? genresParam.split(",").map(Number) : null;
+  const displayGenres = activeGenreIds
+    ? GENRE_ROWS.filter((g) => activeGenreIds.includes(g.id))
+    : GENRE_ROWS;
+
   return (
-    <main className="min-h-screen bg-cream">
+    <main className="min-h-screen bg-transparent">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-cream/80 backdrop-blur-xl border-b border-ink/5">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
@@ -193,7 +203,7 @@ export default function BrowsePage() {
           </Link>
 
           <h1 className="font-display font-light text-lg md:text-xl tracking-wide text-ink">
-            Browse Films
+            {mood ? "Curated Selection" : "Browse Films"}
           </h1>
 
           <Link
@@ -214,26 +224,32 @@ export default function BrowsePage() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         >
           <span className="font-display text-xs tracking-[0.5em] uppercase text-golden-warm/70 block mb-4">
-            Cinema Library
+            {mood ? "Tailored for you" : "Cinema Library"}
           </span>
           <h2
-            className="font-display font-extralight text-ink leading-[0.95] tracking-tight"
+            className="font-display font-extralight text-ink leading-[0.95] tracking-tight capitalize"
             style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)" }}
           >
-            Explore by Genre
+            {mood ? `${mood.replace("-", " ")} Collection` : "Explore by Genre"}
           </h2>
           <p className="mt-4 text-ink-soft/70 font-body max-w-lg mx-auto leading-relaxed">
-            Dive into curated collections across every genre. Discover your next
-            favorite film — from blockbusters to hidden gems.
+            {mood 
+              ? `Discover films that match your exact craving right now. A handpicked selection for your mood.`
+              : `Dive into curated collections across every genre. Discover your next favorite film — from blockbusters to hidden gems.`}
           </p>
         </motion.div>
       </section>
 
       {/* Genre Rows */}
       <div className="max-w-[1400px] mx-auto pb-20">
-        {GENRE_ROWS.map((genre) => (
+        {displayGenres.map((genre) => (
           <GenreRow key={genre.id} genre={genre} />
         ))}
+        {displayGenres.length === 0 && (
+          <div className="text-center py-20 text-ink-soft">
+            No genres found for this selection.
+          </div>
+        )}
       </div>
 
       {/* Footer */}
@@ -243,5 +259,13 @@ export default function BrowsePage() {
         </p>
       </footer>
     </main>
+  );
+}
+
+export default function BrowsePage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen bg-cream" />}>
+      <BrowseContent />
+    </Suspense>
   );
 }

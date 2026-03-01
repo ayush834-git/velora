@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, useInView } from "framer-motion";
 import Image from "next/image";
 import { Movie } from "@/types/movie";
@@ -25,6 +26,8 @@ const MOOD_PREFERRED_IDS: Record<string, number[]> = {
 export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: true, margin: "-10%" });
+  const router = useRouter();
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const usedPaths = new Set<string>();
   const moodBackdrops: Record<string, string | null> = {};
@@ -58,11 +61,12 @@ export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps
   return (
     <section
       ref={sectionRef}
-      className="scene relative min-h-screen flex flex-col items-center justify-center py-20 md:py-28"
+      className={`scene relative min-h-screen flex flex-col items-center justify-center py-20 md:py-28 transition-all duration-500 ${
+        isTransitioning ? "blur-sm scale-105 opacity-80" : ""
+      }`}
       id="curated"
     >
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream-warm to-cream" />
 
       {/* Section heading */}
       <div className="relative z-10 text-center mb-14 md:mb-20 px-6">
@@ -94,7 +98,13 @@ export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps
           return (
             <motion.button
               key={mood.id}
-              onClick={() => onMoodSelect?.(mood.id, mood.genreIds)}
+              onClick={() => {
+                if (onMoodSelect) onMoodSelect(mood.id, mood.genreIds);
+                setIsTransitioning(true);
+                setTimeout(() => {
+                  router.push(`/browse?mood=${mood.id}&genres=${mood.genreIds.join(",")}`);
+                }, 400);
+              }}
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={
                 isInView
