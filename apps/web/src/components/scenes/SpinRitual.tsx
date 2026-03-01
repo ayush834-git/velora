@@ -22,7 +22,7 @@ interface SpinRitualProps {
 type SpinPhase = "idle" | "spinning" | "revealing" | "done";
 
 export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
-  const { genres, mood, era, language, rating } = useFilterContext();
+  const { appliedFilters } = useFilterContext();
   const sectionRef = useRef<HTMLDivElement>(null);
   const [phase, setPhase] = useState<SpinPhase>("idle");
   const [flashIndex, setFlashIndex] = useState(0);
@@ -51,13 +51,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
     setPhase("spinning");
 
     apiResultRef.current = null;
-    fetchSpinMovie({
-      genres,
-      mood,
-      era,
-      language,
-      rating,
-    })
+    fetchSpinMovie(appliedFilters)
       .then((data) => {
         apiResultRef.current = normalizeBackendMovie(data);
       })
@@ -101,7 +95,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
       }
     };
     flash();
-  }, [movies, onResult, phase, genres, mood, era, language, rating]);
+  }, [movies, onResult, phase, appliedFilters]);
 
   const reset = useCallback(() => {
     setPhase("idle");

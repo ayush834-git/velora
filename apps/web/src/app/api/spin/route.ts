@@ -257,9 +257,17 @@ async function getSpinResult(rawFilters: SpinFilterInput) {
       ? `&vote_average.gte=${encodeURIComponent(String(filters.ratingThreshold))}`
       : "";
   const releaseStartParam =
-    eraRange?.gte ? `&primary_release_date.gte=${encodeURIComponent(eraRange.gte)}` : "";
+    eraRange?.gte
+      ? `&release_date.gte=${encodeURIComponent(
+          eraRange.gte
+        )}&primary_release_date.gte=${encodeURIComponent(eraRange.gte)}`
+      : "";
   const releaseEndParam =
-    eraRange?.lte ? `&primary_release_date.lte=${encodeURIComponent(eraRange.lte)}` : "";
+    eraRange?.lte
+      ? `&release_date.lte=${encodeURIComponent(
+          eraRange.lte
+        )}&primary_release_date.lte=${encodeURIComponent(eraRange.lte)}`
+      : "";
 
   const filterParams = filters.hasActiveFilters
     ? `${genreParam}${languageParam}${ratingParam}${releaseStartParam}${releaseEndParam}`

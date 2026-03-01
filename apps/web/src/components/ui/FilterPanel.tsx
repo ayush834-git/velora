@@ -33,38 +33,37 @@ const FILTER_GROUPS = [
   { key: "rating" as const, label: "RATING", items: RATINGS, multi: false },
 ];
 
-const DESKTOP_PANEL_MOTION = {
-  initial: { opacity: 0, x: 60 },
-  animate: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: 60 },
-  transition: { duration: 0.4, ease: [0.19, 1, 0.22, 1] as [number, number, number, number] },
-};
-
-const MOBILE_PANEL_MOTION = {
-  initial: { opacity: 0, y: 80 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: 80 },
-  transition: { duration: 0.4, ease: [0.19, 1, 0.22, 1] as [number, number, number, number] },
+const EMPTY_FILTERS: ActiveFilters = {
+  genres: [],
+  mood: null,
+  era: null,
+  language: null,
+  rating: null,
 };
 
 export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const [focusGroup, setFocusGroup] = useState(0);
   const [focusItem, setFocusItem] = useState(0);
 
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const { genres, mood, era, language, rating, setGenre, setMood, setEra, setLanguage, setRating } =
-    useFilterContext();
-
-  const activeCount =
-    genres.length +
-    (mood ? 1 : 0) +
-    (era ? 1 : 0) +
-    (language ? 1 : 0) +
-    (rating ? 1 : 0);
+  const {
+    genres,
+    mood,
+    era,
+    language,
+    rating,
+    activeCount,
+    setGenre,
+    setMood,
+    setEra,
+    setLanguage,
+    setRating,
+    applyFilters,
+    resetFilters,
+  } = useFilterContext();
 
   const setFilter = useCallback(
     (key: keyof ActiveFilters, value: string) => {
@@ -88,19 +87,28 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
     [mood, era, language, rating, setMood, setEra, setLanguage, setRating]
   );
 
-  useEffect(() => {
-    if (!onFilterChange) return;
-    onFilterChange({ genres, mood, era, language, rating });
-  }, [onFilterChange, genres, mood, era, language, rating]);
+  const isActive = (groupKey: string, item: string): boolean => {
+    if (groupKey === "genres") return genres.includes(item);
+    const singleValueMap: Record<string, string | null> = {
+      mood,
+      era,
+      language,
+      rating,
+    };
+    return singleValueMap[groupKey] === item;
+  };
 
-  useEffect(() => {
-    const media = window.matchMedia("(max-width: 767px)");
-    const apply = () => setIsMobile(media.matches);
-    apply();
+  const handleApply = () => {
+    const nextFilters = { genres, mood, era, language, rating };
+    applyFilters();
+    onFilterChange?.(nextFilters);
+    setIsOpen(false);
+  };
 
-    media.addEventListener("change", apply);
-    return () => media.removeEventListener("change", apply);
-  }, []);
+  const handleReset = () => {
+    resetFilters();
+    onFilterChange?.(EMPTY_FILTERS);
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -117,8 +125,19 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
       }
     };
 
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setIsOpen(false);
+      triggerRef.current?.focus();
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
   }, [isOpen]);
 
   const handleKeyDown = useCallback(
@@ -129,11 +148,6 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
       if (!group) return;
 
       switch (event.key) {
-        case "Escape":
-          setIsOpen(false);
-          triggerRef.current?.focus();
-          event.preventDefault();
-          break;
         case "ArrowDown":
           setFocusGroup((value) => Math.min(value + 1, FILTER_GROUPS.length - 1));
           setFocusItem(0);
@@ -168,23 +182,6 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
     [isOpen, focusGroup, focusItem, setGenre, setFilter]
   );
 
-  const isActive = (groupKey: string, item: string): boolean => {
-    if (groupKey === "genres") return genres.includes(item);
-    const singleValueMap: Record<string, string | null> = {
-      mood,
-      era,
-      language,
-      rating,
-    };
-    return singleValueMap[groupKey] === item;
-  };
-
-  const closeOnDrag = (_: MouseEvent | TouchEvent | PointerEvent, info: { offset: { y: number }; velocity: { y: number } }) => {
-    if (info.offset.y > 120 || info.velocity.y > 700) {
-      setIsOpen(false);
-    }
-  };
-
   return (
     <div className="relative z-40" onKeyDown={handleKeyDown}>
       <motion.button
@@ -213,45 +210,38 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
             d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
           />
         </svg>
-        <span className="text-sm font-medium tracking-wide">Filters</span>
-        {activeCount > 0 && (
-          <motion.span
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 420, damping: 20 }}
-            className="w-5 h-5 rounded-full text-[11px] font-semibold text-white
-              inline-flex items-center justify-center
-              bg-gradient-to-br from-[#f7c873] to-[#f3a63a]
-              shadow-[0_0_18px_rgba(243,166,58,0.45)]"
-          >
-            {activeCount}
-          </motion.span>
-        )}
+        <span className="text-sm font-medium tracking-wide">
+          Filters{activeCount > 0 ? ` (${activeCount})` : ""}
+        </span>
       </motion.button>
 
       <AnimatePresence>
         {isOpen && (
           <>
             <motion.div
-              className="fixed inset-0 bg-transparent z-[65]"
+              className="fixed top-16 md:top-20 left-0 right-0 bottom-0 z-[65] bg-black/10 backdrop-blur-[2px]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
               onClick={() => setIsOpen(false)}
             />
 
-            {!isMobile ? (
-              <motion.aside
-                ref={panelRef}
-                {...DESKTOP_PANEL_MOTION}
-                className="fixed z-[70] right-[40px] top-[100px] w-[calc(100vw-2.5rem)] max-w-[420px]
-                  max-h-[calc(100vh-140px)] overflow-y-auto rounded-[28px] p-7
-                  bg-[rgba(255,255,255,0.55)] backdrop-blur-[24px]
-                  border border-white/70 shadow-[0_20px_60px_rgba(0,0,0,0.08)]"
-                role="dialog"
-                aria-label="Filter options"
-              >
-                <div className="space-y-8">
+            <motion.aside
+              ref={panelRef}
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              className="fixed z-[70] right-0 top-16 md:top-20 h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)]
+                w-full max-w-[420px] border-l border-white/70
+                bg-[rgba(255,255,255,0.55)] backdrop-blur-[24px]
+                shadow-[-16px_0_36px_rgba(0,0,0,0.08)]"
+              role="dialog"
+              aria-label="Filter options"
+            >
+              <div className="h-full flex flex-col">
+                <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
                   {FILTER_GROUPS.map((group, groupIndex) => (
                     <section key={group.key} className="space-y-3">
                       <h4 className="text-[12px] uppercase tracking-[0.25em] text-ink-muted">
@@ -269,13 +259,19 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
                               aria-selected={active}
                               tabIndex={focused ? 0 : -1}
                               onClick={() => (group.multi ? setGenre(item) : setFilter(group.key, item))}
-                              whileHover={{ scale: 1.05 }}
+                              whileHover={{ scale: 1.02 }}
                               whileTap={{ scale: 0.97 }}
+                              animate={
+                                active
+                                  ? { boxShadow: "0 0 18px rgba(243,166,58,0.34)" }
+                                  : { boxShadow: "0 0 0 rgba(243,166,58,0)" }
+                              }
+                              transition={{ duration: 0.2, ease: "easeOut" }}
                               className={`h-9 px-4 rounded-full text-xs font-medium cursor-pointer transition-all duration-300
                                 border ${
                                   active
-                                    ? "text-white border-transparent bg-gradient-to-br from-[#f7c873] to-[#f3a63a] shadow-[0_0_18px_rgba(243,166,58,0.35)]"
-                                    : "text-ink bg-[rgba(255,255,255,0.75)] border-[rgba(20,28,45,0.12)] hover:border-[rgba(243,166,58,0.45)] hover:shadow-[0_0_14px_rgba(243,166,58,0.22)]"
+                                    ? "text-white border-transparent bg-gradient-to-br from-[#f7c873] to-[#f3a63a]"
+                                    : "text-ink bg-[rgba(255,255,255,0.75)] border-[rgba(20,28,45,0.12)] hover:border-[rgba(243,166,58,0.45)]"
                                 } ${focused ? "ring-2 ring-[#f3a63a]/50 ring-offset-2 ring-offset-transparent" : ""}`}
                               data-cursor-hover
                             >
@@ -287,64 +283,33 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
                     </section>
                   ))}
                 </div>
-              </motion.aside>
-            ) : (
-              <motion.aside
-                ref={panelRef}
-                {...MOBILE_PANEL_MOTION}
-                drag="y"
-                dragConstraints={{ top: 0, bottom: 240 }}
-                dragElastic={0.2}
-                onDragEnd={closeOnDrag}
-                className="fixed z-[70] inset-x-0 bottom-0 h-[80vh] rounded-t-[28px] px-6 pt-3 pb-6
-                  bg-[rgba(255,255,255,0.72)] backdrop-blur-[24px]
-                  border-t border-white/80 shadow-[0_-20px_60px_rgba(0,0,0,0.10)]"
-                role="dialog"
-                aria-label="Filter options"
-              >
-                <div className="mx-auto mb-5 h-1.5 w-14 rounded-full bg-[rgba(20,28,45,0.16)]" />
-                <div className="h-[calc(80vh-3rem)] overflow-y-auto pr-1">
-                  <div className="space-y-8">
-                    {FILTER_GROUPS.map((group, groupIndex) => (
-                      <section key={group.key} className="space-y-3">
-                        <h4 className="text-[12px] uppercase tracking-[0.25em] text-ink-muted">
-                          {group.label}
-                        </h4>
-                        <div className="flex flex-wrap gap-2.5" role="listbox" aria-label={group.label}>
-                          {group.items.map((item, itemIndex) => {
-                            const active = isActive(group.key, item);
-                            const focused = groupIndex === focusGroup && itemIndex === focusItem;
 
-                            return (
-                              <motion.button
-                                key={item}
-                                role="option"
-                                aria-selected={active}
-                                tabIndex={focused ? 0 : -1}
-                                onClick={() =>
-                                  group.multi ? setGenre(item) : setFilter(group.key, item)
-                                }
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.97 }}
-                                className={`h-9 px-4 rounded-full text-xs font-medium cursor-pointer transition-all duration-300
-                                  border ${
-                                    active
-                                      ? "text-white border-transparent bg-gradient-to-br from-[#f7c873] to-[#f3a63a] shadow-[0_0_18px_rgba(243,166,58,0.35)]"
-                                      : "text-ink bg-[rgba(255,255,255,0.82)] border-[rgba(20,28,45,0.12)] hover:border-[rgba(243,166,58,0.45)] hover:shadow-[0_0_14px_rgba(243,166,58,0.22)]"
-                                  } ${focused ? "ring-2 ring-[#f3a63a]/50 ring-offset-2 ring-offset-transparent" : ""}`}
-                                data-cursor-hover
-                              >
-                                {item}
-                              </motion.button>
-                            );
-                          })}
-                        </div>
-                      </section>
-                    ))}
+                <div className="border-t border-white/70 px-6 py-4 bg-[rgba(250,248,245,0.75)] backdrop-blur-[12px]">
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={handleReset}
+                      className="h-10 rounded-full text-sm font-medium border border-ink/15 text-ink
+                        bg-white/70 hover:bg-white transition-colors cursor-pointer"
+                      data-cursor-hover
+                    >
+                      Reset
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleApply}
+                      className="h-10 rounded-full text-sm font-medium text-white
+                        bg-gradient-to-br from-[#f7c873] to-[#f3a63a]
+                        shadow-[0_8px_22px_rgba(243,166,58,0.32)] hover:shadow-[0_12px_30px_rgba(243,166,58,0.42)]
+                        transition-shadow cursor-pointer"
+                      data-cursor-hover
+                    >
+                      Apply Filters
+                    </button>
                   </div>
                 </div>
-              </motion.aside>
-            )}
+              </div>
+            </motion.aside>
           </>
         )}
       </AnimatePresence>

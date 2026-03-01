@@ -25,7 +25,10 @@ function normalizeFilters(filters: ApiFilters = {}) {
   if (filters.mood) normalized.mood = filters.mood;
   if (filters.era) normalized.era = filters.era;
   if (filters.language) normalized.language = filters.language;
-  if (filters.rating && filters.rating !== "Any") normalized.rating = filters.rating;
+  if (filters.rating && filters.rating !== "Any") {
+    const match = filters.rating.match(/(\d+(?:\.\d+)?)/);
+    normalized.rating = match?.[1] || filters.rating;
+  }
 
   return normalized;
 }

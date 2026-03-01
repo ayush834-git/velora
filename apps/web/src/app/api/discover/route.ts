@@ -194,9 +194,17 @@ export async function GET(request: NextRequest) {
       ? `&vote_average.gte=${encodeURIComponent(String(ratingThreshold))}`
       : "";
   const releaseStartParam =
-    eraRange?.gte ? `&primary_release_date.gte=${encodeURIComponent(eraRange.gte)}` : "";
+    eraRange?.gte
+      ? `&release_date.gte=${encodeURIComponent(
+          eraRange.gte
+        )}&primary_release_date.gte=${encodeURIComponent(eraRange.gte)}`
+      : "";
   const releaseEndParam =
-    eraRange?.lte ? `&primary_release_date.lte=${encodeURIComponent(eraRange.lte)}` : "";
+    eraRange?.lte
+      ? `&release_date.lte=${encodeURIComponent(
+          eraRange.lte
+        )}&primary_release_date.lte=${encodeURIComponent(eraRange.lte)}`
+      : "";
 
   try {
     const response = await fetch(
