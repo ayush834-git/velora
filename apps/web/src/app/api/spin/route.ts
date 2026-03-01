@@ -1,11 +1,68 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p";
 
-type SpinFilters = {
-  genres?: number[];
-  language?: string;
+const GENRE_TO_ID: Record<string, number> = {
+  Action: 28,
+  Drama: 18,
+  Comedy: 35,
+  "Sci-Fi": 878,
+  Horror: 27,
+  Romance: 10749,
+  Thriller: 53,
+  Animation: 16,
+};
+
+const MOOD_TO_GENRE_IDS: Record<string, number[]> = {
+  "Mind-Bending": [878, 9648, 53],
+  Comfort: [35, 10751, 16],
+  Dark: [27, 53, 80],
+  Uplifting: [35, 10751, 10402],
+  Epic: [28, 12, 14],
+  Romantic: [10749, 18],
+};
+
+const LANGUAGE_TO_CODE: Record<string, string> = {
+  English: "en",
+  Korean: "ko",
+  Japanese: "ja",
+  French: "fr",
+  Spanish: "es",
+  Hindi: "hi",
+};
+
+const ERA_TO_RANGE: Record<string, { gte: string; lte?: string }> = {
+  "Classic (pre-1980)": { gte: "1900-01-01", lte: "1979-12-31" },
+  "80s & 90s": { gte: "1980-01-01", lte: "1999-12-31" },
+  "2000s": { gte: "2000-01-01", lte: "2009-12-31" },
+  "2010s": { gte: "2010-01-01", lte: "2019-12-31" },
+  "Recent (2020+)": { gte: "2020-01-01" },
+};
+
+const RATING_TO_THRESHOLD: Record<string, number> = {
+  "9+ Masterpiece": 9,
+  "8+ Excellent": 8,
+  "7+ Great": 7,
+};
+
+type SpinFilterInput = {
+  genre?: string | null;
+  genres?: unknown;
+  mood?: string | null;
+  era?: string | null;
+  language?: string | null;
+  lang?: string | null;
+  rating?: string | null;
+};
+
+type ResolvedSpinFilters = {
+  genreIds: number[];
+  mood: string | null;
+  era: string | null;
+  languageCode: string;
+  ratingThreshold: number | null;
+  hasActiveFilters: boolean;
 };
 
 type TmdbMovie = {
@@ -73,6 +130,82 @@ function toBackendMovie(movie: TmdbMovie) {
   };
 }
 
+function parseGenreIds(rawValue: string | null) {
+  if (!rawValue) return [] as number[];
+
+  return rawValue
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => {
+      const numeric = Number.parseInt(item, 10);
+      if (Number.isFinite(numeric)) return numeric;
+      return GENRE_TO_ID[item] ?? null;
+    })
+    .filter((value): value is number => typeof value === "number");
+}
+
+function parseLanguageCode(value: string | null) {
+  if (!value) return "en";
+  if (LANGUAGE_TO_CODE[value]) return LANGUAGE_TO_CODE[value];
+  if (value.includes("-")) return value.split("-")[0].toLowerCase();
+  if (value.length === 2) return value.toLowerCase();
+  return "en";
+}
+
+function parseRatingThreshold(value: string | null) {
+  if (!value || value === "Any") return null;
+  if (RATING_TO_THRESHOLD[value]) return RATING_TO_THRESHOLD[value];
+
+  const match = value.match(/(\d+(?:\.\d+)?)/);
+  if (!match) return null;
+
+  const parsed = Number.parseFloat(match[1]);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseRawFilters(searchParams: URLSearchParams, body: SpinFilterInput): SpinFilterInput {
+  const rawGenresFromBody = Array.isArray(body.genres) ? body.genres.join(",") : null;
+
+  return {
+    genre: searchParams.get("genre") ?? body.genre ?? rawGenresFromBody,
+    mood: searchParams.get("mood") ?? body.mood ?? null,
+    era: searchParams.get("era") ?? body.era ?? null,
+    language:
+      searchParams.get("language") ??
+      searchParams.get("lang") ??
+      body.language ??
+      body.lang ??
+      null,
+    rating: searchParams.get("rating") ?? body.rating ?? null,
+  };
+}
+
+function resolveFilters(raw: SpinFilterInput): ResolvedSpinFilters {
+  const baseGenreIds = parseGenreIds(raw.genre ?? null);
+  const moodGenreIds = raw.mood && MOOD_TO_GENRE_IDS[raw.mood] ? MOOD_TO_GENRE_IDS[raw.mood] : [];
+  const genreIds = Array.from(new Set([...baseGenreIds, ...moodGenreIds]));
+  const languageCode = parseLanguageCode(raw.language ?? null);
+  const ratingThreshold = parseRatingThreshold(raw.rating ?? null);
+
+  const hasActiveFilters = Boolean(
+    (raw.genre && raw.genre.trim().length > 0) ||
+      (raw.mood && raw.mood.trim().length > 0) ||
+      (raw.era && raw.era.trim().length > 0) ||
+      (raw.language && raw.language.trim().length > 0) ||
+      (raw.rating && raw.rating.trim().length > 0 && raw.rating !== "Any")
+  );
+
+  return {
+    genreIds,
+    mood: raw.mood ?? null,
+    era: raw.era ?? null,
+    languageCode,
+    ratingThreshold,
+    hasActiveFilters,
+  };
+}
+
 function pickWeightedRandom(movies: TmdbMovie[]): TmdbMovie | null {
   if (movies.length === 0) return null;
 
@@ -92,41 +225,7 @@ function pickWeightedRandom(movies: TmdbMovie[]): TmdbMovie | null {
   return movies[0];
 }
 
-function parseFiltersFromSearchParams(searchParams: URLSearchParams): SpinFilters {
-  const genresRaw = searchParams.get("genres") || searchParams.get("genre") || "";
-  const genres = genresRaw
-    .split(",")
-    .map((value) => Number.parseInt(value.trim(), 10))
-    .filter((value) => Number.isFinite(value));
-
-  const language = searchParams.get("language") || searchParams.get("lang") || undefined;
-
-  return {
-    genres: genres.length > 0 ? genres : undefined,
-    language,
-  };
-}
-
-function parseFiltersFromBody(body: unknown): SpinFilters {
-  if (!body || typeof body !== "object") return {};
-
-  const source = body as { genres?: unknown; language?: unknown };
-  const genres = Array.isArray(source.genres)
-    ? source.genres
-        .map((value) =>
-          typeof value === "number" ? value : Number.parseInt(String(value), 10)
-        )
-        .filter((value) => Number.isFinite(value))
-    : [];
-  const language = typeof source.language === "string" ? source.language : undefined;
-
-  return {
-    genres: genres.length > 0 ? genres : undefined,
-    language,
-  };
-}
-
-async function getSpinResult(filters: SpinFilters) {
+async function getSpinResult(rawFilters: SpinFilterInput) {
   const auth = getTmdbAuth();
   if (!auth) {
     return NextResponse.json(
@@ -135,21 +234,40 @@ async function getSpinResult(filters: SpinFilters) {
     );
   }
 
+  const filters = resolveFilters(rawFilters);
+  const eraRange = filters.era ? ERA_TO_RANGE[filters.era] : undefined;
+
+  if (process.env.NODE_ENV !== "production") {
+    console.log("[api/spin] filters", {
+      rawFilters,
+      resolved: filters,
+      eraRange,
+    });
+  }
+
   const randomPage = Math.floor(Math.random() * 10) + 1;
-  const genresParam =
-    filters.genres && filters.genres.length > 0
-      ? `&with_genres=${encodeURIComponent(filters.genres.join(","))}`
+
+  const genreParam =
+    filters.genreIds.length > 0
+      ? `&with_genres=${encodeURIComponent(filters.genreIds.join(","))}`
       : "";
-  const language = filters.language || "en-US";
-  const languageParam = `&with_original_language=${encodeURIComponent(
-    language.split("-")[0] || "en"
-  )}`;
+  const languageParam = `&with_original_language=${encodeURIComponent(filters.languageCode)}`;
+  const ratingParam =
+    typeof filters.ratingThreshold === "number"
+      ? `&vote_average.gte=${encodeURIComponent(String(filters.ratingThreshold))}`
+      : "";
+  const releaseStartParam =
+    eraRange?.gte ? `&primary_release_date.gte=${encodeURIComponent(eraRange.gte)}` : "";
+  const releaseEndParam =
+    eraRange?.lte ? `&primary_release_date.lte=${encodeURIComponent(eraRange.lte)}` : "";
+
+  const filterParams = filters.hasActiveFilters
+    ? `${genreParam}${languageParam}${ratingParam}${releaseStartParam}${releaseEndParam}`
+    : `${languageParam}`;
 
   try {
     const response = await fetch(
-      `${TMDB_BASE_URL}/discover/movie?language=${encodeURIComponent(
-        language
-      )}&sort_by=vote_average.desc&vote_count.gte=500&page=${randomPage}${genresParam}${languageParam}${auth.authQuery}`,
+      `${TMDB_BASE_URL}/discover/movie?language=en-US&sort_by=vote_average.desc&vote_count.gte=500&page=${randomPage}${filterParams}${auth.authQuery}`,
       {
         headers: auth.headers,
         cache: "no-store",
@@ -174,21 +292,20 @@ async function getSpinResult(filters: SpinFilters) {
   }
 }
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const filters = parseFiltersFromSearchParams(searchParams);
+export async function GET(request: NextRequest) {
+  const filters = parseRawFilters(request.nextUrl.searchParams, {});
   return getSpinResult(filters);
 }
 
-export async function POST(request: Request) {
-  let body: unknown = {};
+export async function POST(request: NextRequest) {
+  let body: SpinFilterInput = {};
 
   try {
-    body = await request.json();
+    body = (await request.json()) as SpinFilterInput;
   } catch {
     body = {};
   }
 
-  const filters = parseFiltersFromBody(body);
+  const filters = parseRawFilters(request.nextUrl.searchParams, body);
   return getSpinResult(filters);
 }

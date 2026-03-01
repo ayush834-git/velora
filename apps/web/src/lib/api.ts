@@ -1,5 +1,13 @@
 import { BackendMovie } from "@/types/movie";
 
+export interface ApiFilters {
+  genres?: string[];
+  mood?: string | null;
+  era?: string | null;
+  language?: string | null;
+  rating?: string | null;
+}
+
 async function parseJsonResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
     const body = await response.text().catch(() => "");
@@ -8,8 +16,29 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-export async function fetchDiscoverMovies(): Promise<BackendMovie[]> {
-  const response = await fetch("/api/discover", {
+function normalizeFilters(filters: ApiFilters = {}) {
+  const normalized: Record<string, string> = {};
+
+  if (Array.isArray(filters.genres) && filters.genres.length > 0) {
+    normalized.genre = filters.genres.join(",");
+  }
+  if (filters.mood) normalized.mood = filters.mood;
+  if (filters.era) normalized.era = filters.era;
+  if (filters.language) normalized.language = filters.language;
+  if (filters.rating && filters.rating !== "Any") normalized.rating = filters.rating;
+
+  return normalized;
+}
+
+function buildFiltersQuery(filters: ApiFilters = {}) {
+  const entries = Object.entries(normalizeFilters(filters));
+  if (entries.length === 0) return "";
+  return `?${new URLSearchParams(entries).toString()}`;
+}
+
+export async function fetchDiscoverMovies(filters: ApiFilters = {}): Promise<BackendMovie[]> {
+  const query = buildFiltersQuery(filters);
+  const response = await fetch(`/api/discover${query}`, {
     method: "GET",
     cache: "no-store",
   });
@@ -23,27 +52,18 @@ export async function fetchDiscoverMovies(): Promise<BackendMovie[]> {
 }
 
 export async function fetchSpinMovie(
-  filters: Record<string, unknown> = {}
+  filters: ApiFilters = {}
 ): Promise<BackendMovie> {
-  const hasFilters = Object.keys(filters).length > 0;
-  const query = hasFilters
-    ? `?${new URLSearchParams(
-        Object.entries(filters).reduce<Record<string, string>>((acc, [key, value]) => {
-          if (value === undefined || value === null) return acc;
-          acc[key] = String(value);
-          return acc;
-        }, {})
-      ).toString()}`
-    : "";
+  const query = buildFiltersQuery(filters);
 
   try {
-    const postResponse = await fetch("/api/spin", {
+    const postResponse = await fetch(`/api/spin${query}`, {
       method: "POST",
       cache: "no-store",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(filters),
+      body: JSON.stringify(normalizeFilters(filters)),
     });
     return await parseJsonResponse<BackendMovie>(postResponse);
   } catch {

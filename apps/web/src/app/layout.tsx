@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
+import { FilterProvider } from "@/context/FilterContext";
 
 const inter = Inter({
   variable: "--font-body",
@@ -42,9 +43,11 @@ export default function RootLayout({
         style={{ background: "#faf8f5", color: "#1a1a2e" }}
         suppressHydrationWarning
       >
-        <SmoothScroll>
-          {children}
-        </SmoothScroll>
+        <FilterProvider>
+          <SmoothScroll>
+            {children}
+          </SmoothScroll>
+        </FilterProvider>
         <div className="grain-overlay" aria-hidden="true" />
       </body>
     </html>

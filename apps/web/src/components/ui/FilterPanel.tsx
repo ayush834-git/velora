@@ -2,18 +2,13 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FiltersState, useFilterContext } from "@/context/FilterContext";
 
 interface FilterPanelProps {
   onFilterChange?: (filters: ActiveFilters) => void;
 }
 
-export interface ActiveFilters {
-  genres: string[];
-  mood: string | null;
-  era: string | null;
-  language: string | null;
-  rating: string | null;
-}
+export type ActiveFilters = FiltersState;
 
 const GENRES = [
   "Action",
@@ -61,48 +56,42 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const [filters, setFilters] = useState<ActiveFilters>({
-    genres: [],
-    mood: null,
-    era: null,
-    language: null,
-    rating: null,
-  });
+  const { genres, mood, era, language, rating, setGenre, setMood, setEra, setLanguage, setRating } =
+    useFilterContext();
 
-  const toggleGenre = useCallback(
-    (genre: string) => {
-      setFilters((prev) => {
-        const newGenres = prev.genres.includes(genre)
-          ? prev.genres.filter((g) => g !== genre)
-          : [...prev.genres, genre];
-        const newFilters = { ...prev, genres: newGenres };
-        onFilterChange?.(newFilters);
-        return newFilters;
-      });
-    },
-    [onFilterChange]
-  );
+  const activeCount =
+    genres.length +
+    (mood ? 1 : 0) +
+    (era ? 1 : 0) +
+    (language ? 1 : 0) +
+    (rating ? 1 : 0);
 
   const setFilter = useCallback(
     (key: keyof ActiveFilters, value: string) => {
-      setFilters((prev) => {
-        const newFilters = {
-          ...prev,
-          [key]: prev[key] === value ? null : value,
-        } as ActiveFilters;
-        onFilterChange?.(newFilters);
-        return newFilters;
-      });
+      switch (key) {
+        case "mood":
+          setMood(mood === value ? null : value);
+          break;
+        case "era":
+          setEra(era === value ? null : value);
+          break;
+        case "language":
+          setLanguage(language === value ? null : value);
+          break;
+        case "rating":
+          setRating(rating === value ? null : value);
+          break;
+        default:
+          break;
+      }
     },
-    [onFilterChange]
+    [mood, era, language, rating, setMood, setEra, setLanguage, setRating]
   );
 
-  const activeCount =
-    filters.genres.length +
-    (filters.mood ? 1 : 0) +
-    (filters.era ? 1 : 0) +
-    (filters.language ? 1 : 0) +
-    (filters.rating ? 1 : 0);
+  useEffect(() => {
+    if (!onFilterChange) return;
+    onFilterChange({ genres, mood, era, language, rating });
+  }, [onFilterChange, genres, mood, era, language, rating]);
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 767px)");
@@ -167,7 +156,7 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
         case " ":
           event.preventDefault();
           if (group.multi) {
-            toggleGenre(group.items[focusItem]);
+            setGenre(group.items[focusItem]);
           } else {
             setFilter(group.key, group.items[focusItem]);
           }
@@ -176,12 +165,18 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
           break;
       }
     },
-    [isOpen, focusGroup, focusItem, toggleGenre, setFilter]
+    [isOpen, focusGroup, focusItem, setGenre, setFilter]
   );
 
   const isActive = (groupKey: string, item: string): boolean => {
-    if (groupKey === "genres") return filters.genres.includes(item);
-    return filters[groupKey as keyof ActiveFilters] === item;
+    if (groupKey === "genres") return genres.includes(item);
+    const singleValueMap: Record<string, string | null> = {
+      mood,
+      era,
+      language,
+      rating,
+    };
+    return singleValueMap[groupKey] === item;
   };
 
   const closeOnDrag = (_: MouseEvent | TouchEvent | PointerEvent, info: { offset: { y: number }; velocity: { y: number } }) => {
@@ -273,7 +268,7 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
                               role="option"
                               aria-selected={active}
                               tabIndex={focused ? 0 : -1}
-                              onClick={() => (group.multi ? toggleGenre(item) : setFilter(group.key, item))}
+                              onClick={() => (group.multi ? setGenre(item) : setFilter(group.key, item))}
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.97 }}
                               className={`h-9 px-4 rounded-full text-xs font-medium cursor-pointer transition-all duration-300
@@ -327,7 +322,7 @@ export default function FilterPanel({ onFilterChange }: FilterPanelProps) {
                                 aria-selected={active}
                                 tabIndex={focused ? 0 : -1}
                                 onClick={() =>
-                                  group.multi ? toggleGenre(item) : setFilter(group.key, item)
+                                  group.multi ? setGenre(item) : setFilter(group.key, item)
                                 }
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.97 }}

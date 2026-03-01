@@ -14,8 +14,10 @@ import FooterScene from "@/components/scenes/FooterScene";
 import { Movie } from "@/types/movie";
 import { fetchDiscoverMovies } from "@/lib/api";
 import { normalizeBackendMovie } from "@/lib/movie-utils";
+import { useFilterContext } from "@/context/FilterContext";
 
 export default function Home() {
+  const { genres, mood, era, language, rating } = useFilterContext();
   const [chosenMovie, setChosenMovie] = useState<Movie | null>(null);
   const [movies, setMovies] = useState<Movie[]>([]);
   const [isLoadingMovies, setIsLoadingMovies] = useState(true);
@@ -29,7 +31,13 @@ export default function Home() {
       setMoviesError(null);
 
       try {
-        const discoverMovies = await fetchDiscoverMovies();
+        const discoverMovies = await fetchDiscoverMovies({
+          genres,
+          mood,
+          era,
+          language,
+          rating,
+        });
         if (!active) return;
 
         const normalizedMovies = discoverMovies.map(normalizeBackendMovie);
@@ -51,7 +59,7 @@ export default function Home() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [genres, mood, era, language, rating]);
 
   const handleSpinResult = useCallback((movie: Movie) => {
     setChosenMovie(movie);
