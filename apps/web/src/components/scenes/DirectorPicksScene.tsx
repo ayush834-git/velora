@@ -69,7 +69,7 @@ export default function DirectorPicksScene({ movies }: Props) {
               ease: [0.22, 1, 0.36, 1],
             }}
             whileHover={{ y: -8, scale: 1.02 }}
-            className="relative flex-shrink-0 rounded-2xl overflow-hidden group pointer-events-none"
+            className="relative flex-shrink-0 rounded-2xl overflow-hidden group"
             style={{
               width: "clamp(140px, 13vw, 190px)",
               aspectRatio: "2/3",

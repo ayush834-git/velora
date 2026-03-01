@@ -63,11 +63,11 @@ export default function HeroScene({ movies }: HeroSceneProps) {
     if (prefersReduced || !sectionRef.current) return;
     
     const ctx = gsap.context(() => {
-      // Pin hero for 200vh
+      // Pin hero
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: "+=200%",
+        end: "+=50%",
         pin: true,
         pinSpacing: true,
       });
