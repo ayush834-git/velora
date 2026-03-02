@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Inter, Outfit, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import "@/styles/velora-background.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import { FilterProvider } from "@/context/FilterContext";
+import VeloraBackgroundInit from "@/components/VeloraBackgroundInit";
 
 const inter = Inter({
   variable: "--font-body",
@@ -45,11 +47,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="preload" as="image" href="/assets/backgrounds/velora-bg-amber.avif" type="image/avif" />
+        <link rel="preload" as="image" href="/assets/backgrounds/velora-bg-champagne.avif" type="image/avif" />
+      </head>
       <body
         className={`${inter.variable} ${outfit.variable} ${playfair.variable} antialiased`}
         style={{ background: "#faf8f5", color: "#1a1a2e" }}
         suppressHydrationWarning
       >
+        <div className="velora-bg-root" aria-hidden="true" role="presentation">
+          <div className="velora-bg-layer velora-bg-layer--amber"></div>
+          <div className="velora-bg-layer velora-bg-layer--champagne"></div>
+          <div className="velora-bg-layer velora-bg-layer--blush"></div>
+          <div className="velora-bg-layer velora-bg-layer--sky"></div>
+          <div className="velora-bg-layer velora-bg-layer--lavender"></div>
+        </div>
+        <VeloraBackgroundInit />
         <FilterProvider>
           <SmoothScroll>
             {/* Global atmospheric background layer (under scenes, over parallax) */}
