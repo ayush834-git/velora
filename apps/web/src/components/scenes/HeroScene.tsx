@@ -174,10 +174,10 @@ export default function HeroScene({ movies }: HeroSceneProps) {
           transition={{ duration: 0.32, delay: 0.48, ease: [0.22, 1, 0.36, 1] }}
         >
           <GlowButton onClick={scrollToSpin} variant="primary" size="lg">
-            Enter VELORA
+            Spin Now
           </GlowButton>
-          <GlowButton onClick={scrollToSpin} variant="secondary" size="lg">
-            Spin Now →
+          <GlowButton onClick={() => window.location.href = '/watchlist'} variant="secondary" size="lg">
+            My Watchlist →
           </GlowButton>
         </motion.div>
       </div>

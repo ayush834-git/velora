@@ -137,13 +137,6 @@ export default function Navbar() {
                 >
                   Browse
                 </Link>
-                <Link
-                  href="/watchlist"
-                  className="text-sm tracking-widest uppercase text-ink-soft hover:text-ink transition-colors block"
-                  data-cursor-hover
-                >
-                  Watchlist
-                </Link>
               </motion.div>
             )}
 
@@ -154,6 +147,14 @@ export default function Navbar() {
             >
               Spin
             </button>
+
+            <Link
+              href="/watchlist"
+              className={`text-xs md:text-sm tracking-widest uppercase text-ink-soft hover:text-ink transition-colors cursor-pointer block ${scrolled ? "" : ""}`}
+              data-cursor-hover
+            >
+              Watchlist
+            </Link>
 
             <FilterPanel />
 
