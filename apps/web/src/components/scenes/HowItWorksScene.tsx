@@ -70,12 +70,12 @@ export default function HowItWorksScene() {
               <div className="w-10 h-[2px] mb-8 bg-gradient-to-r from-golden to-transparent opacity-60" />
               
               <h3
-                className="font-display font-light text-cream mb-5 tracking-wide"
+                className="font-display font-medium text-golden mb-5 tracking-wide"
                 style={{ fontSize: "clamp(1.25rem, 2.2vw, 1.6rem)" }}
               >
                 {step.title}
               </h3>
-              <p className="text-cream/75 leading-[2.0] font-body" style={{ fontSize: "clamp(0.95rem, 1.2vw, 1.1rem)" }}>
+              <p className="text-ink-soft/80 leading-[2.0] font-body" style={{ fontSize: "clamp(0.95rem, 1.2vw, 1.1rem)" }}>
                 {step.body}
               </p>
             </motion.div>
