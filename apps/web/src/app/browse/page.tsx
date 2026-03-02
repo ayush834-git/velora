@@ -145,9 +145,9 @@ function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-      className="mb-12 md:mb-16"
+      className="mb-4 relative z-10"
     >
-      <div className="flex items-center justify-between px-6 md:px-12 mb-5">
+      <div className="flex items-center justify-between px-6 md:px-12 mb-0 relative z-20">
         <div>
           <span className="block text-[10px] uppercase tracking-[0.3em] text-golden-warm/60 font-display mb-1">
             Genre Collection
@@ -172,7 +172,7 @@ function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
 
         <div
           ref={scrollRef}
-          className="flex gap-4 md:gap-5 px-6 md:px-12 overflow-x-auto py-3 scroll-smooth"
+          className="flex gap-4 md:gap-5 px-6 md:px-12 overflow-x-auto pt-[50px] pb-[80px] -mt-[40px] -mb-[60px] scroll-smooth relative z-10"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {isLoading &&

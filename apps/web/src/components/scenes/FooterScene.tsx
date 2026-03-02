@@ -42,9 +42,9 @@ export default function FooterScene() {
       {/* Giant watermark letterform */}
       <motion.div
         aria-hidden
-        className="pointer-events-auto absolute bottom-0 left-0 right-0 font-accent italic text-center text-white/[0.04] leading-none overflow-hidden cursor-crosshair z-0"
-        style={{ fontSize: "20vw", transform: "translateY(15%)", WebkitTextStroke: "1px rgba(255,255,255,0.02)" }}
-        whileHover={{ letterSpacing: "0.15em", color: "rgba(255,255,255,0.08)" }}
+        className="pointer-events-auto absolute bottom-0 left-0 right-0 font-accent italic text-center text-ink/[0.03] leading-none overflow-hidden cursor-crosshair z-0"
+        style={{ fontSize: "20vw", transform: "translateY(15%)", WebkitTextStroke: "1px rgba(0,0,0,0.02)" }}
+        whileHover={{ letterSpacing: "0.15em", color: "rgba(0,0,0,0.08)" }}
         transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
       >
         VELORA
@@ -59,10 +59,10 @@ export default function FooterScene() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="font-display text-2xl text-cream mb-4 font-light tracking-widest uppercase">
+            <div className="font-display text-2xl text-ink mb-4 font-light tracking-widest uppercase">
               Velora
             </div>
-            <p className="text-cream/60 text-sm leading-[1.8] max-w-xs font-body tracking-wide">
+            <p className="text-ink-soft/80 text-sm leading-[1.8] max-w-xs font-body tracking-wide">
               The reel has not ended. It never does.
               Every film is a life; every viewing, a rebirth.
             </p>
@@ -80,7 +80,7 @@ export default function FooterScene() {
             {["Discover", "Spin", "Moods", "By Era", "Essential Films"].map((link) => (
               <div
                 key={link}
-                className="text-sm text-cream/70 hover:text-white hover:translate-x-1 transition-all
+                className="text-sm text-ink-soft hover:text-ink hover:translate-x-1 transition-all
                   cursor-pointer mb-3.5 tracking-wide w-max"
               >
                 {link}
@@ -100,13 +100,13 @@ export default function FooterScene() {
                 The ritual
               </div>
               <blockquote
-                className="font-display font-extralight text-cream/80 italic leading-relaxed"
+                className="font-display font-extralight text-ink italic leading-relaxed"
                 style={{ fontSize: "clamp(1.1rem, 2vw, 1.4rem)" }}
               >
                 &ldquo;Today, fate chooses your film.&rdquo;
               </blockquote>
             </div>
-            <div className="text-[10px] tracking-widest uppercase text-cream/40 pb-6 font-mono">
+            <div className="text-[10px] tracking-widest uppercase text-ink-muted pb-6 font-mono">
               Powered by TMDB · © {new Date().getFullYear()} Velora
             </div>
           </motion.div>
