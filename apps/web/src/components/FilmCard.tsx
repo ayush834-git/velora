@@ -18,16 +18,24 @@ export default function FilmCard({ film, onClick, className = '', style }: { fil
   const { add, isInList } = useWatchlist();
 
   return (
-    <motion.div
-      className={`relative rounded-[12px] overflow-hidden cursor-pointer flex-shrink-0 ${className}`}
+    <div
+      className={`relative flex-shrink-0 ${className}`}
       style={style || { width: 200, height: 300 }}
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
-      whileHover={{ y: -8, boxShadow: '0 32px 64px rgba(0,0,0,0.35), 0 0 0 1px rgba(201,168,76,0.25)' }}
-      transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       onClick={onClick}
-      data-cursor="EXPLORE"
     >
+      <motion.div
+        className="w-full h-full relative rounded-[12px] overflow-hidden cursor-pointer bg-ink/10"
+        animate={{
+          y: hovered ? -8 : 0,
+          boxShadow: hovered
+            ? '0 32px 64px rgba(0,0,0,0.35), 0 0 0 1px rgba(201,168,76,0.25)'
+            : '0 4px 10px rgba(0,0,0,0)',
+        }}
+        transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
+        data-cursor="EXPLORE"
+      >
       {/* Poster */}
       <motion.div
         className="absolute inset-0"
@@ -91,6 +99,7 @@ export default function FilmCard({ film, onClick, className = '', style }: { fil
           transition={{ duration: 0.5, ease: [0.7, 0, 0.3, 1] }}
         />
       </svg>
-    </motion.div>
+      </motion.div>
+    </div>
   );
 }
