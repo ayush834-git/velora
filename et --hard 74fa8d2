@@ -1,0 +1,62 @@
+[33m8308587[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m fix(layout): finish stabilizing layout shifts and transparent nav - Add stable scrollbar-gutter - Optimize SmoothScroll resize event - Set Navbar z-index to 60 and fix backdrop colors
+[33m30ad949[m fix(layout): update CameraIris size logic to prevent purple screen
+[33m9d166c7[m fix: change ParallaxBackground from absolute to fixed with negative z-index
+[33m131bd6c[m fix: restore missing Tailwind v4 configuration and fix ParallaxBackground overlay issue causing invisible UI
+[33m81264a2[m feat: complete cinematic UI/UX redesign (Priority 4 and 5)
+[33m74fa8d2[m style: comprehensive spacing and typography overhaul
+[33m3cc9f47[m Revert "revert: rollback ConstellationScene to minimal cinematic with micro-adjustments"
+[33m60b0d57[m revert: rollback ConstellationScene to minimal cinematic with micro-adjustments
+[33mb43ab50[m feat(ui): implement global atmospheric background layer and remove individual scene backgrounds
+[33m2d0fd26[m fix(ui): use perfect S-Curve background gradients for seamless bleeding
+[33mf74e17f[m fix(ui): use targeted boundary gradients instead of massive bg maps for cleaner bleeding
+[33m15c3d0e[m feat(ui): implement massive seamless CSS gradient bleeds between all sections
+[33m6aa0bb5[m feat(ui): add smooth color bleeds between home page sections
+[33ma0d4bf4[m feat(ui): expand horizontal scrolls and relieve footer congestion
+[33m6c88696[m fix(ui): use native css scroll for director picks carousel
+[33m1e000da[m fix(ui): remove chaos scene, fix horizontal drag, lighten hero scroll
+[33md5bc451[m refactor(ui): remove CinematicTransition, simplify ghost poster scroll
+[33m39317ce[m fix(ui): decrease subtitle interval, remove ghost poster css filter
+[33m906fd1f[m perf: strip framer motion infinite loops and gpu filters from hero
+[33m3d7631a[m fix(ui): hero fps, manifesto scroll direction, result space characters
+[33m539b77f[m perf: eradicate GPU and CPU layout thrashing bugs
+[33m8db9ae4[m fix(scroll): clear gsap ticker on unmount and upgrade lenis to fix severe scroll lag
+[33m0aaf2e5[m fix(scroll): remove native smooth scroll behavior to unblock Lenis
+[33m90a62d4[m feat: complete cinematic visual overhaul
+[33mb128b63[m feat: premium Browse page — remove emojis, align typography, glass buttons, dual-page fetch, scroll animations
+[33m0140a1a[m style: force text color on trailer button to override component defaults
+[33m3228e69[m style: fix Trailer button visibility
+[33meb6c6c7[m feat: inject AI in Motion layer and normalize all drawer buttons
+[33ma842649[m style: proportionally scale FilterPanel chips to match CTA rhythm
+[33m1337888[m style: exactly match filter chips to main CTA typography and refine layout spacing
+[33m08779f9[m style: improve FilterPanel chips with new spacing, standard text size, rounded-xl borders, and wider gaps
+[33md10b1d8[m style: animate films in constellation tooltip and use stronger text hierarchy
+[33mec2f762[m style: fix Hero text alignment, fix gap to ChaosScene, and remove top white bleed from ChaosScene
+[33mbcfff13[m style: remove bottom white fade bleed from ConstellationScene
+[33mbd5a64f[m style: remove excessive min-height from ConstellationScene and ManifestoScene
+[33m7d46ef1[m style: add flex wrap and justify center to HeroScene h1 to fix text misalignment
+[33m1963b19[m style: remove min-h-screen from CuratedScene to fix massive empty space gap
+[33mbb2c64e[m style: remove white overlay and frosted background from CuratedScene posters
+[33mb2d6bbc[m feat: link CuratedScene mood selection to BrowsePage with cinematic transition
+[33m1fc814e[m feat: add MoodClockScene and ConstellationScene
+[33mff87f0e[m feat: add Browse page + fix scroll snapping
+[33med222c7[m feat: add YouTube trailer, fix buttons, improve spin variety
+[33m0cb2cc3[m feat: fix buttons, improve spin variety, add TMDB browsing
+[33ma3ea3f0[m fix: hero word-break via word-level wrapping, correct mood stat to 6, polish tagline
+[33m5e15fc0[m fix: remove conditional return null from DirectorPicksScene to prevent hydration mismatch
+[33m61ce86e[m fix: wrap Navbar filter bar in AnimatePresence to fix hydration DOM error
+[33mbde0da4[m feat: comprehensive Velora upgrade - 4 new scenes, UI enhancements, footer redesign
+[33mf89437a[m Fix spin filter reliability and cinematic result data flow
+[33mb95b7e5[m Refine cinematic motion, banner framing, and UI polish
+[33m4917d4b[m Polish spin flow, filter layering, and scroll performance
+[33mbf58543[m Polish cinematic interactions and motion system
+[33m2016fe4[m Scope filters to spin and refine premium filter drawer UX
+[33m32dbe58[m Upgrade discover filtering UX and cinematic panel interactions
+[33m479fd05[m Add slide drawer filter apply flow and API sync
+[33m305ac62[m Wire filter context to spin and discover API requests
+[33ma1c1f6a[m Redesign FilterPanel as cinematic floating drawer
+[33mf270dfe[m Add result backdrop fallback to poster image
+[33m1e96bf3[m Fix Vercel Linux native CSS deps for Next build
+[33m90d32ef[m vercel production build ready
+[33me15a0a0[m resolve: merge README conflict
+[33m976a65c[m feat: velora frontend cinematic foundation and api scaffold
+[33m23a902c[m Initial commit

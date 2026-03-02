@@ -17,6 +17,7 @@ import {
   normalizeBackendMovie,
 } from "@/lib/movie-utils";
 import { useFilters } from "@/context/FilterContext";
+import MagneticButton from "../ui/MagneticButton";
 
 interface SpinRitualProps {
   movies: Movie[];
@@ -150,11 +151,23 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
       });
 
     let count = 0;
+    const maxFlashes = 20;
+
     const flash = () => {
       setFlashIndex(Math.floor(Math.random() * flashPool.length));
       count += 1;
-      if (count < 15) {
-        const delay = Math.max(80, 800 * Math.pow(0.75, count));
+
+      if (count < maxFlashes) {
+        setSpinRippleKey(k => k + 1); // Extra pulse effect on late flashes
+        
+        // Decelerating curve: starts fast (~80ms), slows down significantly towards the end (~400ms)
+        const progress = count / maxFlashes;
+        // easeOutQuart formula: 1 - (1 - x)^4
+        const easeOut = 1 - Math.pow(1 - progress, 4);
+        
+        // Map easeOut (0->1) to delay (80->450)
+        const delay = 80 + (easeOut * 370);
+        
         setTimeout(flash, delay);
         return;
       }
@@ -342,14 +355,12 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                         )}
                       </motion.div>
                     ) : (
-                      <motion.button
+                      <MagneticButton
                         key="spin-btn"
                         onClick={spin}
-                        whileHover={canSpin ? { scale: 1.04 } : undefined}
-                        whileTap={canSpin ? { scale: 0.95 } : undefined}
                         disabled={!canSpin}
-                        className={`spin-glow-pulse relative overflow-hidden w-28 h-28 md:w-36 md:h-36 rounded-full cursor-pointer
-                          btn-primary
+                        className={`spin-glow-pulse relative overflow-hidden w-28 h-28 md:w-36 md:h-36 !rounded-full cursor-pointer
+                          btn-primary !p-0 flex items-center justify-center
                           text-white font-display text-xl md:text-2xl tracking-[0.2em] uppercase
                           shadow-[0_8px_40px_rgba(216,154,63,0.35)]
                           hover:shadow-[0_14px_52px_rgba(232,168,56,0.56)]
@@ -367,8 +378,8 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                             />
                           </AnimatePresence>
                         )}
-                        <span className="relative z-10">{flashPool.length > 0 ? "SPIN" : "..."}</span>
-                      </motion.button>
+                        <span className="relative z-10 block w-full text-center leading-[36px]">{flashPool.length > 0 ? "SPIN" : "..."}</span>
+                      </MagneticButton>
                     )}
                   </AnimatePresence>
                 </div>

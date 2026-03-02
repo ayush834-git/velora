@@ -98,7 +98,6 @@ html.lenis, html.lenis body {
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body);
   overflow-x: hidden;
@@ -163,82 +162,7 @@ body {
   66% { transform: translate(3%, 2%); }
 }
 
-/* ===== PARALLAX BACKGROUND ===== */
-.parallax-container {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
 
-.parallax-layer {
-  position: absolute;
-  inset: -10%;
-  width: 120%;
-  height: 120%;
-  will-change: transform;
-  transition: transform 0.1s linear;
-}
-
-.parallax-sky {
-  background: linear-gradient(
-    180deg,
-    #87CEEB 0%,
-    #a8d8f0 15%,
-    #c8e6f8 30%,
-    #f0d4a8 55%,
-    #f5b87a 70%,
-    #f09060 85%,
-    #e86850 100%
-  );
-}
-
-.parallax-clouds {
-  background:
-    radial-gradient(ellipse 600px 200px at 20% 30%, rgba(255,255,255,0.6) 0%, transparent 70%),
-    radial-gradient(ellipse 500px 180px at 65% 25%, rgba(255,255,255,0.5) 0%, transparent 70%),
-    radial-gradient(ellipse 700px 220px at 45% 40%, rgba(255,255,255,0.35) 0%, transparent 70%),
-    radial-gradient(ellipse 400px 150px at 80% 35%, rgba(255,255,255,0.4) 0%, transparent 70%),
-    radial-gradient(ellipse 550px 190px at 10% 45%, rgba(255,255,255,0.3) 0%, transparent 70%);
-}
-
-.parallax-rays {
-  background:
-    linear-gradient(135deg, rgba(255,220,150,0.15) 0%, transparent 40%),
-    linear-gradient(150deg, rgba(255,200,100,0.1) 0%, transparent 35%),
-    linear-gradient(120deg, rgba(255,240,200,0.08) 0%, transparent 50%);
-  animation: rayShift 12s ease-in-out infinite;
-}
-
-@keyframes rayShift {
-  0%, 100% { opacity: 0.6; transform: translate(0, 0) rotate(0deg); }
-  50% { opacity: 0.9; transform: translate(1%, -1%) rotate(0.5deg); }
-}
-
-.parallax-wash {
-  background: radial-gradient(
-    ellipse at 50% 60%,
-    rgba(240, 180, 100, 0.12) 0%,
-    rgba(240, 210, 160, 0.06) 40%,
-    transparent 70%
-  );
-}
-
-.gold-particle {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  border-radius: 999px;
-  background: rgba(232, 168, 56, 0.28);
-  box-shadow: 0 0 8px rgba(232, 168, 56, 0.2);
-  animation: floatParticle 10s ease-in-out infinite;
-}
-
-@keyframes floatParticle {
-  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.2; }
-  50% { transform: translate3d(0, -18px, 0); opacity: 0.45; }
-}
 
 /* ===== ATMOSPHERIC BACKGROUND SYSTEM ===== */
 .velora-atmosphere {

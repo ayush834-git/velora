@@ -7,6 +7,7 @@ import { motion, useInView } from "framer-motion";
 import { getImageUrl } from "@/lib/tmdb";
 import { IMAGE_SIZES } from "@/lib/constants";
 import { useSearchParams } from "next/navigation";
+import FilmCard from "@/components/FilmCard";
 
 type TmdbMovie = {
   id: number;
@@ -177,61 +178,35 @@ function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
           {isLoading &&
             Array.from({ length: 12 }).map((_, i) => <SkeletonCard key={`skel-${i}`} />)}
 
-          {!isLoading &&
-            movies.map((movie, i) => (
-              <motion.a
-                key={movie.id}
-                href={`https://www.themoviedb.org/movie/${movie.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.5,
-                  delay: Math.min(i * 0.03, 0.4),
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-                whileHover={{ scale: 1.05, y: -4 }}
-                className="group flex-shrink-0 relative rounded-2xl overflow-hidden cursor-pointer
-                  shadow-[0_4px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.18)]
-                  transition-shadow duration-300 ease-out"
-                style={{ width: 220, height: 330 }}
-              >
-                <Image
-                  src={getImageUrl(movie.poster_path!, IMAGE_SIZES.poster.medium)}
-                  alt={movie.title}
-                  fill
-                  sizes="220px"
-                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
-                />
-
-                {/* Hover overlay */}
-                <div
-                  className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent
-                  opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4"
+            {!isLoading &&
+              movies.map((movie, i) => (
+                <motion.a
+                  key={movie.id}
+                  href={`https://www.themoviedb.org/movie/${movie.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.5,
+                    delay: Math.min(i * 0.03, 0.4),
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                  className="flex-shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-golden/50 rounded-[12px] block"
                 >
-                  <h3 className="text-cream text-sm font-display font-medium leading-tight mb-1.5 line-clamp-2 tracking-wide">
-                    {movie.title}
-                  </h3>
-                  <div className="flex items-center gap-2 text-xs text-cream/70 font-body">
-                    <span className="text-golden font-medium">
-                      ★ {movie.vote_average?.toFixed(1)}
-                    </span>
-                    <span>{movie.release_date?.slice(0, 4)}</span>
-                    <span className="uppercase">{movie.original_language}</span>
-                  </div>
-                </div>
-
-                {/* Rating badge */}
-                <div
-                  className="absolute top-2.5 right-2.5 h-8 w-8 rounded-full bg-golden/90 text-white
-                  flex items-center justify-center text-[10px] font-bold shadow-lg
-                  ring-2 ring-white/20"
-                >
-                  {movie.vote_average?.toFixed(1)}
-                </div>
-              </motion.a>
-            ))}
+                  <FilmCard
+                    film={{
+                      id: movie.id,
+                      title: movie.title,
+                      year: parseInt(movie.release_date?.slice(0, 4) || '0') || new Date().getFullYear(),
+                      rating: movie.vote_average,
+                      poster_path: movie.poster_path || '',
+                      original_language: movie.original_language || 'en'
+                    }}
+                    style={{ width: 220, height: 330 }}
+                  />
+                </motion.a>
+              ))}
 
           {!isLoading && movies.length === 0 && (
             <div className="w-full text-center py-16 text-ink-soft/60 font-body">

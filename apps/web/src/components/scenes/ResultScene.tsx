@@ -9,6 +9,7 @@ import { IMAGE_SIZES } from "@/lib/constants";
 import GlowButton from "@/components/ui/GlowButton";
 import { getBackdropPath, getPosterPath } from "@/lib/movie-utils";
 import { useFilters } from "@/context/FilterContext";
+import TrailerModal from "@/components/ui/TrailerModal";
 
 interface ResultSceneProps {
   movie: Movie | null;
@@ -293,10 +294,10 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
                 {trailerKey && (
                   <GlowButton
                     variant="ghost"
-                    onClick={() => setShowTrailer((prev) => !prev)}
+                    onClick={() => setShowTrailer(true)}
                     className="!border !border-cream/30 !text-cream hover:!text-white hover:!border-cream/50 hover:!bg-cream/10"
                   >
-                    {showTrailer ? "Hide Trailer" : "▶ Trailer"}
+                    ▶ Watch Trailer
                   </GlowButton>
                 )}
                 
@@ -346,29 +347,7 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
             </motion.div>
 
             {/* Trailer section */}
-            <AnimatePresence>
-              {trailerKey && showTrailer && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="overflow-hidden"
-                >
-                  <div className="pt-4">
-                    <div className="relative w-full max-w-[560px] mx-auto md:mx-0 rounded-xl overflow-hidden shadow-2xl aspect-video ring-1 ring-white/10">
-                      <iframe
-                        src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0&modestbranding=1`}
-                        title="Trailer"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="absolute inset-0 w-full h-full"
-                      />
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <TrailerModal isOpen={showTrailer} onClose={() => setShowTrailer(false)} trailerKey={trailerKey} />
           </div>
         </div>
       </motion.div>

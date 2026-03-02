@@ -4,7 +4,8 @@ import "./globals.css";
 import "@/styles/velora-background.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import { FilterProvider } from "@/context/FilterContext";
-import VeloraBackgroundInit from "@/components/VeloraBackgroundInit";
+import VeloraBackgroundLayer from "@/components/VeloraBackground";
+import VeloraCursor from "@/components/VeloraCursor";
 
 const inter = Inter({
   variable: "--font-body",
@@ -56,18 +57,10 @@ export default function RootLayout({
         style={{ background: "#faf8f5", color: "#1a1a2e" }}
         suppressHydrationWarning
       >
-        <div className="velora-bg-root" aria-hidden="true" role="presentation">
-          <div className="velora-bg-layer velora-bg-layer--amber"></div>
-          <div className="velora-bg-layer velora-bg-layer--champagne"></div>
-          <div className="velora-bg-layer velora-bg-layer--blush"></div>
-          <div className="velora-bg-layer velora-bg-layer--sky"></div>
-          <div className="velora-bg-layer velora-bg-layer--lavender"></div>
-        </div>
-        <VeloraBackgroundInit />
+        <VeloraCursor />
+        <VeloraBackgroundLayer />
         <FilterProvider>
           <SmoothScroll>
-            {/* Global atmospheric background layer (under scenes, over parallax) */}
-            <div className="velora-atmosphere" aria-hidden="true" />
             {children}
           </SmoothScroll>
         </FilterProvider>

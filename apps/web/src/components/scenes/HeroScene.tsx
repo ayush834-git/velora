@@ -98,7 +98,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
   return (
     <section ref={sectionRef} className="scene relative h-[100svh] flex items-center justify-center" id="hero">
       <motion.div
-        className="absolute inset-0 bg-gradient-to-b from-cream/80 via-cream-warm/70 to-transparent"
+        className="absolute inset-0 bg-gradient-to-b from-cream/10 via-cream-warm/5 to-transparent pointer-events-none"
         initial={prefersReduced ? false : { opacity: 0, scale: 1.05 }}
         animate={prefersReduced ? undefined : { opacity: 1, scale: 1 }}
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
@@ -106,39 +106,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
 
       <CinematicDust />
 
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {ghostPosters.map((movie, i) => {
-          const layout = GHOST_LAYOUT[i];
-          return (
-            <motion.div
-              key={movie.id}
-              className="ghost-poster absolute rounded-xl overflow-hidden"
-              style={{
-                top: layout.top,
-                left: "left" in layout ? layout.left : undefined,
-                right: "right" in layout ? layout.right : undefined,
-                width: layout.w,
-                height: layout.h,
-                transform: `rotate(${layout.rotate}deg)`,
-                zIndex: layout.z,
-              }}
-            >
-              <motion.div
-                className="w-full h-full relative"
-                style={{ willChange: "transform, opacity" }}
-                initial={prefersReduced ? false : { opacity: 0, scale: 0.94 }}
-                animate={prefersReduced ? undefined : { opacity: 0.08, scale: 1 }}
-                transition={prefersReduced ? undefined : {
-                  opacity: { duration: 0.5, delay: 0.16 + i * 0.06 },
-                  scale: { duration: 0.5, delay: 0.16 + i * 0.06 },
-                }}
-              >
-                <BlurUpImage path={movie.poster_path} alt="" type="poster" fill />
-              </motion.div>
-            </motion.div>
-          );
-        })}
-      </div>
+      {/* Removed legacy ghost-posters as they block VeloraBackground */}
 
       <div ref={headlineRef} className="relative z-10 text-center px-6 max-w-3xl mx-auto w-full">
         <motion.div

@@ -8,6 +8,7 @@ import { useFilters } from "@/context/FilterContext";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [logoPeriodBounce, setLogoPeriodBounce] = useState(false);
   const { filters, setFilter, clearFilters } = useFilters();
   const { scrollYProgress } = useScroll();
   const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
@@ -61,16 +62,17 @@ export default function Navbar() {
             : "top-0 px-0"
         }`}
       >
-        <div className={`transition-all duration-700 w-full flex items-center justify-between ${
+        <div className={`transition-all duration-400 w-full flex items-center justify-between ${
           scrolled 
-            ? "max-w-4xl mx-auto h-14 px-6 glass-warm shadow-md rounded-full border border-white/20" 
-            : "max-w-7xl mx-auto h-16 md:h-20 px-6 md:px-12 bg-transparent"
+            ? 'max-w-4xl mx-auto py-3 px-6 border-b border-[rgba(201,168,76,0.15)] backdrop-blur-[20px] bg-[rgba(245,240,232,0.72)] rounded-full shadow-md' 
+            : 'max-w-7xl mx-auto py-5 px-6 md:px-12 bg-transparent'
         }`}>
           {/* Logo */}
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="font-display tracking-[0.3em] uppercase text-ink hover:text-golden-warm transition-colors cursor-pointer relative flex items-center h-full w-24 overflow-hidden"
             data-cursor-hover
+            onMouseEnter={() => setLogoPeriodBounce(true)}
           >
             <AnimatePresence mode="popLayout" initial={false}>
               {scrolled ? (
@@ -80,9 +82,16 @@ export default function Navbar() {
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -20, opacity: 0 }}
                   transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="text-2xl md:text-3xl font-bold absolute left-0"
+                  className="text-2xl md:text-3xl font-bold absolute left-0 flex items-baseline"
                 >
-                  V.
+                  V
+                  <motion.span
+                    className="text-[#C9A84C]"
+                    animate={logoPeriodBounce ? { y: [0, 3, 0] } : {}}
+                    transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
+                    onHoverStart={() => setLogoPeriodBounce(true)}
+                    onAnimationComplete={() => setLogoPeriodBounce(false)}
+                  >.</motion.span>
                 </motion.span>
               ) : (
                 <motion.span
@@ -119,7 +128,7 @@ export default function Navbar() {
                 initial={{ opacity: 0, width: 0 }}
                 animate={{ opacity: 1, width: "auto" }}
                 exit={{ opacity: 0, width: 0 }}
-                className="hidden md:block"
+                className="hidden md:flex items-center gap-8"
               >
                 <Link
                   href="/browse"
@@ -127,6 +136,13 @@ export default function Navbar() {
                   data-cursor-hover
                 >
                   Browse
+                </Link>
+                <Link
+                  href="/watchlist"
+                  className="text-sm tracking-widest uppercase text-ink-soft hover:text-ink transition-colors block"
+                  data-cursor-hover
+                >
+                  Watchlist
                 </Link>
               </motion.div>
             )}

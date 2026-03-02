@@ -212,16 +212,7 @@ export default function ConstellationScene() {
         }}
       />
 
-      {/* Vignette */}
-      <div
-        className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_70%_70%_at_50%_50%,transparent_35%,rgba(4,3,14,0.75)_100%)]"
-      />
 
-      {/* Nebula Background Effect */}
-      <div className="absolute inset-0 pointer-events-none opacity-80 mix-blend-screen">
-        <div className="nebula-1" />
-        <div className="nebula-2" />
-      </div>
 
       {/* Shooting Star */}
       <AnimatePresence>
@@ -449,21 +440,7 @@ export default function ConstellationScene() {
           from { opacity: var(--lo, 0.06); transform: scale(1); }
           to   { opacity: var(--hi, 0.22); transform: scale(1.5); }
         }
-        @keyframes nebula-drift {
-          0%   { transform: translate(0, 0) scale(1); }
-          50%  { transform: translate(20px, -15px) scale(1.08); }
-          100% { transform: translate(0, 0) scale(1); }
-        }
-        .nebula-1 { 
-          position: absolute; width: 40%; height: 50%; top: 10%; left: 10%;
-          background: radial-gradient(ellipse, rgba(124,58,237,0.08) 0%, transparent 70%);
-          animation: nebula-drift 18s ease-in-out infinite;
-        }
-        .nebula-2 {
-          position: absolute; width: 35%; height: 45%; right: 10%; bottom: 10%;
-          background: radial-gradient(ellipse, rgba(232,168,56,0.06) 0%, transparent 70%);
-          animation: nebula-drift 24s ease-in-out infinite reverse;
-        }
+
       `}</style>
     </section>
   );

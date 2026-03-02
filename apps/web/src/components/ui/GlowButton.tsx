@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
 import { ReactNode } from "react";
-import { motion } from "framer-motion";
+import { motion, HTMLMotionProps } from "framer-motion";
+import MagneticButton from "./MagneticButton";
 
-interface GlowButtonProps {
+interface GlowButtonProps extends Omit<HTMLMotionProps<"button">, "children"> {
   children: ReactNode;
   onClick?: () => void;
   variant?: "primary" | "secondary" | "ghost";
@@ -17,6 +18,7 @@ export default function GlowButton({
   variant = "primary",
   size = "md",
   className = "",
+  ...rest
 }: GlowButtonProps) {
   const variants = {
     primary:
@@ -32,6 +34,18 @@ export default function GlowButton({
     lg: "btn-premium text-base",
   };
 
+  if (variant === 'primary') {
+    return (
+      <MagneticButton
+        onClick={onClick}
+        className={`${sizes[size]} ${className}`}
+        {...rest}
+      >
+        {children}
+      </MagneticButton>
+    )
+  }
+
   return (
     <motion.button
       onClick={onClick}
@@ -41,6 +55,7 @@ export default function GlowButton({
         transition-all duration-300 cursor-pointer
         ${variants[variant]} ${sizes[size]} ${className}`}
       data-cursor-hover
+      {...rest}
     >
       {children}
     </motion.button>

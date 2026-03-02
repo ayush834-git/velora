@@ -3,6 +3,7 @@
 import { useMemo, useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFilters } from "@/context/FilterContext";
+import MagneticButton from "./MagneticButton";
 
 const GENRES = [
   "Action",
@@ -88,17 +89,9 @@ export default function FilterPanel() {
 
   return (
     <div className="relative z-40">
-      <motion.button
-        ref={triggerRef}
+      <MagneticButton
         onClick={() => setIsOpen((value) => !value)}
-        whileTap={{ scale: 0.95 }}
-        whileHover={{ scale: 1.02 }}
-        transition={{ type: "spring", stiffness: 320, damping: 18 }}
-        aria-expanded={isOpen}
-        aria-haspopup="dialog"
-        className="btn-premium min-h-[40px] px-6 py-2.5 cursor-pointer
-          btn-primary text-white border border-golden/45 transition-shadow duration-300
-          font-display text-[15px] uppercase tracking-[0.03em] font-medium leading-snug"
+        className="btn-premium min-h-[40px] px-6 py-2.5 cursor-pointer font-display text-[15px] uppercase tracking-[0.03em] font-medium leading-snug flex items-center gap-2"
         data-cursor-hover
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -112,7 +105,7 @@ export default function FilterPanel() {
         <span className="leading-none">
           FILTERS{activeCount > 0 ? ` (${activeCount})` : ""}
         </span>
-      </motion.button>
+      </MagneticButton>
 
       <AnimatePresence>
         {isOpen && (
@@ -260,14 +253,12 @@ export default function FilterPanel() {
                   >
                     Reset
                   </button>
-                  <button
-                    type="button"
+                  <MagneticButton
                     onClick={() => setIsOpen(false)}
-                    className="btn-premium btn-primary border border-golden/45 text-white font-display text-[15px] uppercase tracking-[0.03em] font-medium leading-snug px-6 py-2.5 min-h-[40px] rounded-full ml-auto cursor-pointer transition-all"
-                    data-cursor-hover
+                    className="btn-premium font-display text-[15px] uppercase tracking-[0.03em] font-medium leading-snug px-6 py-2.5 min-h-[40px] rounded-full ml-auto cursor-pointer transition-all"
                   >
                     Apply Filters
-                  </button>
+                  </MagneticButton>
                 </div>
               </div>
             </motion.aside>
