@@ -27,7 +27,7 @@ export default function HowItWorksScene() {
   return (
     <section
       ref={ref}
-      className="relative py-36 md:py-48 px-[6vw] overflow-hidden"
+      className="relative py-[20rem] md:py-[36rem] px-[6vw] overflow-hidden"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(232,168,56,0.05),transparent_50%)] pointer-events-none z-0" />
 

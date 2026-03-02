@@ -156,7 +156,7 @@ export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps
   return (
     <section
       ref={sectionRef}
-      className={`scene relative flex flex-col items-center py-28 md:py-40 transition-all duration-500 ${
+      className={`scene relative flex flex-col items-center py-[15rem] md:py-[30rem] transition-all duration-500 ${
         isTransitioning ? "blur-sm scale-105 opacity-80" : ""
       }`}
       id="curated"
