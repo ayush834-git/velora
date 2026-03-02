@@ -28,7 +28,11 @@ class VeloraBackground {
 
     window.addEventListener('scroll', () => { this.targetY = window.scrollY; }, { passive: true });
     this.tick();
-    window.addEventListener('load', () => setTimeout(() => this.lazyLoad(), 800), { once: true });
+    if (document.readyState === 'complete') {
+      setTimeout(() => this.lazyLoad(), 800);
+    } else {
+      window.addEventListener('load', () => setTimeout(() => this.lazyLoad(), 800), { once: true });
+    }
   }
 
   private tick() {

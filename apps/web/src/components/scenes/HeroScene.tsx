@@ -121,7 +121,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
         </motion.div>
 
         <h1
-          className="font-display font-extralight leading-[0.95] tracking-tight text-ink flex flex-wrap justify-center"
+          className="font-accent font-light leading-[0.95] tracking-tight text-ink flex flex-wrap justify-center"
           style={{ fontSize: "var(--text-hero)" }}
           aria-label={title}
         >

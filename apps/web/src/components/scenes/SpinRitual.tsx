@@ -359,6 +359,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                         key="spin-btn"
                         onClick={spin}
                         disabled={!canSpin}
+                        data-cursor="SPIN"
                         className={`spin-glow-pulse relative overflow-hidden w-28 h-28 md:w-36 md:h-36 !rounded-full cursor-pointer
                           btn-primary !p-0 flex items-center justify-center
                           text-white font-display text-xl md:text-2xl tracking-[0.2em] uppercase
@@ -529,7 +530,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                 className="mt-8 btn-premium text-sm tracking-[0.03em] uppercase
                   btn-primary font-display text-white border border-golden/45
                   transition-all duration-300 cursor-pointer"
-                data-cursor-hover
+                data-cursor="AGAIN"
               >
                 Spin Again
               </motion.button>

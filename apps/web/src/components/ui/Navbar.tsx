@@ -167,7 +167,7 @@ export default function Navbar() {
                 ${activeFilters.length > 0 ? "ring-2 ring-golden/35 shadow-[0_0_24px_rgba(216,154,63,0.35)]" : ""}
                 transition-all duration-300 cursor-pointer ${scrolled ? "px-4 py-1.5 text-xs" : ""}
               `}
-              data-cursor-hover
+              data-cursor="SPIN"
             >
               Spin Now
             </motion.button>
