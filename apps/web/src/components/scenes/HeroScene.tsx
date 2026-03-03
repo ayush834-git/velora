@@ -70,6 +70,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
         end: "+=50%",
         pin: true,
         pinSpacing: true,
+        anticipatePin: 1,
       });
 
       // Headline drifts up and fades as hero pins

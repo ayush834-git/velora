@@ -59,10 +59,10 @@ export default function FooterScene() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="font-display text-2xl text-ink mb-4 font-light tracking-widest uppercase">
+            <div className="font-display text-4xl md:text-5xl text-ink mb-6 font-light tracking-widest uppercase">
               Velora
             </div>
-            <p className="text-ink-soft/80 text-sm leading-[1.8] max-w-xs font-body tracking-wide">
+            <p className="text-ink-soft/80 text-lg md:text-xl leading-[1.8] max-w-sm font-body tracking-wide">
               The reel has not ended. It never does.
               Every film is a life; every viewing, a rebirth.
             </p>
@@ -74,14 +74,14 @@ export default function FooterScene() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            <div className="text-[10px] tracking-[0.32em] uppercase text-golden-warm mb-6">
+            <div className="text-xs md:text-sm tracking-[0.32em] uppercase text-golden-warm mb-8">
               Explore
             </div>
             {["Discover", "Spin", "Moods", "By Era", "Essential Films"].map((link) => (
               <div
                 key={link}
-                className="text-sm text-ink-soft hover:text-ink hover:translate-x-1 transition-all
-                  cursor-pointer mb-3.5 tracking-wide w-max"
+                className="text-lg md:text-xl text-ink-soft hover:text-ink hover:translate-x-1 transition-all
+                  cursor-pointer mb-5 tracking-wide w-max"
               >
                 {link}
               </div>
@@ -96,17 +96,17 @@ export default function FooterScene() {
             className="flex flex-col justify-between gap-12"
           >
             <div>
-              <div className="text-[10px] tracking-[0.32em] uppercase text-golden-warm mb-6">
+              <div className="text-xs md:text-sm tracking-[0.32em] uppercase text-golden-warm mb-8">
                 The ritual
               </div>
               <blockquote
                 className="font-display font-extralight text-ink italic leading-relaxed"
-                style={{ fontSize: "clamp(1.1rem, 2vw, 1.4rem)" }}
+                style={{ fontSize: "clamp(1.5rem, 2.5vw, 2.5rem)" }}
               >
                 &ldquo;Today, fate chooses your film.&rdquo;
               </blockquote>
             </div>
-            <div className="text-[10px] tracking-widest uppercase text-ink-muted pb-6 font-mono">
+            <div className="text-xs tracking-widest uppercase text-ink-muted pb-6 font-mono">
               Powered by TMDB · © {new Date().getFullYear()} Velora
             </div>
           </motion.div>

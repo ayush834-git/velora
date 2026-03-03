@@ -29,7 +29,7 @@ function TickerRow({
         className="flex gap-14 whitespace-nowrap"
         animate={{ x: reverse ? ["-50%", "0%"] : ["0%", "-50%"] }}
         transition={{ duration, ease: "linear", repeat: Infinity }}
-        style={{ width: "max-content" }}
+        style={{ width: "max-content", willChange: "transform" }}
       >
         {repeated.map((item, i) => (
           <span
