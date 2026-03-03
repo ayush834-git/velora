@@ -111,7 +111,6 @@ export default function HeroScene({ movies }: HeroSceneProps) {
 
     return () => {
       ctx.revert();
-      ScrollTrigger.getAll().forEach(st => st.kill());
     };
   }, [prefersReduced]);
 

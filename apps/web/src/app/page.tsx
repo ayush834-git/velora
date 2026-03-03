@@ -141,14 +141,15 @@ export default function Home() {
       <CursorFollower />
       <Navbar />
 
-      <LayoutGroup id="velora-shared-layout">
-        <div className="relative z-10">
-          <HeroScene movies={baseMovies} />
-          <MarqueeScene />
-          <MoodClockScene />
-          <ConstellationScene />
-          <ManifestoScene />
-          <HowItWorksScene />
+      <div className="relative z-10">
+        <HeroScene movies={baseMovies} />
+        <MarqueeScene />
+        <MoodClockScene />
+        <ConstellationScene />
+        <ManifestoScene />
+        <HowItWorksScene />
+
+        <LayoutGroup id="velora-shared-layout">
           <CuratedScene movies={baseMovies} onMoodSelect={handleMoodSelect} />
           <DirectorPicksScene movies={baseMovies} />
           <SpinRitual movies={baseMovies} onResult={handleSpinResult} />
@@ -158,9 +159,10 @@ export default function Home() {
             isLoading={isLoadingMovies}
             hasError={Boolean(moviesError)}
           />
-          <FooterScene />
-        </div>
-      </LayoutGroup>
+        </LayoutGroup>
+
+        <FooterScene />
+      </div>
     </main>
   );
 }
