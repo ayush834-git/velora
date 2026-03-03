@@ -114,7 +114,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
   }, [prefersReduced]);
 
   return (
-    <section ref={sectionRef} className="scene relative h-[100svh] flex items-center justify-center" id="hero">
+    <section ref={sectionRef} className="scene relative min-h-[100svh] flex items-center justify-center" id="hero">
       <motion.div
         className="absolute inset-0 bg-gradient-to-b from-cream/10 via-cream-warm/5 to-transparent pointer-events-none"
         initial={prefersReduced ? false : { opacity: 0, scale: 1.05 }}
@@ -139,33 +139,25 @@ export default function HeroScene({ movies }: HeroSceneProps) {
         </motion.div>
 
         <h1
-          className="font-accent font-light leading-[0.95] tracking-tight text-ink flex flex-wrap justify-center"
+          className="font-accent font-light leading-[0.9] tracking-tight text-ink flex flex-wrap justify-center py-2"
           style={{ fontSize: "var(--text-hero)" }}
           aria-label={title}
         >
-          {titleWords.map((wordObj, wi) => {
-            const charOffset = titleWords.slice(0, wi).reduce((sum, w) => sum + w.chars.length + 1, 0);
-            return (
-              <span key={wi} style={{ display: "inline-block", whiteSpace: "nowrap" }}>
-                {wordObj.chars.map((char, ci) => (
-                  <motion.span
-                    key={`${char}-${ci}`}
-                    className="inline-block"
-                    initial={prefersReduced ? false : { opacity: 0, y: 24 }}
-                    animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.28,
-                      delay: 0.12 + (charOffset + ci) * 0.018,
-                      ease: [0.16, 1, 0.3, 1],
-                    }}
-                  >
-                    {char}
-                  </motion.span>
-                ))}
-                {wi < titleWords.length - 1 && "\u00A0"}
-              </span>
-            );
-          })}
+          {titleWords.map((wordObj, wi) => (
+            <motion.span
+              key={wi}
+              className="inline-block mr-[0.25em] last:mr-0 will-change-transform"
+              initial={prefersReduced ? false : { opacity: 0, y: 16 }}
+              animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.4,
+                delay: 0.1 + wi * 0.1,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+            >
+              {wordObj.word}
+            </motion.span>
+          ))}
         </h1>
 
         <SubtitleCycler prefersReduced={prefersReduced} />
