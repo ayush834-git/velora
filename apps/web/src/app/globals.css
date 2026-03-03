@@ -152,7 +152,7 @@ a, button, [data-cursor], [data-cursor-hover], input, select, textarea {
 /* ===== GRAIN OVERLAY ===== */
 .grain-overlay {
   position: fixed;
-  inset: 0;
+  inset: -10%;
   pointer-events: none;
   z-index: 9999;
   opacity: var(--grain-opacity);

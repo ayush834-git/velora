@@ -46,6 +46,7 @@ export default function FilmCard({ film, onClick, className = '', style }: { fil
           src={`https://image.tmdb.org/t/p/w500${film.poster_path}`}
           alt={film.title}
           fill className="object-cover"
+          unoptimized={true}
         />
       </motion.div>
 

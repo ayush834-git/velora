@@ -99,6 +99,7 @@ export default function CinematicImage({
           onLoad={() => setLoaded(true)}
           onError={() => setError(true)}
           priority={priority}
+          unoptimized={true}
         />
       ) : (
         <Image
@@ -116,6 +117,7 @@ export default function CinematicImage({
           onLoad={() => setLoaded(true)}
           onError={() => setError(true)}
           priority={priority}
+          unoptimized={true}
         />
       )}
     </div>

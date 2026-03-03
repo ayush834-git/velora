@@ -97,6 +97,7 @@ export default function BlurUpImage({
           onLoad={() => setLoaded(true)}
           onError={() => setError(true)}
           priority={priority}
+          unoptimized={true}
         />
       ) : (
         <Image
@@ -112,6 +113,7 @@ export default function BlurUpImage({
           onLoad={() => setLoaded(true)}
           onError={() => setError(true)}
           priority={priority}
+          unoptimized={true}
         />
       )}
     </div>
