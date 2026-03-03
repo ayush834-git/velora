@@ -55,7 +55,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
   };
 
   useEffect(() => {
-    const t = setInterval(() => setSubIndex(i => (i + 1) % SUBTITLES.length), 1500);
+    const t = setInterval(() => setSubIndex(i => (i + 1) % SUBTITLES.length), 4500);
     return () => clearInterval(t);
   }, []);
 
@@ -70,7 +70,6 @@ export default function HeroScene({ movies }: HeroSceneProps) {
         end: "+=50%",
         pin: true,
         pinSpacing: true,
-        anticipatePin: 1,
       });
 
       // Headline drifts up and fades as hero pins
@@ -141,7 +140,6 @@ export default function HeroScene({ movies }: HeroSceneProps) {
                       delay: 0.12 + (charOffset + ci) * 0.018,
                       ease: [0.16, 1, 0.3, 1],
                     }}
-                    style={{ willChange: "transform, opacity" }}
                   >
                     {char}
                   </motion.span>
@@ -161,7 +159,6 @@ export default function HeroScene({ movies }: HeroSceneProps) {
               exit={prefersReduced ? undefined : { y: -15, opacity: 0 }}
               transition={{ duration: 0.5, ease: "easeOut" }}
               className="text-xl text-ink-soft/85 font-body leading-[1.9] tracking-wide absolute w-full"
-              style={{ willChange: "transform, opacity" }}
             >
               {SUBTITLES[subIndex]}
             </motion.p>
