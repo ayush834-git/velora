@@ -52,7 +52,7 @@ export default function GlowButton({
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.97 }}
       className={`glow-button relative font-display tracking-[0.03em] uppercase
-        transition-all duration-300 cursor-pointer
+        transition-colors transition-shadow duration-300 cursor-pointer
         ${variants[variant]} ${sizes[size]} ${className}`}
       data-cursor-hover
       {...rest}

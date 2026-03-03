@@ -33,6 +33,32 @@ const SUBTITLES = [
   "One click. One film. The one you need right now.",
 ];
 
+function SubtitleCycler({ prefersReduced }: { prefersReduced: boolean }) {
+  const [subIndex, setSubIndex] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => setSubIndex(i => (i + 1) % SUBTITLES.length), 4500);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <div className="mt-8 mb-6 h-16 md:h-20 relative w-full flex justify-center">
+      <AnimatePresence mode="wait">
+        <motion.p
+          key={subIndex}
+          initial={prefersReduced ? false : { y: 10, opacity: 0 }}
+          animate={prefersReduced ? undefined : { y: 0, opacity: 1 }}
+          exit={prefersReduced ? undefined : { y: -10, opacity: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="text-lg md:text-xl text-ink-soft/85 font-body leading-[1.6] md:leading-[1.9] tracking-wide absolute w-full px-4"
+        >
+          {SUBTITLES[subIndex]}
+        </motion.p>
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function HeroScene({ movies }: HeroSceneProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const headlineRef = useRef<HTMLDivElement>(null);
@@ -40,8 +66,6 @@ export default function HeroScene({ movies }: HeroSceneProps) {
   const ghostPosters = movies.slice(0, 6);
   const title = "Today, fate chooses your film.";
   
-  const [subIndex, setSubIndex] = useState(0);
-
   const titleWords = useMemo(() => {
     return title.split(" ").map((word) => ({
       word,
@@ -54,11 +78,6 @@ export default function HeroScene({ movies }: HeroSceneProps) {
     if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
-  useEffect(() => {
-    const t = setInterval(() => setSubIndex(i => (i + 1) % SUBTITLES.length), 4500);
-    return () => clearInterval(t);
-  }, []);
-
   useLayoutEffect(() => {
     if (prefersReduced || !sectionRef.current) return;
     
@@ -70,6 +89,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
         end: "+=50%",
         pin: true,
         pinSpacing: true,
+        anticipatePin: 1,
       });
 
       // Headline drifts up and fades as hero pins
@@ -108,7 +128,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
 
       {/* Removed legacy ghost-posters as they block VeloraBackground */}
 
-      <div ref={headlineRef} className="relative z-10 text-center px-6 max-w-3xl mx-auto w-full">
+      <div ref={headlineRef} className="relative z-10 text-center px-4 w-full max-w-5xl mx-auto flex flex-col items-center">
         <motion.div
           className="mb-8"
           initial={prefersReduced ? false : { opacity: 0, y: 12 }}
@@ -150,20 +170,7 @@ export default function HeroScene({ movies }: HeroSceneProps) {
           })}
         </h1>
 
-        <div className="mt-10 mb-6 h-20 relative w-full flex justify-center">
-          <AnimatePresence mode="popLayout">
-            <motion.p
-              key={subIndex}
-              initial={prefersReduced ? false : { y: 15, opacity: 0 }}
-              animate={prefersReduced ? undefined : { y: 0, opacity: 1 }}
-              exit={prefersReduced ? undefined : { y: -15, opacity: 0 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="text-xl text-ink-soft/85 font-body leading-[1.9] tracking-wide absolute w-full"
-            >
-              {SUBTITLES[subIndex]}
-            </motion.p>
-          </AnimatePresence>
-        </div>
+        <SubtitleCycler prefersReduced={prefersReduced} />
 
         <motion.div
           className="flex flex-col sm:flex-row items-center justify-center gap-5 mt-8"
