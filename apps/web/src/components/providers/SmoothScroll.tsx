@@ -25,14 +25,27 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     gsap.ticker.add(update);
     gsap.ticker.lagSmoothing(0);
 
-    // Force recalculation of scroll heights after a tiny delay
-    // to account for dynamic image loading or layout shifts
-    const timer = setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 100);
+    // Recalculate GSAP math when dynamic content (like movies) loads and changes document height
+    let resizeTimer: NodeJS.Timeout;
+    let lastHeight = document.body.scrollHeight;
+    
+    const resizeObserver = new ResizeObserver(() => {
+      const currentHeight = document.body.scrollHeight;
+      // Only refresh if height changes significantly (ignores mobile address bar 100svh jitter)
+      if (Math.abs(currentHeight - lastHeight) > 100) {
+        lastHeight = currentHeight;
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          ScrollTrigger.refresh();
+        }, 150);
+      }
+    });
+    
+    resizeObserver.observe(document.body);
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(resizeTimer);
+      resizeObserver.disconnect();
       gsap.ticker.remove(update);
       lenis.destroy();
     };

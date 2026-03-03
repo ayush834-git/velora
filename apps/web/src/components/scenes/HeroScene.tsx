@@ -86,10 +86,9 @@ export default function HeroScene({ movies }: HeroSceneProps) {
       ScrollTrigger.create({
         trigger: sectionRef.current,
         start: "top top",
-        end: "+=50%",
+        end: "+=80%",
         pin: true,
         pinSpacing: true,
-        anticipatePin: 1,
       });
 
       // Headline drifts up and fades as hero pins
