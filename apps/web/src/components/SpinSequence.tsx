@@ -76,18 +76,21 @@ export default function SpinSequence({ isSpinning, onComplete, posterUrl }: Prop
 
             {/* Iris blades */}
             <svg width="300" height="300" className="absolute" viewBox="0 0 300 300">
-              {[0, 60, 120, 180, 240, 300].map((deg, i) => (
-                <motion.path
-                  key={i}
-                  d="M 150 150 L 150 0 A 150 150 0 0 1 280 75 Z"
-                  fill="#131428"
-                  style={{ transformOrigin: '150px 150px', rotate: deg }}
-                  animate={{
-                    rotate: phase === 'closing' ? deg + 60 : deg,
-                  }}
-                  transition={{ duration: 0.5, ease: [0.7, 0, 0.3, 1] }}
-                />
-              ))}
+              {[0, 60, 120, 180, 240, 300].map((deg, i) => {
+                const CLOSED_ANGLE = 150;
+                return (
+                  <motion.path
+                    key={i}
+                    d="M 150 150 L 150 0 A 150 150 0 0 1 280 75 Z"
+                    fill="#131428"
+                    style={{ transformOrigin: '150px 150px', rotate: deg }}
+                    animate={{
+                      rotate: phase === 'closing' ? CLOSED_ANGLE : deg,
+                    }}
+                    transition={{ duration: 0.5, ease: [0.7, 0, 0.3, 1] }}
+                  />
+                );
+              })}
             </svg>
           </div>
         )}

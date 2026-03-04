@@ -1,0 +1,48 @@
+.velora-bg-root {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+
+  background: #f3eee6;
+}
+
+.velora-bg-layer {
+  position: absolute;
+  inset: 0;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  pointer-events: none;
+  will-change: opacity;
+}
+
+.velora-bg-layer.amber {
+  background-image: url('/assets/backgrounds/velora-bg-amber.avif');
+}
+
+.velora-bg-layer.champagne {
+  background-image: url('/assets/backgrounds/velora-bg-champagne.avif');
+}
+
+.velora-bg-layer.blush {
+  background-image: url('/assets/backgrounds/velora-bg-blush.avif');
+}
+
+.velora-bg-layer.lavender {
+  background-image: url('/assets/backgrounds/velora-bg-lavender.avif');
+}
+
+.velora-bg-layer.sky {
+  background-image: url('/assets/backgrounds/velora-bg-sky.avif');
+}
+
+/* Accessibility — kill transitions for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .velora-bg-layer {
+    transition: none !important;
+    will-change: auto;
+  }
+}

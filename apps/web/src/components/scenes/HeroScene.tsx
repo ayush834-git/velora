@@ -81,6 +81,8 @@ export default function HeroScene() {
           style={prefersReduced ? undefined : { opacity: overlayOpacity }}
         />
 
+        <div className="hero-grain" aria-hidden="true" />
+
         <CinematicDust />
 
         <motion.div
@@ -99,8 +101,7 @@ export default function HeroScene() {
           </motion.div>
 
           <h1
-            className="font-accent font-light leading-[0.9] tracking-tight text-ink flex flex-wrap justify-center py-2"
-            style={{ fontSize: "var(--text-hero)" }}
+            className="velora-hero-title font-accent font-light text-ink flex flex-wrap justify-center py-2 mb-[1.6rem] text-[clamp(64px,8vw,140px)]"
             aria-label={title}
           >
             {titleWords.map((wordObj, wi) => (
@@ -120,7 +121,9 @@ export default function HeroScene() {
             ))}
           </h1>
 
-          <SubtitleCycler prefersReduced={prefersReduced} />
+          <div className="mt-[1rem]" style={{ lineHeight: 1.5 }}>
+            <SubtitleCycler prefersReduced={prefersReduced} />
+          </div>
 
           <motion.div
             className="flex flex-col sm:flex-row items-center justify-center gap-5 mt-8"

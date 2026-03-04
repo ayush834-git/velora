@@ -2,7 +2,7 @@
 import "./globals.css";
 import SmoothScroll from "@/components/providers/SmoothScroll";
 import { FilterProvider } from "@/context/FilterContext";
-import VeloraBackgroundLayer from "@/components/VeloraBackground";
+import VeloraScrollBackground from "@/components/VeloraScrollBackground";
 import VeloraCursor from "@/components/VeloraCursor";
 import WatchlistDrawer from "@/components/WatchlistDrawer";
 import { TrailerProvider } from "@/context/TrailerContext";
@@ -33,7 +33,7 @@ export default function RootLayout({
         <link rel="preload" as="image" href="/assets/backgrounds/velora-bg-champagne.avif" type="image/avif" />
       </head>
       <body className="antialiased" suppressHydrationWarning>
-        <VeloraBackgroundLayer />
+        <VeloraScrollBackground />
         <VeloraCursor />
         <TrailerProvider>
           <FilterProvider>

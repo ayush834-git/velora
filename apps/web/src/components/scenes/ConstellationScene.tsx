@@ -178,6 +178,7 @@ export default function ConstellationScene() {
     <section
       ref={sectionRef}
       className="relative overflow-hidden py-16 md:py-20 min-h-screen"
+      style={{ background: "#0a0915" }}
     >
       {/* Star field — CSS-only twinkle */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden>
@@ -243,7 +244,7 @@ export default function ConstellationScene() {
         <motion.h2
           initial={{ opacity: 0, y: 14 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          className="font-display font-extralight text-ink leading-tight"
+          className="font-display font-extralight text-[#F5F0E8] leading-tight"
           style={{
             fontSize: "var(--text-headline)",
             letterSpacing: "-0.02em",
@@ -255,7 +256,7 @@ export default function ConstellationScene() {
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.5, delay: 0.28 }}
-          className="font-body text-ink-soft/70 text-sm mt-4 tracking-wide"
+          className="font-body text-[#F5F0E8]/70 text-sm mt-4 tracking-wide"
         >
           Hover to explore · Click to filter your pick
         </motion.p>
@@ -378,7 +379,7 @@ export default function ConstellationScene() {
                   x={node.x}
                   y={node.y + node.r * 0.75 + 3.2}
                   textAnchor="middle"
-                  fill="#1A1A2E"
+                  fill="#F5F0E8"
                   fontSize={hovered ? "2.8" : "2.3"}
                   fontFamily="var(--font-display)"
                   letterSpacing="0.06"

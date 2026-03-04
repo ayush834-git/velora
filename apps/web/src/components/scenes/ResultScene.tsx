@@ -201,7 +201,7 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
               <motion.div
                 initial={{ clipPath: "inset(0 0 100% 0)", opacity: 0, y: 10 }}
                 animate={isInView && movie ? { clipPath: "inset(0 0 0% 0)", opacity: 1, y: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.6, delay: 1.5, ease: [0.16, 1, 0.3, 1] }}
               >
                 {movie?.title ?? "Loading Film"}
               </motion.div>

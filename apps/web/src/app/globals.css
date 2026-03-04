@@ -464,3 +464,53 @@ textarea {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* ─── Hero Grain Texture ─────────────────────────────────────────────────── */
+.hero-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  z-index: 1;
+
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* ─── Luxury Typography Spacing System ───────────────────────────────────── */
+
+/* Hero Headline */
+.velora-hero-title {
+  font-family: "Playfair Display", serif;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+}
+
+/* Section Headings */
+.velora-section-title {
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+}
+
+/* Body / Subheading */
+.velora-subheading {
+  letter-spacing: 0.02em;
+  line-height: 1.45;
+}
+
+/* Navigation Labels */
+.velora-nav-item {
+  letter-spacing: 0.08em;
+  font-size: 13px;
+}
+
+/* Button Labels */
+.velora-button-label {
+  letter-spacing: 0.12em;
+}
+
+/* ─── Section Vertical Rhythm ────────────────────────────────────────────── */
+.velora-section {
+  padding-top: clamp(80px, 12vh, 140px);
+  padding-bottom: clamp(80px, 12vh, 140px);
+}

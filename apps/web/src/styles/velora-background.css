@@ -1,7 +1,7 @@
 .velora-bg-root {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: -10;
   background: radial-gradient(ellipse 140% 100% at 50% 0%,
     #FBF6EE 0%, #F5EFE3 40%, #EDE5D8 100%);
   pointer-events: none;
