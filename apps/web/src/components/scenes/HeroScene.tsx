@@ -31,7 +31,7 @@ function SubtitleCycler({ prefersReduced }: { prefersReduced: boolean }) {
           animate={prefersReduced ? undefined : { y: 0, opacity: 1 }}
           exit={prefersReduced ? undefined : { y: -10, opacity: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="absolute w-full px-4 text-lg md:text-xl text-ink-soft/85 font-body leading-[1.6] md:leading-[1.9] tracking-wide"
+          className="absolute w-full px-4 text-lg md:text-xl text-ink-soft/85 font-body leading-[1.6] md:leading-[1.9] tracking-wide text-center"
         >
           {SUBTITLES[subIndex]}
         </motion.p>
@@ -121,9 +121,7 @@ export default function HeroScene() {
             ))}
           </h1>
 
-          <div className="mt-[1rem]" style={{ lineHeight: 1.5 }}>
-            <SubtitleCycler prefersReduced={prefersReduced} />
-          </div>
+          <SubtitleCycler prefersReduced={prefersReduced} />
 
           <motion.div
             className="flex flex-col sm:flex-row items-center justify-center gap-5 mt-8"

@@ -12,16 +12,21 @@ import '@/styles/velora-scroll-background.css';
  * Transition order:
  *   Amber → Champagne → Blush → Lavender → Sky
  *
- * Peak opacities:
- *   amber 0.85 | champagne 0.80 | blush 0.75 | lavender 0.70 | sky 0.70
+ * Amber starts fully visible at the top of the page.
+ * Each subsequent layer crossfades in with overlap.
  */
 
 const LAYERS = [
-  { className: 'velora-bg-layer amber',     range: [0, 0.10, 0.18, 0.25] as const, peak: 0.85 },
-  { className: 'velora-bg-layer champagne', range: [0.15, 0.24, 0.33, 0.40] as const, peak: 0.80 },
-  { className: 'velora-bg-layer blush',     range: [0.35, 0.44, 0.52, 0.60] as const, peak: 0.75 },
-  { className: 'velora-bg-layer lavender',  range: [0.55, 0.64, 0.72, 0.80] as const, peak: 0.70 },
-  { className: 'velora-bg-layer sky',       range: [0.75, 0.84, 0.92, 1.00] as const, peak: 0.70 },
+  // Amber: visible immediately, fades out by 30%
+  { className: 'velora-bg-layer amber',     range: [0, 0, 0.18, 0.30] as const, peak: 1.0 },
+  // Champagne: fades in 12-22%, holds, fades out by 45%
+  { className: 'velora-bg-layer champagne', range: [0.12, 0.22, 0.35, 0.45] as const, peak: 0.95 },
+  // Blush: fades in 32-42%, holds, fades out by 62%
+  { className: 'velora-bg-layer blush',     range: [0.32, 0.42, 0.52, 0.62] as const, peak: 0.90 },
+  // Lavender: fades in 52-62%, holds, fades out by 82%
+  { className: 'velora-bg-layer lavender',  range: [0.52, 0.62, 0.72, 0.82] as const, peak: 0.85 },
+  // Sky: fades in 72-82%, holds through end
+  { className: 'velora-bg-layer sky',       range: [0.72, 0.82, 0.95, 1.00] as const, peak: 0.85 },
 ] as const;
 
 function ScrollLayer({
