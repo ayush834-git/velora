@@ -89,25 +89,21 @@ export default function Navbar() {
           </button>
 
           <div className="flex items-center gap-5 md:gap-8">
-            {!scrolled && (
-              <button
-                onClick={() => scrollToSection('curated')}
-                className="hidden md:block text-sm tracking-widest uppercase text-ink-soft hover:text-ink transition-colors"
-                data-cursor-hover
-              >
-                Discover
-              </button>
-            )}
+            <button
+              onClick={() => scrollToSection('curated')}
+              className="hidden md:block text-sm tracking-widest uppercase text-ink-soft hover:text-ink transition-colors"
+              data-cursor-hover
+            >
+              Discover
+            </button>
 
-            {!scrolled && (
-              <Link
-                href="/browse"
-                className="hidden md:block text-sm tracking-widest uppercase text-ink-soft hover:text-ink transition-colors"
-                data-cursor-hover
-              >
-                Browse
-              </Link>
-            )}
+            <Link
+              href="/browse"
+              className="hidden md:block text-sm tracking-widest uppercase text-ink-soft hover:text-ink transition-colors"
+              data-cursor-hover
+            >
+              Browse
+            </Link>
 
             <button
               onClick={() => scrollToSection('spin')}
