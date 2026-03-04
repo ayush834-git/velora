@@ -128,15 +128,15 @@ function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
   }, []);
 
   return (
-    <section ref={rowRef} className="mb-8 relative z-10 [transform:translateZ(0)]">
+    <section ref={rowRef} className="mb-14 relative z-10 [transform:translateZ(0)]">
       <div className="flex items-center justify-between px-6 md:px-12 mb-2 relative z-20">
         <div>
-          <span className="block text-[10px] uppercase tracking-[0.3em] text-golden-warm/60 font-display mb-1">
+          <span className="block text-[10px] uppercase tracking-[0.3em] text-golden-warm/60 font-display mb-2">
             Genre Collection
           </span>
           <h2
-            className="font-display font-extralight text-2xl md:text-3xl text-ink tracking-tight"
-            style={{ letterSpacing: "-0.02em" }}
+            className="font-display font-extralight text-3xl md:text-4xl text-ink"
+            style={{ letterSpacing: "-0.03em" }}
           >
             {genre.name}
           </h2>
@@ -153,7 +153,7 @@ function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
 
         <div
           ref={scrollRef}
-          className="flex gap-4 md:gap-5 px-6 md:px-12 overflow-x-auto pt-6 pb-10 scroll-smooth relative z-10"
+          className="flex gap-5 md:gap-6 px-6 md:px-12 overflow-x-auto pt-6 pb-10 scroll-smooth relative z-10"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {isLoading && Array.from({ length: 12 }).map((_, i) => <SkeletonCard key={`skel-${i}`} />)}
@@ -241,12 +241,12 @@ function BrowseContent() {
             {mood ? "Tailored for you" : "Cinema Library"}
           </span>
           <h2
-            className="font-display font-extralight text-ink leading-[0.95] tracking-tight capitalize"
-            style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)", letterSpacing: "-0.02em" }}
+            className="font-display font-extralight text-ink leading-[0.95] capitalize"
+            style={{ fontSize: "clamp(3rem, 7vw, 6rem)", letterSpacing: "-0.03em" }}
           >
             {mood ? `${mood.replace("-", " ")} Collection` : "Explore by Genre"}
           </h2>
-          <p className="mt-5 text-ink-soft/70 font-body max-w-lg mx-auto leading-relaxed text-[15px]">
+          <p className="mt-6 text-ink-soft/70 font-body max-w-xl mx-auto leading-relaxed" style={{ fontSize: "clamp(0.95rem, 1.5vw, 1.15rem)" }}>
             {mood
               ? "Discover films that match your exact craving right now. A handpicked selection for your mood."
               : "Dive into curated collections across every genre. Discover your next favorite film from blockbusters to hidden gems."}
