@@ -175,11 +175,15 @@ textarea {
 /* Film grain - fixed overlay, always on top, never captures events */
 .velora-grain {
   position: fixed;
-  inset: 0;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
   z-index: 9999;
   pointer-events: none;
   opacity: 0.035;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  will-change: transform;
   animation: grain-shift 0.08s steps(1) infinite;
 }
 
@@ -188,21 +192,26 @@ textarea {
   pointer-events: none;
   opacity: 0.08;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+  will-change: transform;
   animation: grain-shift 0.08s steps(1) infinite;
 }
 
 @keyframes grain-shift {
   0% {
-    transform: translate(0, 0);
+    transform: translate3d(0, 0, 0);
   }
   25% {
-    transform: translate(-2%, -3%);
+    transform: translate3d(-8px, -10px, 0);
   }
   50% {
-    transform: translate(3%, 1%);
+    transform: translate3d(10px, 6px, 0);
   }
   75% {
-    transform: translate(-1%, 2%);
+    transform: translate3d(-6px, 8px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
   }
 }
 
