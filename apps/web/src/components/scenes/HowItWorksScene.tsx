@@ -28,7 +28,7 @@ export default function HowItWorksScene() {
     <section
       ref={ref}
       className="relative px-[6vw] overflow-hidden"
-      style={{ paddingTop: "25vh", paddingBottom: "25vh" }}
+      style={{ paddingTop: "12vh", paddingBottom: "12vh" }}
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(232,168,56,0.05),transparent_50%)] pointer-events-none z-0" />
 

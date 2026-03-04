@@ -47,7 +47,7 @@ export default function ManifestoScene() {
     <section
       ref={sectionRef}
       className="relative min-h-[80vh] flex flex-col justify-center
-        py-36 md:py-52 px-[7vw]
+        py-20 md:py-28 px-[7vw]
         overflow-hidden"
     >
       {/* Decorative giant V */}

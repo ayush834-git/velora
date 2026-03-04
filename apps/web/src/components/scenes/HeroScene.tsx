@@ -68,7 +68,7 @@ export default function HeroScene() {
   };
 
   return (
-    <section ref={sectionRef} className="scene relative min-h-[180svh] [transform:translateZ(0)]">
+    <section ref={sectionRef} className="scene relative min-h-[140svh] [transform:translateZ(0)]">
       <div
         id="hero"
         className="sticky top-0 flex min-h-[100svh] items-center justify-center overflow-hidden transform-gpu [backface-visibility:hidden]"
@@ -101,13 +101,13 @@ export default function HeroScene() {
           </motion.div>
 
           <h1
-            className="velora-hero-title font-accent font-light text-ink flex flex-wrap justify-center py-2 mb-[1.6rem] text-[clamp(64px,8vw,140px)]"
+            className="velora-hero-title font-accent font-light text-ink flex flex-wrap justify-center gap-[0.25em] py-2 mb-[1.6rem] text-[clamp(64px,8vw,140px)]"
             aria-label={title}
           >
             {titleWords.map((wordObj, wi) => (
               <motion.span
                 key={wi}
-                className="inline-block mr-[0.25em] last:mr-0 will-change-transform"
+                className="inline-block will-change-transform"
                 initial={prefersReduced ? false : { opacity: 0, y: 16 }}
                 animate={prefersReduced ? undefined : { opacity: 1, y: 0 }}
                 transition={{
