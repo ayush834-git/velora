@@ -1,33 +1,23 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import VeloraBackground from '@/lib/velora-background';
+import '@/styles/velora-background.css';
 
 export default function VeloraBackgroundLayer() {
-  const rootRef = useRef<HTMLDivElement>(null);
-  const bgInstance = useRef<VeloraBackground | null>(null);
-
   useEffect(() => {
-    if (rootRef.current && !bgInstance.current) {
-      bgInstance.current = new VeloraBackground();
-      bgInstance.current.init();
-    }
-
-    return () => {
-      if (bgInstance.current) {
-        bgInstance.current.destroy();
-        bgInstance.current = null;
-      }
-    };
+    const bg = new VeloraBackground();
+    bg.init();
+    return () => bg.destroy();
   }, []);
 
   return (
-    <div ref={rootRef} className="velora-bg-root" aria-hidden="true" role="presentation">
-      <div className="velora-bg-layer velora-bg-layer--amber"></div>
-      <div className="velora-bg-layer velora-bg-layer--champagne"></div>
-      <div className="velora-bg-layer velora-bg-layer--blush"></div>
-      <div className="velora-bg-layer velora-bg-layer--sky"></div>
-      <div className="velora-bg-layer velora-bg-layer--lavender"></div>
+    <div className="velora-bg-root" aria-hidden="true" role="presentation">
+      <div className="velora-bg-layer velora-bg-layer--amber" />
+      <div className="velora-bg-layer velora-bg-layer--champagne" />
+      <div className="velora-bg-layer velora-bg-layer--blush" />
+      <div className="velora-bg-layer velora-bg-layer--sky" />
+      <div className="velora-bg-layer velora-bg-layer--lavender" />
     </div>
   );
 }

@@ -1,18 +1,30 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 export default function SmoothScroll({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      gsap.registerPlugin(ScrollTrigger);
+    if (typeof window === "undefined") return;
+
+    gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ ignoreMobileResize: true });
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const disableSmoothOnRoute = pathname === "/" || pathname.startsWith("/browse");
+
+    if (prefersReducedMotion || disableSmoothOnRoute) {
+      ScrollTrigger.refresh();
+      return;
     }
-    
+
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.05,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     });
 
@@ -25,31 +37,35 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
     gsap.ticker.add(update);
     gsap.ticker.lagSmoothing(0);
 
-    // Recalculate GSAP math when dynamic content (like movies) loads and changes document height
-    let resizeTimer: NodeJS.Timeout;
-    let lastHeight = document.body.scrollHeight;
-    
-    const resizeObserver = new ResizeObserver(() => {
-      const currentHeight = document.body.scrollHeight;
-      // Only refresh if height changes significantly (ignores mobile address bar 100svh jitter)
-      if (Math.abs(currentHeight - lastHeight) > 100) {
-        lastHeight = currentHeight;
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-          ScrollTrigger.refresh();
-        }, 150);
-      }
-    });
-    
-    resizeObserver.observe(document.body);
+    let refreshTimer: number | null = null;
+    const scheduleRefresh = () => {
+      if (refreshTimer !== null) window.clearTimeout(refreshTimer);
+      refreshTimer = window.setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 120);
+    };
+
+    window.addEventListener("resize", scheduleRefresh, { passive: true });
+    window.addEventListener("orientationchange", scheduleRefresh);
+    scheduleRefresh();
 
     return () => {
-      clearTimeout(resizeTimer);
-      resizeObserver.disconnect();
+      if (refreshTimer !== null) window.clearTimeout(refreshTimer);
+      window.removeEventListener("resize", scheduleRefresh);
+      window.removeEventListener("orientationchange", scheduleRefresh);
       gsap.ticker.remove(update);
       lenis.destroy();
     };
-  }, []);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const timer = window.setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 80);
+
+    return () => window.clearTimeout(timer);
+  }, [pathname]);
 
   return <>{children}</>;
 }

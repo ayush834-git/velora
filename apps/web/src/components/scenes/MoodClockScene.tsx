@@ -493,13 +493,13 @@ export default function MoodClockScene() {
           </div>
           <div className="h-[2px] rounded-full overflow-visible relative" style={{ background: "rgba(0,0,0,0.07)" }}>
             <motion.div
-              className="h-full rounded-full relative"
+              className="h-full rounded-full relative origin-left"
               style={{
                 background: `linear-gradient(90deg, #e8a838, ${mood.accent})`,
                 transition: "background 1.5s ease",
               }}
-              initial={{ width: "0%" }}
-              animate={{ width: `${dayPct}%` }}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: dayPct / 100 }}
               transition={{ duration: 1, ease: "easeOut" }}
             >
               <div

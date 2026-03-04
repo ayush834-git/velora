@@ -1,13 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, useRef, useCallback, Suspense } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion, useInView } from "framer-motion";
-import { getImageUrl } from "@/lib/tmdb";
-import { IMAGE_SIZES } from "@/lib/constants";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import FilmCard from "@/components/FilmCard";
+import MagneticButton from "@/components/ui/MagneticButton";
 
 type TmdbMovie = {
   id: number;
@@ -35,7 +33,6 @@ const GENRE_ROWS = [
   { id: 10751, name: "Family" },
 ];
 
-/* ──────────────────────── Skeleton Card ──────────────────────── */
 function SkeletonCard() {
   return (
     <div
@@ -47,7 +44,6 @@ function SkeletonCard() {
   );
 }
 
-/* ──────────────────────── Glass Nav Button ──────────────────────── */
 function ScrollButton({
   direction,
   onClick,
@@ -58,20 +54,13 @@ function ScrollButton({
   return (
     <motion.button
       onClick={onClick}
-      whileHover={{ scale: 1.12 }}
-      whileTap={{ scale: 0.92 }}
-      className="w-10 h-10 rounded-full bg-white/60 backdrop-blur-md border border-white/40
-        flex items-center justify-center text-ink-soft hover:text-golden
-        shadow-[0_4px_16px_rgba(0,0,0,0.08)] transition-all duration-200 cursor-pointer"
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.94 }}
+      className="w-10 h-10 rounded-full bg-[#F5F0E8]/70 backdrop-blur-md border border-[#F5F0E8]/50 flex items-center justify-center text-ink-soft hover:text-golden shadow-[0_4px_16px_rgba(13,13,26,0.08)] transition-all duration-200"
       aria-label={`Scroll ${direction}`}
+      data-cursor="EXPLORE"
     >
-      <svg
-        className="w-4 h-4"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        strokeWidth={2}
-      >
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         {direction === "left" ? (
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         ) : (
@@ -82,11 +71,10 @@ function ScrollButton({
   );
 }
 
-/* ──────────────────────── Genre Row ──────────────────────── */
 function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
   const [movies, setMovies] = useState<TmdbMovie[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const rowRef = useRef<HTMLDivElement>(null);
+  const rowRef = useRef<HTMLElement>(null);
   const isInView = useInView(rowRef, { once: true, margin: "200px" });
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -112,9 +100,9 @@ function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
         ];
 
         const seen = new Set<number>();
-        const deduped = all.filter((m) => {
-          if (!m.poster_path || seen.has(m.id)) return false;
-          seen.add(m.id);
+        const deduped = all.filter((movie) => {
+          if (!movie.poster_path || seen.has(movie.id)) return false;
+          seen.add(movie.id);
           return true;
         });
 
@@ -127,10 +115,11 @@ function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
     };
 
     fetchGenre();
-  }, [isInView, genre.id]);
+  }, [genre.id, isInView]);
 
   const scroll = useCallback((direction: "left" | "right") => {
     if (!scrollRef.current) return;
+
     const amount = scrollRef.current.clientWidth * 0.75;
     scrollRef.current.scrollBy({
       left: direction === "left" ? -amount : amount,
@@ -139,15 +128,8 @@ function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
   }, []);
 
   return (
-    <motion.section
-      ref={rowRef}
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-      className="mb-4 relative z-10"
-    >
-      <div className="flex items-center justify-between px-6 md:px-12 mb-0 relative z-20">
+    <section ref={rowRef} className="mb-8 relative z-10 [transform:translateZ(0)]">
+      <div className="flex items-center justify-between px-6 md:px-12 mb-2 relative z-20">
         <div>
           <span className="block text-[10px] uppercase tracking-[0.3em] text-golden-warm/60 font-display mb-1">
             Genre Collection
@@ -166,47 +148,41 @@ function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
       </div>
 
       <div className="relative group/row">
-        {/* Gradient edge fades */}
         <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-cream to-transparent z-20 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-cream to-transparent z-20 pointer-events-none" />
 
         <div
           ref={scrollRef}
-          className="flex gap-4 md:gap-5 px-6 md:px-12 overflow-x-auto pt-[50px] pb-[80px] -mt-[40px] -mb-[60px] scroll-smooth relative z-10"
+          className="flex gap-4 md:gap-5 px-6 md:px-12 overflow-x-auto pt-6 pb-10 scroll-smooth relative z-10"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {isLoading &&
-            Array.from({ length: 12 }).map((_, i) => <SkeletonCard key={`skel-${i}`} />)}
+          {isLoading && Array.from({ length: 12 }).map((_, i) => <SkeletonCard key={`skel-${i}`} />)}
 
-            {!isLoading &&
-              movies.map((movie, i) => (
-                <motion.a
-                  key={movie.id}
-                  href={`https://www.themoviedb.org/movie/${movie.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.5,
-                    delay: Math.min(i * 0.03, 0.4),
-                    ease: [0.16, 1, 0.3, 1],
+          {!isLoading &&
+            movies.map((movie, i) => (
+              <motion.a
+                key={movie.id}
+                href={`https://www.themoviedb.org/movie/${movie.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: Math.min(i * 0.03, 0.35), ease: [0.16, 1, 0.3, 1] }}
+                className="flex-shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-golden/50 rounded-[12px] block"
+              >
+                <FilmCard
+                  film={{
+                    id: movie.id,
+                    title: movie.title,
+                    year: parseInt(movie.release_date?.slice(0, 4) || "0", 10) || new Date().getFullYear(),
+                    rating: movie.vote_average,
+                    poster_path: movie.poster_path || "",
+                    original_language: movie.original_language || "en",
                   }}
-                  className="flex-shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-golden/50 rounded-[12px] block"
-                >
-                  <FilmCard
-                    film={{
-                      id: movie.id,
-                      title: movie.title,
-                      year: parseInt(movie.release_date?.slice(0, 4) || '0') || new Date().getFullYear(),
-                      rating: movie.vote_average,
-                      poster_path: movie.poster_path || '',
-                      original_language: movie.original_language || 'en'
-                    }}
-                    style={{ width: 220, height: 330 }}
-                  />
-                </motion.a>
-              ))}
+                  style={{ width: 220, height: 330 }}
+                />
+              </motion.a>
+            ))}
 
           {!isLoading && movies.length === 0 && (
             <div className="w-full text-center py-16 text-ink-soft/60 font-body">
@@ -215,51 +191,46 @@ function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
           )}
         </div>
       </div>
-    </motion.section>
+    </section>
   );
 }
 
-/* ──────────────────────── Browse Content ──────────────────────── */
 function BrowseContent() {
+  const router = useRouter();
   const params = useSearchParams();
   const mood = params.get("mood");
   const genresParam = params.get("genres");
 
   const activeGenreIds = genresParam ? genresParam.split(",").map(Number) : null;
   const displayGenres = activeGenreIds
-    ? GENRE_ROWS.filter((g) => activeGenreIds.includes(g.id))
+    ? GENRE_ROWS.filter((genre) => activeGenreIds.includes(genre.id))
     : GENRE_ROWS;
 
   return (
-    <main className="min-h-screen bg-cream">
-      {/* Header */}
-      <header className="sticky top-0 z-50 bg-cream/80 backdrop-blur-xl border-b border-ink/5">
+    <main className="min-h-screen bg-cream isolate [transform:translateZ(0)]">
+      <header className="sticky top-0 z-50 bg-cream/90 backdrop-blur-xl border-b border-ink/5 transform-gpu [backface-visibility:hidden] [transform:translateZ(0)]">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
           <Link
             href="/"
             className="font-display text-sm tracking-[0.4em] uppercase text-ink hover:text-golden transition-colors"
           >
-            ← VELORA
+            Back to VELORA
           </Link>
 
-          <h1
-            className="font-display font-extralight text-lg md:text-xl tracking-tight text-ink"
-            style={{ letterSpacing: "-0.01em" }}
-          >
+          <h1 className="font-display font-extralight text-lg md:text-xl tracking-tight text-ink" style={{ letterSpacing: "-0.01em" }}>
             {mood ? "Curated Selection" : "Browse Films"}
           </h1>
 
-          <Link
-            href="/#spin"
-            className="btn-premium btn-primary font-display text-xs tracking-[0.12em] uppercase px-5 py-2.5 rounded-full
-              border border-golden/45 text-white hover:shadow-[0_8px_24px_rgba(216,154,63,0.35)] transition-all"
+          <MagneticButton
+            onClick={() => router.push("/#spin")}
+            className="font-display text-xs tracking-[0.12em] uppercase px-5 py-2.5"
+            data-cursor="SPIN"
           >
             Spin Now
-          </Link>
+          </MagneticButton>
         </div>
       </header>
 
-      {/* Hero Banner */}
       <section className="relative py-20 md:py-28 text-center px-6">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -278,34 +249,29 @@ function BrowseContent() {
           <p className="mt-5 text-ink-soft/70 font-body max-w-lg mx-auto leading-relaxed text-[15px]">
             {mood
               ? "Discover films that match your exact craving right now. A handpicked selection for your mood."
-              : "Dive into curated collections across every genre. Discover your next favorite film — from blockbusters to hidden gems."}
+              : "Dive into curated collections across every genre. Discover your next favorite film from blockbusters to hidden gems."}
           </p>
         </motion.div>
       </section>
 
-      {/* Genre Rows */}
       <div className="max-w-[1400px] mx-auto pb-24">
         {displayGenres.map((genre) => (
           <GenreRow key={genre.id} genre={genre} />
         ))}
         {displayGenres.length === 0 && (
-          <div className="text-center py-20 text-ink-soft font-body">
-            No genres found for this selection.
-          </div>
+          <div className="text-center py-20 text-ink-soft font-body">No genres found for this selection.</div>
         )}
       </div>
 
-      {/* Footer */}
       <footer className="border-t border-ink/8 py-10 text-center">
         <p className="text-ink-muted text-xs tracking-[0.12em] uppercase font-display">
-          Powered by TMDB · © 2026 VELORA
+          Powered by TMDB - Copyright 2026 VELORA
         </p>
       </footer>
     </main>
   );
 }
 
-/* ──────────────────────── Page Export ──────────────────────── */
 export default function BrowsePage() {
   return (
     <Suspense fallback={<main className="min-h-screen bg-cream" />}>

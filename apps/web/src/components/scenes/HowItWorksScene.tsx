@@ -56,7 +56,7 @@ export default function HowItWorksScene() {
               whileHover={{ y: -8, backgroundColor: "rgba(255,255,255,0.08)", borderColor: "rgba(255,255,255,0.15)" }}
               className="relative p-10 md:p-12 rounded-3xl bg-white/[0.03] backdrop-blur-md border border-white/[0.08] transition-all duration-500 overflow-hidden group border-b-white/[0.02] border-r-white/[0.02]"
             >
-              <div className="absolute top-0 left-0 w-32 h-32 bg-golden opacity-0 group-hover:opacity-10 transition-opacity duration-700 blur-[40px] -translate-x-1/2 -translate-y-1/2 mix-blend-screen" />
+              <div className="absolute top-0 left-0 w-32 h-32 bg-golden opacity-0 group-hover:opacity-10 transition-opacity duration-700 blur-[40px] -translate-x-1/2 -translate-y-1/2" />
               
               <div
                 className="font-display font-extralight leading-none mb-8 select-none opacity-80 text-gradient-gold"

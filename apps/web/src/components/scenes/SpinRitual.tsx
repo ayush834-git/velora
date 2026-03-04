@@ -1,36 +1,29 @@
-"use client";
+'use client';
 
-import { useRef, useState, useCallback, useMemo, useEffect } from "react";
-import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
-import { Movie } from "@/types/movie";
-import { getImageUrl } from "@/lib/tmdb";
-import { IMAGE_SIZES } from "@/lib/constants";
-import AnimatedText from "@/components/ui/AnimatedText";
-import ParticleField from "@/components/ui/ParticleField";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { fetchSpinMovie } from "@/lib/api";
-import {
-  getBackdropPath,
-  getMovieRating,
-  getPosterPath,
-  normalizeBackendMovie,
-} from "@/lib/movie-utils";
-import { useFilters } from "@/context/FilterContext";
-import MagneticButton from "../ui/MagneticButton";
+import { useCallback, useMemo, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Movie } from '@/types/movie';
+import { IMAGE_SIZES } from '@/lib/constants';
+import { fetchSpinMovie } from '@/lib/api';
+import { getPosterPath, normalizeBackendMovie } from '@/lib/movie-utils';
+import { getImageUrl } from '@/lib/tmdb';
+import { useFilters } from '@/context/FilterContext';
+import AnimatedText from '@/components/ui/AnimatedText';
+import MagneticButton from '@/components/ui/MagneticButton';
+import SpinSequence from '@/components/SpinSequence';
 
 interface SpinRitualProps {
   movies: Movie[];
   onResult?: (movie: Movie) => void;
 }
 
-type SpinPhase = "idle" | "spinning" | "revealing" | "done";
+type SpinPhase = 'idle' | 'spinning' | 'done';
 
 const GENRE_TO_ID: Record<string, number> = {
   Action: 28,
   Drama: 18,
   Comedy: 35,
-  "Sci-Fi": 878,
+  'Sci-Fi': 878,
   Horror: 27,
   Romance: 10749,
   Thriller: 53,
@@ -38,7 +31,7 @@ const GENRE_TO_ID: Record<string, number> = {
 };
 
 const MOOD_TO_GENRE_IDS: Record<string, number[]> = {
-  "Mind-Bending": [878, 9648, 53],
+  'Mind-Bending': [878, 9648, 53],
   Comfort: [35, 10751, 16],
   Dark: [27, 53, 80],
   Uplifting: [35, 10751, 10402],
@@ -46,23 +39,13 @@ const MOOD_TO_GENRE_IDS: Record<string, number[]> = {
   Romantic: [10749, 18],
 };
 
-function clamp(value: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, value));
-}
-
 export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [phase, setPhase] = useState<SpinPhase>("idle");
-  const [flashIndex, setFlashIndex] = useState(0);
+  const [phase, setPhase] = useState<SpinPhase>('idle');
+  const [isSpinning, setIsSpinning] = useState(false);
   const [chosenMovie, setChosenMovie] = useState<Movie | null>(null);
-  const [previewMovie, setPreviewMovie] = useState<Movie | null>(null);
-  const [isFilterLoading, setIsFilterLoading] = useState(false);
-  const [isPreviewTransitioning, setIsPreviewTransitioning] = useState(false);
-  const [spinRippleKey, setSpinRippleKey] = useState(0);
-  const [posterTilt, setPosterTilt] = useState({ x: 0, y: 0 });
-  const [shadowFocus, setShadowFocus] = useState({ x: 50, y: 24 });
-  const apiResultRef = useRef<Movie | null>(null);
-  const prefersReduced = useReducedMotion();
+  const [sequencePoster, setSequencePoster] = useState<string | undefined>(undefined);
+  const pendingMovieRef = useRef<Movie | null>(null);
+
   const { filters } = useFilters();
 
   const spinFilters = useMemo(
@@ -77,9 +60,8 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
   );
 
   const activeFilterLabels = Object.values(spinFilters).filter(
-    (v): v is string => typeof v === "string" && v.length > 0 && v !== "Any"
+    (value): value is string => typeof value === 'string' && value.length > 0 && value !== 'Any'
   );
-  const hasActiveFilters = activeFilterLabels.length > 0;
 
   const flashPool = useMemo(() => {
     if (movies.length === 0) return movies;
@@ -98,181 +80,70 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
     return pool.length > 0 ? pool : movies;
   }, [filters.genre, filters.mood, movies]);
 
-  useEffect(() => {
-    let active = true;
-    let settleTimer: ReturnType<typeof setTimeout> | undefined;
+  const fallbackMovie = useMemo(() => {
+    if (flashPool.length === 0) return null;
+    return flashPool[Math.floor(Math.random() * flashPool.length)] || flashPool[0] || null;
+  }, [flashPool]);
 
-    const beginTimer = setTimeout(() => {
-      if (!active) return;
-      setIsFilterLoading(true);
-      setIsPreviewTransitioning(true);
-    }, 0);
+  const startSpin = useCallback(() => {
+    if (isSpinning || flashPool.length === 0) return;
+
+    setPhase('spinning');
+    setIsSpinning(true);
+
+    pendingMovieRef.current = fallbackMovie;
+    const fallbackPosterPath = fallbackMovie ? getPosterPath(fallbackMovie) : null;
+    setSequencePoster(
+      fallbackPosterPath ? getImageUrl(fallbackPosterPath, IMAGE_SIZES.poster.large) : undefined
+    );
 
     fetchSpinMovie(spinFilters)
       .then((movie) => {
-        if (!active) return;
-        setPreviewMovie(normalizeBackendMovie(movie));
-      })
-      .catch((error) => {
-        console.error("Failed to refresh filtered spin movie", error);
-      })
-      .finally(() => {
-        settleTimer = setTimeout(() => {
-          if (!active) return;
-          setIsFilterLoading(false);
-          setIsPreviewTransitioning(false);
-        }, 180);
-      });
-
-    return () => {
-      active = false;
-      clearTimeout(beginTimer);
-      if (settleTimer) clearTimeout(settleTimer);
-    };
-  }, [spinFilters]);
-
-  // Removed GSAP ScrollTrigger pin — was causing jarring scroll snap
-
-  const spin = useCallback(() => {
-    if (phase !== "idle" || flashPool.length === 0) return;
-    setPhase("spinning");
-    setSpinRippleKey((key) => key + 1);
-    setPosterTilt({ x: 0, y: 0 });
-    setShadowFocus({ x: 50, y: 24 });
-
-    apiResultRef.current = null;
-    fetchSpinMovie(spinFilters)
-      .then((data) => {
-        apiResultRef.current = normalizeBackendMovie(data);
-      })
-      .catch((error) => {
-        console.error("Spin API request failed", error);
-        apiResultRef.current = flashPool[Math.floor(Math.random() * flashPool.length)] || null;
-      });
-
-    let count = 0;
-    const maxFlashes = 20;
-
-    const flash = () => {
-      setFlashIndex(Math.floor(Math.random() * flashPool.length));
-      count += 1;
-
-      if (count < maxFlashes) {
-        setSpinRippleKey(k => k + 1); // Extra pulse effect on late flashes
-        
-        // Decelerating curve: starts fast (~80ms), slows down significantly towards the end (~400ms)
-        const progress = count / maxFlashes;
-        // easeOutQuart formula: 1 - (1 - x)^4
-        const easeOut = 1 - Math.pow(1 - progress, 4);
-        
-        // Map easeOut (0->1) to delay (80->450)
-        const delay = 80 + (easeOut * 370);
-        
-        setTimeout(flash, delay);
-        return;
-      }
-
-      const reveal = () => {
-        const selected =
-          apiResultRef.current || flashPool[Math.floor(Math.random() * flashPool.length)] || null;
-        if (!selected) {
-          setPhase("idle");
-          return;
+        const normalized = normalizeBackendMovie(movie);
+        pendingMovieRef.current = normalized;
+        const posterPath = getPosterPath(normalized);
+        if (posterPath) {
+          setSequencePoster(getImageUrl(posterPath, IMAGE_SIZES.poster.large));
         }
+      })
+      .catch((error) => {
+        console.error('Spin API request failed', error);
+      });
+  }, [fallbackMovie, flashPool.length, isSpinning, spinFilters]);
 
-        setChosenMovie(selected);
-        setPhase("revealing");
+  const onSequenceComplete = useCallback(() => {
+    const selected = pendingMovieRef.current || fallbackMovie;
+    setIsSpinning(false);
 
-        setTimeout(() => {
-          setPhase("done");
-          onResult?.(selected);
-        }, 420);
-      };
+    if (!selected) {
+      setPhase('idle');
+      return;
+    }
 
-      if (apiResultRef.current) {
-        reveal();
-      } else {
-        setTimeout(reveal, 220);
-      }
-    };
+    setChosenMovie(selected);
+    setPhase('done');
+    onResult?.(selected);
+  }, [fallbackMovie, onResult]);
 
-    flash();
-  }, [flashPool, onResult, phase, spinFilters]);
-
-  const reset = useCallback(() => {
-    setPhase("idle");
+  const resetSpin = useCallback(() => {
     setChosenMovie(null);
-    apiResultRef.current = null;
-    setPosterTilt({ x: 0, y: 0 });
-    setShadowFocus({ x: 50, y: 24 });
+    setSequencePoster(undefined);
+    pendingMovieRef.current = null;
+    setPhase('idle');
   }, []);
 
-  const handlePosterMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (prefersReduced) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const nx = (event.clientX - rect.left) / rect.width - 0.5;
-    const ny = (event.clientY - rect.top) / rect.height - 0.5;
-    setPosterTilt({
-      x: clamp(-ny * 12, -6, 6),
-      y: clamp(nx * 12, -6, 6),
-    });
-    setShadowFocus({
-      x: clamp((nx + 0.5) * 100, 8, 92),
-      y: clamp((ny + 0.5) * 100, 8, 92),
-    });
-  };
-
-  const handlePosterLeave = () => {
-    setPosterTilt({ x: 0, y: 0 });
-    setShadowFocus({ x: 50, y: 24 });
-  };
-
-  const canSpin = phase === "idle" && flashPool.length > 0;
-  const flashMovie = flashPool[flashIndex] || flashPool[0] || null;
-  const flashPosterPath = flashMovie ? getPosterPath(flashMovie) : null;
-  const chosenPosterPath = chosenMovie ? getPosterPath(chosenMovie) : null;
-  const previewPosterPath = previewMovie ? getPosterPath(previewMovie) : null;
-  const chosenRating = chosenMovie ? getMovieRating(chosenMovie) : 0;
-  const backdropMovie = chosenMovie || previewMovie || flashMovie;
-  const backdropPath = backdropMovie ? getBackdropPath(backdropMovie) || getPosterPath(backdropMovie) : null;
-  const backdropSrc = backdropPath ? getImageUrl(backdropPath, IMAGE_SIZES.backdrop.large) : null;
-  const backdropBlur = backdropPath ? getImageUrl(backdropPath, "w92") : undefined;
-
   return (
-    <section
-      ref={sectionRef}
-      className="scene relative min-h-screen flex items-center justify-center py-24"
-      id="spin"
-    >
-      {backdropSrc && (
-        <div className="absolute inset-0 overflow-hidden">
-          <Image
-            src={backdropSrc}
-            alt=""
-            fill
-            sizes="100vw"
-            quality={90}
-            priority
-            placeholder={backdropBlur ? "blur" : "empty"}
-            blurDataURL={backdropBlur}
-            className="object-cover scale-110 blur-[20px] opacity-50"
-          />
-        </div>
-      )}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_34%,rgba(24,22,27,0.3)_100%)]" />
-
-      <div className="absolute inset-0 z-[1] pointer-events-none opacity-50">
-        <ParticleField isSpiral={phase === "spinning"} />
-      </div>
+    <section id="spin" className="scene relative min-h-screen flex items-center justify-center py-24">
+      <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream-warm to-cream" />
 
       <div className="relative z-10 w-full max-w-3xl mx-auto text-center px-6">
         <AnimatePresence mode="wait">
-          {(phase === "idle" || phase === "spinning") && (
+          {(phase === 'idle' || phase === 'spinning') && (
             <motion.div
               key="spin-ready"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0, scale: 0.94 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.42 }}
             >
               <motion.span
@@ -287,130 +158,27 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
               <AnimatedText
                 text="One click. One film."
                 className="font-display font-extralight text-ink mb-6"
-                style={{ fontSize: "var(--text-headline)" }}
+                style={{ fontSize: 'var(--text-headline)' }}
                 delay={0.08}
                 stagger={0.03}
                 splitBy="words"
                 as="h2"
               />
 
-              <div className="relative w-56 h-56 md:w-72 md:h-72 mx-auto my-10" data-cursor="spin" data-cursor-label="SPIN">
-                {/* 7A: Film Reel Background */}
-                <motion.div
-                  className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10"
-                  animate={{ rotate: phase === "spinning" ? 360 * 3 : 0 }}
-                  transition={phase === "spinning"
-                    ? { duration: 2, ease: "easeInOut" }
-                    : { duration: 120, repeat: Infinity, ease: "linear" }
-                  }
-                >
-                  <svg width="600" height="600" viewBox="0 0 100 100" opacity="0.08" className="text-golden">
-                    <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-                    <circle cx="50" cy="50" r="28" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-                    {Array.from({length:8}).map((_,i) => {
-                      const angle = (i/8) * Math.PI * 2;
-                      const x = 50 + Math.cos(angle) * 37;
-                      const y = 50 + Math.sin(angle) * 37;
-                      return <circle key={i} cx={x} cy={y} r="3" fill="none" stroke="currentColor" strokeWidth="0.4"/>;
-                    })}
-                    <circle cx="50" cy="50" r="8" fill="none" stroke="currentColor" strokeWidth="0.5"/>
-                  </svg>
-                </motion.div>
-
+              <div className="relative w-56 h-56 md:w-72 md:h-72 mx-auto my-10" data-cursor="SPIN">
                 <div className="spin-ring w-[85%] h-[85%] top-[7.5%] left-[7.5%]" />
                 <div className="spin-ring w-[70%] h-[70%] top-[15%] left-[15%]" />
 
-                {(isFilterLoading || isPreviewTransitioning) && phase !== "spinning" && (
-                  <div className="absolute inset-[23%] rounded-full overflow-hidden">
-                    <div className="absolute inset-0 shimmer opacity-70" />
-                  </div>
-                )}
-
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <AnimatePresence mode="wait">
-                    {phase === "spinning" ? (
-                      <motion.div
-                        key={flashIndex}
-                        initial={{ clipPath: "inset(0% 0 100% 0)" }}
-                        animate={{ clipPath: "inset(0% 0 0% 0)" }}
-                        exit={{ opacity: 0, clipPath: "inset(100% 0 0% 0)" }}
-                        transition={{ duration: 0.15, ease: "easeOut" }}
-                        className="relative w-28 h-40 md:w-36 md:h-52 rounded-xl overflow-hidden shadow-xl"
-                      >
-                        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.6)_100%)] mix-blend-multiply z-10 pointer-events-none grain-overlay" />
-                        {flashPosterPath ? (
-                          <Image
-                            src={getImageUrl(flashPosterPath, IMAGE_SIZES.poster.small)}
-                            alt=""
-                            fill
-                            sizes="(max-width:1200px) 33vw, 144px"
-                            quality={90}
-                            priority
-                            placeholder="blur"
-                            blurDataURL={getImageUrl(flashPosterPath, "w92")}
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-cream-warm/80" />
-                        )}
-                      </motion.div>
-                    ) : (
-                      <MagneticButton
-                        key="spin-btn"
-                        onClick={spin}
-                        disabled={!canSpin}
-                        data-cursor="SPIN"
-                        className={`spin-glow-pulse relative overflow-hidden w-28 h-28 md:w-36 md:h-36 !rounded-full cursor-pointer
-                          btn-primary !p-0 flex items-center justify-center
-                          text-white font-display text-xl md:text-2xl tracking-[0.2em] uppercase
-                          shadow-[0_8px_40px_rgba(216,154,63,0.35)]
-                          hover:shadow-[0_14px_52px_rgba(232,168,56,0.56)]
-                          transition-transform duration-300 disabled:opacity-70 disabled:cursor-not-allowed
-                          ${hasActiveFilters ? "ring-4 ring-golden/50 ring-offset-4 ring-offset-cream" : ""}`}
-                      >
-                        {spinRippleKey > 0 && (
-                          <AnimatePresence>
-                            <motion.span
-                              key={spinRippleKey}
-                              initial={{ scale: 0, opacity: 0.35 }}
-                              animate={{ scale: 2.8, opacity: 0 }}
-                              transition={{ duration: 0.45, ease: "easeOut" }}
-                              className="absolute inset-0 rounded-full border border-white/60"
-                            />
-                          </AnimatePresence>
-                        )}
-                        <span className="relative z-10 block w-full text-center leading-[36px]">{flashPool.length > 0 ? "SPIN" : "..."}</span>
-                      </MagneticButton>
-                    )}
-                  </AnimatePresence>
+                  <MagneticButton
+                    onClick={startSpin}
+                    disabled={isSpinning || flashPool.length === 0}
+                    data-cursor="SPIN"
+                    className="spin-glow-pulse relative overflow-hidden w-28 h-28 md:w-36 md:h-36 !rounded-full !p-0 flex items-center justify-center text-[#1A1A2E] font-display text-xl md:text-2xl tracking-[0.2em] uppercase disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isSpinning ? '...' : 'SPIN'}
+                  </MagneticButton>
                 </div>
-              </div>
-
-              <div className="h-16 flex items-center justify-center">
-                <AnimatePresence mode="wait">
-                  {previewPosterPath && (
-                    <motion.div
-                      key={previewMovie?.id || "preview"}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: isPreviewTransitioning ? 0.25 : 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.28 }}
-                      className="relative w-12 h-16 rounded-md overflow-hidden shadow-md"
-                    >
-                      <Image
-                        src={getImageUrl(previewPosterPath, IMAGE_SIZES.poster.small)}
-                        alt=""
-                        fill
-                        sizes="(max-width:1200px) 33vw, 48px"
-                        quality={90}
-                        priority
-                        placeholder="blur"
-                        blurDataURL={getImageUrl(previewPosterPath, "w92")}
-                        className="object-cover"
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </div>
 
               <motion.p
@@ -422,123 +190,51 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
                 One click. One film. No paradox of choice.
               </motion.p>
 
-              {hasActiveFilters && (
+              {activeFilterLabels.length > 0 && (
                 <motion.p
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
                   className="text-[10px] tracking-[0.32em] uppercase text-golden-warm mt-3"
                 >
-                  {activeFilterLabels.join("  ·  ")}
+                  {activeFilterLabels.join('  |  ')}
                 </motion.p>
               )}
             </motion.div>
           )}
 
-          {(phase === "revealing" || phase === "done") && chosenMovie && (
+          {phase === 'done' && chosenMovie && (
             <motion.div
-              key={`reveal-${chosenMovie.id}`}
-              initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
-              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              key={`spin-done-${chosenMovie.id}`}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
               className="flex flex-col items-center"
             >
-              <motion.span
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: 0.04 }}
-                className="font-display text-xs tracking-[0.3em] uppercase text-golden-warm mb-4"
-              >
+              <span className="font-display text-xs tracking-[0.3em] uppercase text-golden-warm mb-4">
                 Fate has spoken
-              </motion.span>
+              </span>
 
-              <motion.div
-                layoutId={`movie-card-${chosenMovie.id}`}
-                onMouseMove={handlePosterMove}
-                onMouseLeave={handlePosterLeave}
-                style={{
-                  transformStyle: "preserve-3d",
-                  boxShadow: `0 28px 64px rgba(0,0,0,0.28), ${(posterTilt.y / 6) * 12}px ${
-                    (posterTilt.x / 6) * 10
-                  }px 26px rgba(243,166,58,0.22)`,
-                }}
-                animate={{ rotateX: posterTilt.x, rotateY: posterTilt.y }}
-                transition={{ type: "spring", stiffness: 180, damping: 18, mass: 0.45 }}
-                className="relative w-48 h-72 md:w-56 md:h-84 rounded-2xl overflow-hidden mb-6"
-              >
-                {chosenPosterPath ? (
-                  <Image
-                    src={getImageUrl(chosenPosterPath, IMAGE_SIZES.poster.large)}
-                    alt={chosenMovie.title}
-                    fill
-                    sizes="(max-width:1200px) 33vw, 224px"
-                    quality={90}
-                    priority
-                    placeholder="blur"
-                    blurDataURL={getImageUrl(chosenPosterPath, "w92")}
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-cream-warm/80" />
-                )}
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.6)_100%)] mix-blend-multiply z-[5] pointer-events-none grain-overlay" />
-
-                <div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{
-                    background: `radial-gradient(circle at ${shadowFocus.x}% ${shadowFocus.y}%, rgba(255,255,255,0.24) 0%, transparent 62%)`,
-                  }}
-                />
-
-                <motion.div
-                  className="absolute -top-3 -right-3 rounded-full h-12 w-12 flex items-center justify-center text-sm font-semibold text-white bg-gradient-to-br from-[#f7c873] to-[#f3a63a] shadow-[0_8px_20px_rgba(243,166,58,0.3)]"
-                  animate={{ x: posterTilt.y * 1.4, y: -posterTilt.x * 1.4 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 18, mass: 0.5 }}
-                  style={{ transform: "translateZ(24px)" }}
-                >
-                  {chosenRating.toFixed(1)}
-                </motion.div>
-              </motion.div>
-
-              <motion.h3
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, delay: 0.05 }}
-                className="font-display font-light text-ink"
-                style={{ fontSize: "var(--text-subheadline)" }}
-              >
+              <h3 className="font-display font-light text-ink" style={{ fontSize: 'var(--text-subheadline)' }}>
                 {chosenMovie.title}
-              </motion.h3>
+              </h3>
 
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: 0.08 }}
-                className="text-ink-soft text-sm mt-2"
-              >
-                {chosenMovie.release_date?.slice(0, 4)} ·{" "}
-                {chosenMovie.original_language?.toUpperCase()}
-              </motion.p>
+              <p className="text-ink-soft text-sm mt-2">
+                {chosenMovie.release_date?.slice(0, 4)} | {chosenMovie.original_language?.toUpperCase()}
+              </p>
 
-              <motion.button
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.1 }}
-                onClick={reset}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.97 }}
-                className="mt-8 btn-premium text-sm tracking-[0.03em] uppercase
-                  btn-primary font-display text-white border border-golden/45
-                  transition-all duration-300 cursor-pointer"
-                data-cursor="AGAIN"
+              <MagneticButton
+                onClick={resetSpin}
+                data-cursor="SPIN"
+                className="mt-8"
               >
                 Spin Again
-              </motion.button>
+              </MagneticButton>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
+      <SpinSequence isSpinning={isSpinning} onComplete={onSequenceComplete} posterUrl={sequencePoster} />
     </section>
   );
 }

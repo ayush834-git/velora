@@ -3,8 +3,6 @@
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/ui/Navbar";
-import ParallaxBackground from "@/components/ui/ParallaxBackground";
-import CursorFollower from "@/components/ui/CursorFollower";
 import HeroScene from "@/components/scenes/HeroScene";
 import MarqueeScene from "@/components/scenes/MarqueeScene";
 import MoodClockScene from "@/components/scenes/MoodClockScene";
@@ -137,12 +135,10 @@ export default function Home() {
 
   return (
     <main className="app-shell relative">
-      <ParallaxBackground movies={baseMovies} />
-      <CursorFollower />
       <Navbar />
 
       <div className="relative z-10">
-        <HeroScene movies={baseMovies} />
+        <HeroScene />
         <MarqueeScene />
         <MoodClockScene />
         <ConstellationScene />

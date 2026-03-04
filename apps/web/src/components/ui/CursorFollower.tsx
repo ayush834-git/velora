@@ -45,8 +45,8 @@ export default function CursorFollower() {
     return () => window.removeEventListener("mousemove", move);
   }, [mouseX, mouseY]);
 
-  const sizes: Record<CursorMode, number> = {
-    default: 10, hover: 44, poster: 64, spin: 80,
+  const scales: Record<CursorMode, number> = {
+    default: 0.125, hover: 0.55, poster: 0.8, spin: 1,
   };
 
   // Only render on client to avoid hydration mismatch
@@ -58,11 +58,10 @@ export default function CursorFollower() {
     <>
       {/* Outer ring */}
       <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-[9999] flex items-center justify-center hidden md:flex"
+        className="fixed top-0 left-0 pointer-events-none z-[9999] w-20 h-20 flex items-center justify-center hidden md:flex"
         style={{ x: springX, y: springY, translateX: "-50%", translateY: "-50%" }}
         animate={{
-          width: sizes[mode],
-          height: sizes[mode],
+          scale: scales[mode],
           opacity: mode === "default" ? 0.5 : 0.9,
         }}
         transition={{ type: "spring", stiffness: 300, damping: 22 }}
@@ -88,9 +87,9 @@ export default function CursorFollower() {
 
       {/* Inner dot */}
       <motion.div
-        className="fixed top-0 left-0 pointer-events-none z-[9999] rounded-full bg-golden hidden md:block"
+        className="fixed top-0 left-0 pointer-events-none z-[9999] w-1.5 h-1.5 rounded-full bg-golden hidden md:block"
         style={{ x: mouseX, y: mouseY, translateX: "-50%", translateY: "-50%" }}
-        animate={{ width: mode === "default" ? 6 : 0, height: mode === "default" ? 6 : 0 }}
+        animate={{ scale: mode === "default" ? 1 : 0 }}
         transition={{ duration: 0.15 }}
       />
     </>

@@ -1,7 +1,7 @@
 .velora-bg-root {
   position: fixed;
   inset: 0;
-  z-index: -10;
+  z-index: -1;
   background: radial-gradient(ellipse 140% 100% at 50% 0%,
     #FBF6EE 0%, #F5EFE3 40%, #EDE5D8 100%);
   pointer-events: none;
@@ -10,7 +10,7 @@
 
 .velora-bg-layer {
   position: absolute;
-  inset: -8%; /* oversized — parallax room without edge reveal */
+  inset: -8%; /* oversized - parallax room without edge reveal */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -19,7 +19,7 @@
   pointer-events: none;
 }
 
-/* Drift lives on ::before — JS owns parent transform, no conflict */
+/* Drift lives on ::before - JS owns parent transform, no conflict */
 .velora-bg-layer::before {
   content: '';
   position: absolute;
@@ -29,7 +29,7 @@
   background-position: center;
 }
 
-/* Layer 1 — Amber */
+/* Layer 1 - Amber */
 .velora-bg-layer--amber {
   z-index: 1;
   background-image: url('/assets/backgrounds/velora-bg-amber.avif');
@@ -44,7 +44,7 @@
 }
 .velora-bg-layer--amber::before { animation: drift-amber 38s ease-in-out infinite; }
 
-/* Layer 2 — Champagne */
+/* Layer 2 - Champagne */
 .velora-bg-layer--champagne {
   z-index: 2;
   background-image: url('/assets/backgrounds/velora-bg-champagne.avif');
@@ -59,12 +59,12 @@
 }
 .velora-bg-layer--champagne::before { animation: drift-champagne 32s ease-in-out infinite; animation-delay: -8s; }
 
-/* Layer 3 — Blush */
+/* Layer 3 - Blush */
 .velora-bg-layer--blush {
   z-index: 3;
   background-image: url('/assets/backgrounds/velora-bg-blush.avif');
   opacity: 0.22;
-  mix-blend-mode: overlay; /* overlay — soft-light makes blush vanish */
+  mix-blend-mode: overlay; /* overlay - soft-light makes blush vanish */
 }
 @keyframes drift-blush {
   0%   { transform: translate3d(0,0,0) rotate(0deg) scale(1.08); }
@@ -73,7 +73,7 @@
 }
 .velora-bg-layer--blush::before { animation: drift-blush 28s ease-in-out infinite; animation-delay: -14s; }
 
-/* Layer 4 — Sky (lazy loaded — starts opacity 0) */
+/* Layer 4 - Sky (lazy loaded - starts opacity 0) */
 .velora-bg-layer--sky {
   z-index: 4;
   background-image: url('/assets/backgrounds/velora-bg-sky.avif');
@@ -88,7 +88,7 @@
 }
 .velora-bg-layer--sky::before { animation: drift-sky 35s ease-in-out infinite; animation-delay: -5s; }
 
-/* Layer 5 — Lavender (lazy loaded — starts opacity 0) */
+/* Layer 5 - Lavender (lazy loaded - starts opacity 0) */
 .velora-bg-layer--lavender {
   z-index: 5;
   background-image: url('/assets/backgrounds/velora-bg-lavender.avif');
