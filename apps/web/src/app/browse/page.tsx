@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState, useRef, useCallback, Suspense } from "react";
 import Link from "next/link";
@@ -36,7 +36,7 @@ const GENRE_ROWS = [
 function SkeletonCard() {
   return (
     <div
-      className="flex-shrink-0 rounded-2xl bg-gradient-to-br from-cream-warm/80 to-cream overflow-hidden relative"
+      className="flex-shrink-0 rounded-2xl bg-gradient-to-br from-cream-warm/80 to-cream overflow-hidden relative shadow-sm"
       style={{ width: 220, height: 330 }}
     >
       <div className="absolute inset-0 shimmer" />
@@ -54,11 +54,11 @@ function ScrollButton({
   return (
     <motion.button
       onClick={onClick}
-      whileHover={{ scale: 1.1 }}
+      whileHover={{ scale: 1.08 }}
       whileTap={{ scale: 0.94 }}
-      className="w-10 h-10 rounded-full bg-[#F5F0E8]/70 backdrop-blur-md border border-[#F5F0E8]/50 flex items-center justify-center text-ink-soft hover:text-golden shadow-[0_4px_16px_rgba(13,13,26,0.08)] transition-all duration-200"
+      className="w-9 h-9 rounded-full bg-[#F5F0E8] border border-ink/10 flex items-center justify-center text-ink-soft hover:text-golden-warm shadow-sm hover:border-golden-warm/40 transition-all duration-200 cursor-pointer"
       aria-label={`Scroll ${direction}`}
-      data-cursor="EXPLORE"
+      data-cursor-hover
     >
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         {direction === "left" ? (
@@ -128,35 +128,39 @@ function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
   }, []);
 
   return (
-    <section ref={rowRef} className="mb-14 relative z-10 [transform:translateZ(0)]">
-      <div className="flex items-end justify-between px-6 md:px-12 mb-6 relative z-20 border-b border-ink/5 pb-4">
-        <div>
-          <span className="block text-[10px] uppercase tracking-[0.3em] text-golden-warm/60 font-display mb-2">
+    <section ref={rowRef} className="mb-16 md:mb-20 relative z-10">
+      {/* Sticky Section Header */}
+      <div className="sticky top-[61px] z-30 bg-cream/95 backdrop-blur-md border-b border-ink/8 py-3.5 px-6 md:px-12 flex items-center justify-between mb-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
+        <div className="flex items-baseline gap-3">
+          <span className="text-[10px] uppercase tracking-[0.3em] text-golden-warm font-display font-medium">
             Genre Collection
           </span>
+          <span className="text-ink/30">•</span>
           <h2
-            className="font-display font-extralight text-4xl md:text-5xl text-ink tracking-tight"
-            style={{ letterSpacing: "-0.04em" }}
+            className="font-display font-extralight text-2xl md:text-3xl text-ink tracking-tight"
+            style={{ letterSpacing: "-0.02em" }}
           >
             {genre.name}
           </h2>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <ScrollButton direction="left" onClick={() => scroll("left")} />
           <ScrollButton direction="right" onClick={() => scroll("right")} />
         </div>
       </div>
 
+      {/* Carousel Wrapper */}
       <div className="relative group/row">
-        <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-cream to-transparent z-20 pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-cream to-transparent z-20 pointer-events-none" />
+        {/* Subtle Edge Gradients */}
+        <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-cream via-cream/80 to-transparent z-20 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-cream via-cream/80 to-transparent z-20 pointer-events-none" />
 
         <div
           ref={scrollRef}
-          className="flex gap-5 md:gap-6 px-6 md:px-12 overflow-x-auto pt-2 pb-10 scroll-smooth relative z-10"
+          className="flex gap-6 px-6 md:px-12 overflow-x-auto pt-2 pb-8 scroll-smooth relative z-10 custom-scrollbar"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          {isLoading && Array.from({ length: 12 }).map((_, i) => <SkeletonCard key={`skel-${i}`} />)}
+          {isLoading && Array.from({ length: 10 }).map((_, i) => <SkeletonCard key={`skel-${i}`} />)}
 
           {!isLoading &&
             movies.map((movie, i) => (
@@ -165,10 +169,10 @@ function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
                 href={`https://www.themoviedb.org/movie/${movie.id}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 18 }}
+                initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, delay: Math.min(i * 0.03, 0.35), ease: [0.16, 1, 0.3, 1] }}
-                className="flex-shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-golden/50 rounded-[12px] block"
+                transition={{ duration: 0.4, delay: Math.min(i * 0.03, 0.3), ease: [0.16, 1, 0.3, 1] }}
+                className="flex-shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-golden/50 rounded-[14px] block"
               >
                 <FilmCard
                   film={{
@@ -185,8 +189,8 @@ function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
             ))}
 
           {!isLoading && movies.length === 0 && (
-            <div className="w-full text-center py-16 text-ink-soft/60 font-body">
-              No films found for this genre.
+            <div className="w-full text-center py-12 text-ink-soft/60 font-body text-sm">
+              No films found in this collection.
             </div>
           )}
         </div>
@@ -207,65 +211,71 @@ function BrowseContent() {
     : GENRE_ROWS;
 
   return (
-    <main className="min-h-screen bg-cream isolate [transform:translateZ(0)]">
-      <header className="sticky top-0 z-50 bg-cream/90 backdrop-blur-xl border-b border-ink/5 transform-gpu [backface-visibility:hidden] [transform:translateZ(0)]">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
-          <Link
-            href="/"
-            className="font-display text-sm tracking-[0.4em] uppercase text-ink hover:text-golden transition-colors"
-          >
-            Back to VELORA
-          </Link>
+    <main className="min-h-screen bg-cream isolate flex flex-col justify-between">
+      <div>
+        {/* Main Sticky Header */}
+        <header className="sticky top-0 z-50 bg-cream/90 backdrop-blur-xl border-b border-ink/5">
+          <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
+            <Link
+              href="/"
+              className="font-display text-xs md:text-sm tracking-[0.4em] uppercase text-ink hover:text-golden transition-colors"
+            >
+              Back to VELORA
+            </Link>
 
-          <h1 className="font-display font-extralight text-lg md:text-xl tracking-tight text-ink" style={{ letterSpacing: "-0.01em" }}>
-            {mood ? "Curated Selection" : "Browse Films"}
-          </h1>
+            <h1 className="font-display font-extralight text-lg md:text-xl tracking-tight text-ink" style={{ letterSpacing: "-0.01em" }}>
+              {mood ? "Curated Selection" : "Browse Films"}
+            </h1>
 
-          <MagneticButton
-            onClick={() => router.push("/#spin")}
-            className="font-display text-xs tracking-[0.12em] uppercase px-5 py-2.5"
-            data-cursor="SPIN"
+            <MagneticButton
+              onClick={() => router.push("/#spin")}
+              className="font-display text-xs tracking-[0.12em] uppercase px-5 py-2.5"
+              data-cursor="SPIN"
+            >
+              Spin Now
+            </MagneticButton>
+          </div>
+        </header>
+
+        {/* Hero Section (Optimized Spacing: reduced by 30%) */}
+        <section className="relative py-12 md:py-16 text-center px-6 max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
-            Spin Now
-          </MagneticButton>
+            <span className="font-display text-[10px] md:text-xs tracking-[0.45em] uppercase text-golden-warm font-medium block mb-3">
+              {mood ? "Tailored for you" : "Cinema Library"}
+            </span>
+            <h2
+              className="font-display font-extralight text-ink leading-[1.02] capitalize tracking-tight"
+              style={{ fontSize: "clamp(2.25rem, 5vw, 4.25rem)", letterSpacing: "-0.025em" }}
+            >
+              {mood ? `${mood.replace("-", " ")} Collection` : "Explore by Genre"}
+            </h2>
+            <p className="mt-4 text-ink-soft/75 font-body max-w-lg mx-auto leading-relaxed text-balance text-[15px]">
+              {mood
+                ? "Discover films that match your exact craving right now. A handpicked selection for your mood."
+                : "Dive into curated collections across every genre. Discover your next favorite film from timeless masterpieces to hidden gems."}
+            </p>
+          </motion.div>
+        </section>
+
+        {/* Genre Collections */}
+        <div className="max-w-[1400px] mx-auto pb-16">
+          {displayGenres.map((genre) => (
+            <GenreRow key={genre.id} genre={genre} />
+          ))}
+          {displayGenres.length === 0 && (
+            <div className="text-center py-20 text-ink-soft font-body">No genres found for this selection.</div>
+          )}
         </div>
-      </header>
-
-      <section className="relative py-20 md:py-28 text-center px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        >
-          <span className="font-display text-[10px] tracking-[0.5em] uppercase text-golden-warm/70 block mb-4">
-            {mood ? "Tailored for you" : "Cinema Library"}
-          </span>
-          <h2
-            className="font-display font-extralight text-ink leading-[0.95] capitalize"
-            style={{ fontSize: "clamp(3rem, 7vw, 6rem)", letterSpacing: "-0.03em" }}
-          >
-            {mood ? `${mood.replace("-", " ")} Collection` : "Explore by Genre"}
-          </h2>
-          <p className="mt-6 text-ink-soft/70 font-body max-w-xl mx-auto leading-relaxed text-balance" style={{ fontSize: "clamp(0.95rem, 1.5vw, 1.15rem)" }}>
-            {mood
-              ? "Discover films that match your exact craving right now. A handpicked selection for your mood."
-              : "Dive into curated collections across every genre. Discover your next favorite film from blockbusters to hidden gems."}
-          </p>
-        </motion.div>
-      </section>
-
-      <div className="max-w-[1400px] mx-auto pb-24">
-        {displayGenres.map((genre) => (
-          <GenreRow key={genre.id} genre={genre} />
-        ))}
-        {displayGenres.length === 0 && (
-          <div className="text-center py-20 text-ink-soft font-body">No genres found for this selection.</div>
-        )}
       </div>
 
-      <footer className="border-t border-ink/8 py-10 text-center">
-        <p className="text-ink-muted text-xs tracking-[0.12em] uppercase font-display">
-          Powered by TMDB - Copyright 2026 VELORA
+      {/* Editorial Footer */}
+      <footer className="border-t border-ink/8 py-8 text-center bg-cream-warm/20">
+        <p className="text-ink-muted text-xs tracking-[0.16em] uppercase font-display">
+          Powered by TMDB · VELORA
         </p>
       </footer>
     </main>
