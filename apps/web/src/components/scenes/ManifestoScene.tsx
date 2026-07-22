@@ -46,7 +46,7 @@ export default function ManifestoScene() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-20 md:py-28 px-[7vw] overflow-hidden"
+      className="relative py-28 md:py-36 px-6 md:px-12 lg:px-16 overflow-hidden"
     >
       {/* Decorative giant V */}
       <div
@@ -58,7 +58,7 @@ export default function ManifestoScene() {
         V
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto w-full pl-2 md:pl-0">
+      <div className="relative z-10 max-w-7xl mx-auto w-full">
         <motion.span
           initial={{ opacity: 0, y: 10 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}

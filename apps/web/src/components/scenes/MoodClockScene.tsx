@@ -266,7 +266,7 @@ export default function MoodClockScene() {
   return (
     <section
       className="relative overflow-hidden flex items-center justify-center
-        px-[5vw] py-16 md:py-24"
+        px-6 md:px-12 lg:px-16 py-28 md:py-36"
     >
       {/* Film strip perforation columns — purely decorative */}
       {["left-0", "right-0"].map((side) => (

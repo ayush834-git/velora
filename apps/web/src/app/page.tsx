@@ -89,19 +89,28 @@ export default function Home() {
     setChosenMovie(baseMovies[0]);
   }, [baseMovies, chosenMovie]);
 
+  const scrollToRecommendation = useCallback(() => {
+    const el = document.getElementById("movie-banner");
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    const targetY = window.pageYOffset + rect.top - (windowHeight * 0.08);
+    window.scrollTo({
+      top: Math.max(0, targetY),
+      behavior: "smooth",
+    });
+  }, []);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.location.hash !== "#result") return;
 
     const timer = window.setTimeout(() => {
-      document.getElementById("movie-banner")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 50);
+      scrollToRecommendation();
+    }, 100);
 
     return () => window.clearTimeout(timer);
-  }, [chosenMovie]);
+  }, [chosenMovie, scrollToRecommendation]);
 
   const handleSpinResult = useCallback(
     (movie: Movie) => {
@@ -111,13 +120,12 @@ export default function Home() {
       window.setTimeout(() => {
         setChosenMovie(movie);
         setIsBannerTransitioning(false);
-        document.getElementById("movie-banner")?.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
+        window.setTimeout(() => {
+          scrollToRecommendation();
+        }, 120);
       }, 300);
     },
-    [router]
+    [router, scrollToRecommendation]
   );
 
   const handleMoodSelect = useCallback(() => {

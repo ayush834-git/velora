@@ -27,11 +27,11 @@ export default function HowItWorksScene() {
   return (
     <section
       ref={ref}
-      className="relative px-[6vw] py-20 md:py-28 overflow-hidden"
+      className="relative px-6 md:px-12 lg:px-16 py-28 md:py-36 overflow-hidden"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(232,168,56,0.05),transparent_50%)] pointer-events-none z-0" />
 
-      <div className="max-w-6xl mx-auto relative z-10">
+      <div className="max-w-7xl mx-auto relative z-10">
         <motion.span
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}

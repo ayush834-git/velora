@@ -27,7 +27,7 @@ export default function FooterScene() {
   return (
     <footer
       ref={sectionRef}
-      className="scene relative pt-20 md:pt-28 pb-12 md:pb-16 px-[5vw] overflow-hidden border-t border-ink/10"
+      className="scene relative pt-28 md:pt-36 pb-16 md:pb-20 px-6 md:px-12 lg:px-16 overflow-hidden border-t border-ink/10"
       id="footer"
     >
       <motion.div

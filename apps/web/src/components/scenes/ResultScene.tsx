@@ -108,7 +108,7 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
   }, [filters, movie?.id, movie?.release_date, movie?.title]);
 
   return (
-    <section ref={sectionRef} id="movie-banner" className="scene relative py-20 md:py-28 flex items-center overflow-hidden">
+    <section ref={sectionRef} id="movie-banner" className="scene relative py-28 md:py-36 flex items-center overflow-hidden">
       <div id="result" className="absolute top-0 left-0 h-px w-px" />
 
       {/* Cinematic Backdrop Image & Overlay */}
@@ -141,7 +141,7 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
 
       {/* Main Content Card */}
       <motion.div
-        className="relative z-10 w-full max-w-[1200px] mx-auto px-6 md:px-12 py-12 md:py-20"
+        className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-12 md:py-20"
         animate={{ opacity: isTransitioning ? 0.45 : 1 }}
         transition={{ duration: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
       >

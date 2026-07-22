@@ -16,7 +16,7 @@ export default function WatchlistPage() {
       <div>
         {/* ─── Header bar ─── */}
         <header className="sticky top-0 z-50 bg-cream/90 backdrop-blur-xl border-b border-ink/5">
-          <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-4 flex items-center justify-between">
             <Link
               href="/"
               className="font-display text-xs md:text-sm tracking-[0.4em] uppercase text-ink hover:text-golden transition-colors"

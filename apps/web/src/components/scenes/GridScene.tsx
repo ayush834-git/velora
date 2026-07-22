@@ -24,12 +24,12 @@ export default function GridScene({
   return (
     <section
       ref={sectionRef}
-      className="scene relative py-16 md:py-24"
+      className="scene relative py-28 md:py-36"
       id="grid"
     >
 
       {/* Section heading */}
-      <div className="relative z-10 px-6 md:px-12 mb-12 max-w-7xl mx-auto">
+      <div className="relative z-10 px-6 md:px-12 lg:px-16 mb-14 max-w-7xl mx-auto">
         <motion.span
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}

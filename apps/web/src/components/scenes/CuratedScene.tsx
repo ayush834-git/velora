@@ -156,13 +156,13 @@ export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps
   return (
     <section
       ref={sectionRef}
-      className={`scene relative flex flex-col items-center py-20 md:py-28 transition-all duration-500 ${
+      className={`scene relative flex flex-col items-center py-28 md:py-36 transition-all duration-500 ${
         isTransitioning ? "blur-sm scale-105 opacity-80" : ""
       }`}
       id="curated"
     >
       {/* Section heading */}
-      <div className="relative z-10 text-center mb-12 md:mb-16 px-6">
+      <div className="relative z-10 text-center mb-14 md:mb-20 px-6 md:px-12 lg:px-16 max-w-7xl mx-auto">
         <motion.span
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
@@ -182,7 +182,7 @@ export default function CuratedScene({ movies, onMoodSelect }: CuratedSceneProps
       </div>
 
       {/* Mood grid */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-8">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-16 grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
         {MOODS.map((mood, i) => {
           const backdropUrl = moodBackdrops[mood.id]
             ? getImageUrl(moodBackdrops[mood.id]!, IMAGE_SIZES.backdrop.medium)

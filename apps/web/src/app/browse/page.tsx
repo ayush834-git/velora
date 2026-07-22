@@ -130,7 +130,7 @@ function GenreRow({ genre }: { genre: (typeof GENRE_ROWS)[number] }) {
   return (
     <section ref={rowRef} className="mb-16 md:mb-20 relative z-10">
       {/* Sticky Section Header */}
-      <div className="sticky top-[61px] z-30 bg-cream/95 backdrop-blur-md border-b border-ink/8 py-3.5 px-6 md:px-12 flex items-center justify-between mb-6 shadow-[0_4px_12px_rgba(0,0,0,0.02)]">
+      <div className="sticky top-[61px] z-30 bg-cream/95 backdrop-blur-md border-b border-ink/8 py-3.5 px-6 md:px-12 lg:px-16 flex items-center justify-between mb-8 shadow-[0_4px_12px_rgba(0,0,0,0.02)] max-w-7xl mx-auto">
         <div className="flex items-baseline gap-3">
           <span className="text-[10px] uppercase tracking-[0.3em] text-golden-warm font-display font-medium">
             Genre Collection
@@ -215,7 +215,7 @@ function BrowseContent() {
       <div>
         {/* Main Sticky Header */}
         <header className="sticky top-0 z-50 bg-cream/90 backdrop-blur-xl border-b border-ink/5">
-          <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-4 flex items-center justify-between">
             <Link
               href="/"
               className="font-display text-xs md:text-sm tracking-[0.4em] uppercase text-ink hover:text-golden transition-colors"

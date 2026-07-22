@@ -133,10 +133,10 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
   }, []);
 
   return (
-    <section id="spin" className="scene relative py-20 md:py-28 flex items-center justify-center">
+    <section id="spin" className="scene relative py-28 md:py-36 flex items-center justify-center">
       <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream-warm to-cream" />
 
-      <div className="relative z-10 w-full max-w-3xl mx-auto text-center px-6">
+      <div className="relative z-10 w-full max-w-7xl mx-auto text-center px-6 md:px-12 lg:px-16">
         <AnimatePresence mode="wait">
           {(phase === 'idle' || phase === 'spinning') && (
             <motion.div
