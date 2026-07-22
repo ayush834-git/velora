@@ -46,9 +46,7 @@ export default function ManifestoScene() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[80vh] flex flex-col justify-center
-        py-20 md:py-28 px-[7vw]
-        overflow-hidden"
+      className="relative py-20 md:py-28 px-[7vw] overflow-hidden"
     >
       {/* Decorative giant V */}
       <div
@@ -65,7 +63,7 @@ export default function ManifestoScene() {
           initial={{ opacity: 0, y: 10 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
-          className="block text-[13px] tracking-[0.42em] uppercase text-golden-warm mb-14"
+          className="block text-[13px] tracking-[0.42em] uppercase text-golden-warm mb-10 md:mb-14"
         >
           The Philosophy
         </motion.span>
@@ -101,7 +99,7 @@ export default function ManifestoScene() {
           initial={{ opacity: 0, y: 14 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.65, delay: 0.62 }}
-          className="mt-12 max-w-xl text-ink-soft leading-[2.0]"
+          className="mt-8 md:mt-10 max-w-xl text-ink-soft leading-[2.0]"
           style={{ fontSize: "clamp(1.05rem, 1.4vw, 1.25rem)" }}
         >
           Velora reads the moment, not just your mood. The right film is rarely the
@@ -112,7 +110,7 @@ export default function ManifestoScene() {
           initial={{ opacity: 0, y: 18 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.65, delay: 0.84 }}
-          className="grid grid-cols-2 md:grid-cols-4 gap-10 mt-24 pt-14
+          className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 mt-14 pt-10
             border-t border-ink/10"
         >
           {STATS.map((s) => (

@@ -177,7 +177,7 @@ export default function ConstellationScene() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden py-16 md:py-20 min-h-screen"
+      className="relative overflow-hidden py-20 md:py-28"
       style={{ background: "#0a0915" }}
     >
       {/* Star field — CSS-only twinkle */}
@@ -231,7 +231,7 @@ export default function ConstellationScene() {
       </AnimatePresence>
 
       {/* Header */}
-      <div className="relative z-10 text-center px-[5vw] mb-16 md:mb-24">
+      <div className="relative z-10 text-center px-[5vw] mb-10 md:mb-14">
         <motion.span
           initial={{ opacity: 0, y: 8 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}

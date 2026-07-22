@@ -68,10 +68,10 @@ export default function HeroScene() {
   };
 
   return (
-    <section ref={sectionRef} className="scene relative min-h-[140svh] [transform:translateZ(0)]">
+    <section ref={sectionRef} className="scene relative min-h-screen flex items-center justify-center py-12 md:py-16 [transform:translateZ(0)]">
       <div
         id="hero"
-        className="sticky top-0 flex min-h-[100svh] items-center justify-center overflow-hidden transform-gpu [backface-visibility:hidden]"
+        className="relative flex min-h-[90vh] md:min-h-screen w-full items-center justify-center overflow-hidden transform-gpu [backface-visibility:hidden]"
       >
         <motion.div
           className="absolute inset-0 bg-gradient-to-b from-cream/10 via-cream-warm/5 to-transparent pointer-events-none"

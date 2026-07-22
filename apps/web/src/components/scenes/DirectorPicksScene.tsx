@@ -25,7 +25,7 @@ export default function DirectorPicksScene({ movies }: Props) {
   const picks = [...essentials, ...topRated].slice(0, 20);
 
   return (
-    <section ref={ref} className="relative overflow-hidden" style={{ paddingTop: "8vh", paddingBottom: "8vh", marginBottom: "6vh" }}>
+    <section ref={ref} className="relative overflow-hidden py-16 md:py-24">
       <div className="px-[5vw] mb-12 flex items-end justify-between">
         <div>
           <motion.span

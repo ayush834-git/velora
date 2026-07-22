@@ -27,8 +27,7 @@ export default function HowItWorksScene() {
   return (
     <section
       ref={ref}
-      className="relative px-[6vw] overflow-hidden"
-      style={{ paddingTop: "12vh", paddingBottom: "12vh" }}
+      className="relative px-[6vw] py-20 md:py-28 overflow-hidden"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(232,168,56,0.05),transparent_50%)] pointer-events-none z-0" />
 
@@ -37,7 +36,7 @@ export default function HowItWorksScene() {
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.5 }}
-          className="block text-[13px] tracking-[0.42em] uppercase text-golden-warm mb-20 text-center md:text-left"
+          className="block text-[13px] tracking-[0.42em] uppercase text-golden-warm mb-12 md:mb-16 text-center md:text-left"
         >
           The Ritual
         </motion.span>

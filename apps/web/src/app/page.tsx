@@ -149,7 +149,9 @@ export default function Home() {
           <CuratedScene movies={baseMovies} onMoodSelect={handleMoodSelect} />
           <DirectorPicksScene movies={baseMovies} />
           <SpinRitual movies={baseMovies} onResult={handleSpinResult} />
-          <ResultScene movie={chosenMovie} isTransitioning={isBannerTransitioning} onSpinAgain={handleSpinAgain} />
+          {chosenMovie && (
+            <ResultScene movie={chosenMovie} isTransitioning={isBannerTransitioning} onSpinAgain={handleSpinAgain} />
+          )}
           <GridScene
             movies={exploringMovies}
             isLoading={isLoadingMovies}

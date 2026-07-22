@@ -266,7 +266,7 @@ export default function MoodClockScene() {
   return (
     <section
       className="relative overflow-hidden flex items-center justify-center
-        px-[5vw] py-16 min-h-[85vh]"
+        px-[5vw] py-16 md:py-24"
     >
       {/* Film strip perforation columns — purely decorative */}
       {["left-0", "right-0"].map((side) => (
@@ -303,7 +303,7 @@ export default function MoodClockScene() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-15%" }}
           transition={{ duration: 0.55 }}
-          className="flex flex-col items-center mb-12 md:mb-16"
+          className="flex flex-col items-center mb-8 md:mb-12"
         >
           <span className="font-display text-[9px] tracking-[0.5em] uppercase text-golden/70 mb-3 border border-golden/20 px-4 py-1.5 rounded-full">
             Velora Cinema
@@ -322,7 +322,7 @@ export default function MoodClockScene() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: "-10%" }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-          className="flex items-center gap-3 md:gap-5 mb-16 md:mb-20"
+          className="flex items-center gap-3 md:gap-5 mb-10 md:mb-14"
         >
           {/* Hours */}
           <div className="flex flex-col items-center gap-2">

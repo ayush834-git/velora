@@ -24,7 +24,7 @@ export default function GridScene({
   return (
     <section
       ref={sectionRef}
-      className="scene relative py-20 md:py-28"
+      className="scene relative py-16 md:py-24"
       id="grid"
     >
 

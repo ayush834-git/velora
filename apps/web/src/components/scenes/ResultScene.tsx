@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useRef, useEffect, useState } from "react";
 import Image from "next/image";
@@ -108,7 +108,7 @@ export default function ResultScene({ movie, isTransitioning = false, onSpinAgai
   }, [filters, movie?.id, movie?.release_date, movie?.title]);
 
   return (
-    <section ref={sectionRef} id="movie-banner" className="scene relative min-h-[90vh] flex items-center overflow-hidden">
+    <section ref={sectionRef} id="movie-banner" className="scene relative py-16 md:py-24 flex items-center overflow-hidden">
       <div id="result" className="absolute top-0 left-0 h-px w-px" />
 
       {backdropSrc && (

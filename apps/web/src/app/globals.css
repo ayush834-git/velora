@@ -511,6 +511,6 @@ textarea {
 
 /* ─── Section Vertical Rhythm ────────────────────────────────────────────── */
 .velora-section {
-  padding-top: clamp(80px, 12vh, 140px);
-  padding-bottom: clamp(80px, 12vh, 140px);
+  padding-top: clamp(64px, 8vh, 112px);
+  padding-bottom: clamp(64px, 8vh, 112px);
 }

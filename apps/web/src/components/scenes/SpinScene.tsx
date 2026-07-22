@@ -55,7 +55,7 @@ export default function SpinScene({ movies, onResult }: SpinSceneProps) {
   return (
     <section
       ref={sectionRef}
-      className="scene relative min-h-screen flex items-center justify-center py-24"
+      className="scene relative py-20 md:py-28 flex items-center justify-center"
       id="spin"
     >
       {/* Background — warm gradient */}

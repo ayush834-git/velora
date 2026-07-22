@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useRef, useState, useEffect } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
@@ -27,7 +27,7 @@ export default function FooterScene() {
   return (
     <footer
       ref={sectionRef}
-      className="scene relative pt-40 pb-20 px-[5vw] min-h-[75svh] flex flex-col justify-end overflow-hidden border-t border-ink/10"
+      className="scene relative pt-20 md:pt-28 pb-12 md:pb-16 px-[5vw] overflow-hidden border-t border-ink/10"
       id="footer"
     >
       <motion.div

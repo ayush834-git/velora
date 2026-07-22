@@ -133,7 +133,7 @@ export default function SpinRitual({ movies, onResult }: SpinRitualProps) {
   }, []);
 
   return (
-    <section id="spin" className="scene relative min-h-screen flex items-center justify-center py-24">
+    <section id="spin" className="scene relative py-20 md:py-28 flex items-center justify-center">
       <div className="absolute inset-0 bg-gradient-to-b from-cream via-cream-warm to-cream" />
 
       <div className="relative z-10 w-full max-w-3xl mx-auto text-center px-6">
